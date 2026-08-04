@@ -19,6 +19,7 @@ type AdRow = {
   "Batch Name": string;
   "Target Audience": string;
   "Angle Type": AngleType;
+  "Baseline Design": string;
   "Pain / Desire": string;
   "Core Message": string;
   Hook: string;
@@ -27,6 +28,7 @@ type AdRow = {
   CTA: string;
   "Visual Direction": string;
   "Asset Needed": string;
+  "Asset Used": string;
   "Canva Layout Type": string;
   "Top Text": string;
   "Middle Text": string;
@@ -49,7 +51,11 @@ const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "R
 const allowedDriveFolders = proofDatabase.allowedDriveFolders;
 const proofOptions = proofDatabase.clients.map((client) => client.proofSummary);
 const conversionOptions = proofDatabase.conversionFiles.map((file) => `${file.title} (${file.type})`);
-const assetOptions = proofDatabase.assetFiles.map((file) => `${file.title} (${file.type})`);
+const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
+const baselineDesign = baselineAsset ? `${baselineAsset.title} (${baselineAsset.type})` : "Sample 1 (design sample)";
+const mixableAssetOptions = proofDatabase.assetFiles
+  .filter((file) => file.type !== "design sample")
+  .map((file) => `${file.title} (${file.type})`);
 const proofSourceOptions = [
   ...proofOptions.map((proof) => `Transcript: ${proof}`),
   ...conversionOptions.map((proof) => `Conversion: ${proof}`),
@@ -149,19 +155,22 @@ function buildRows({
   mainPromise,
   proofAvailable,
   visualMode,
-  selectedAsset,
+  selectedAssets,
   batchName,
   anglePlan,
+  baselineDesign,
 }: {
   audience: string;
   mainPromise: string;
   proofAvailable: string;
   visualMode: VisualMode;
-  selectedAsset: string;
+  selectedAssets: string[];
   batchName: string;
   anglePlan: AngleType[];
+  baselineDesign: string;
 }): AdRow[] {
   return anglePlan.map((angleType, index) => {
+    const assetForDesign = selectedAssets[index % selectedAssets.length] ?? "No checked Assets image";
     const angleIndex = anglePlan.slice(0, index + 1).filter((angle) => angle === angleType).length - 1;
     const prompt = promptBank[angleType][angleIndex] ?? promptBank[angleType][0];
     const layout = layoutByAngle[angleType][angleIndex % layoutByAngle[angleType].length];
@@ -175,22 +184,23 @@ function buildRows({
     const subhook = `Build a personal brand that attracts high-ticket clients without outsourcing your voice.`;
     const cta = "Join the masterclass";
     const topText = hook;
-    const middleText = angleType === "Proof / Result" ? proofAvailable : visualMode === "Use Assets image" ? selectedAsset : mainPromise;
+    const middleText = angleType === "Proof / Result" ? proofAvailable : visualMode === "Use Assets image" ? assetForDesign : mainPromise;
     const bottomText = `${cta}. Results vary.`;
+    const baselineInstruction = `Use ${baselineDesign} from Assets as the baseline structure: large headline, strong proof/image middle, clear interpretation, Radical Edge footer and CTA band.`;
     const visualDirection =
       angleType === "Proof / Result"
-        ? `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets with a redacted Conversion screenshot or transcript pull-quote.` : "Use a redacted Conversion screenshot, transcript pull-quote, or proof number as the middle evidence layer."}`
+        ? `${baselineInstruction} ${visualMode === "Use Assets image" ? `Rotate in ${assetForDesign} with a redacted Conversion screenshot or transcript pull-quote.` : "Use a redacted Conversion screenshot, transcript pull-quote, or proof number as the middle evidence layer."}`
         : angleType === "Mechanism / Framework"
-          ? `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets beside a simple 3-4 step framework.` : "Use a simple 3-4 step framework layout with one strong phrase per step."}`
+          ? `${baselineInstruction} ${visualMode === "Use Assets image" ? `Rotate in ${assetForDesign} beside a simple 3-4 step framework.` : "Use a simple 3-4 step framework layout with one strong phrase per step."}`
           : angleType === "Founder POV"
-            ? `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets with direct founder POV copy.` : "Use founder-led styling, direct POV headline, and minimal proof support."}`
-            : `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets as the visual anchor.` : "Use bold top text, one strong middle statement, and a clean CTA band."}`;
+            ? `${baselineInstruction} ${visualMode === "Use Assets image" ? `Rotate in ${assetForDesign} with direct founder POV copy.` : "Use founder-led styling, direct POV headline, and minimal proof support."}`
+            : `${baselineInstruction} ${visualMode === "Use Assets image" ? `Rotate in ${assetForDesign} as the visual anchor.` : "Use bold top text, one strong middle statement, and a clean CTA band."}`;
     const assetNeeded =
       visualMode === "Use Assets image"
-        ? `${selectedAsset} from Assets, plus proof from testimonial transcripts or Conversion where relevant.`
+        ? `${baselineDesign} baseline plus ${assetForDesign} from Assets. Use proof from testimonial transcripts or Conversion where relevant.`
         : angleType === "Proof / Result"
-          ? "Redacted proof screenshot from Conversion or approved pull-quote/number from testimonial transcripts."
-          : "No image required; use text-first Canva layout.";
+          ? `${baselineDesign} baseline plus redacted proof screenshot from Conversion or approved pull-quote/number from testimonial transcripts.`
+          : `${baselineDesign} baseline, no photo required; use text-first Canva layout.`;
 
     return {
       "Ad ID": id,
@@ -198,6 +208,7 @@ function buildRows({
       "Batch Name": batchName,
       "Target Audience": audience,
       "Angle Type": angleType,
+      "Baseline Design": baselineDesign,
       "Pain / Desire": prompt,
       "Core Message": mainPromise,
       Hook: hook,
@@ -206,6 +217,7 @@ function buildRows({
       CTA: cta,
       "Visual Direction": visualDirection,
       "Asset Needed": assetNeeded,
+      "Asset Used": visualMode === "Use Assets image" ? assetForDesign : "Text / proof only",
       "Canva Layout Type": layout,
       "Top Text": topText,
       "Middle Text": middleText,
@@ -220,7 +232,7 @@ function buildRows({
   });
 }
 
-function qaDesigns(designs: AdRow[], visualMode: VisualMode): QaResult[] {
+function qaDesigns(designs: AdRow[], visualMode: VisualMode, baselineDesign: string, selectedAssets: string[]): QaResult[] {
   return designs.map((design) => {
     const issues: string[] = [];
     const proofText = design["Proof / Evidence"];
@@ -232,6 +244,12 @@ function qaDesigns(designs: AdRow[], visualMode: VisualMode): QaResult[] {
     if (!design["Bottom Text"].includes("Results vary")) issues.push("Missing results disclaimer");
     if (!design["Visual Direction"].trim()) issues.push("Missing visual direction");
     if (!design["Asset Needed"].trim()) issues.push("Missing asset instruction");
+    if (!design["Baseline Design"].includes("Sample 1") && !/design sample/i.test(design["Baseline Design"])) {
+      issues.push("Baseline should come from the Assets design sample");
+    }
+    if (!design["Visual Direction"].includes(baselineDesign)) {
+      issues.push("Visual direction must reference the Sample 1 baseline");
+    }
     if (design["Top Text"].length > 120) issues.push("Top text may be too long for 1080 x 1350");
     if (middleText.length > 260) issues.push("Middle proof may need trimming in Canva");
     if (design["Angle Type"] === "Proof / Result" && !/Transcript|Conversion/i.test(proofText)) {
@@ -239,6 +257,9 @@ function qaDesigns(designs: AdRow[], visualMode: VisualMode): QaResult[] {
     }
     if (visualMode === "Use Assets image" && !/Assets/i.test(design["Asset Needed"])) {
       issues.push("Image-backed design must use Assets folder");
+    }
+    if (visualMode === "Use Assets image" && selectedAssets.length === 0) {
+      issues.push("Select at least one Assets image to rotate into the design");
     }
 
     return {
@@ -255,24 +276,44 @@ export default function Home() {
   const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
   const [proofAvailable, setProofAvailable] = useState(proofSourceOptions[0] ?? "");
   const [visualMode, setVisualMode] = useState<VisualMode>("Use Assets image");
-  const [selectedAsset, setSelectedAsset] = useState(assetOptions[0] ?? "Kevin 1 (founder image)");
+  const [selectedAssets, setSelectedAssets] = useState<string[]>(mixableAssetOptions);
   const [batchName, setBatchName] = useState("Masterclass Batch 01");
   const [batchMode, setBatchMode] = useState<BatchMode>("Balanced mix");
-  const [status, setStatus] = useState("Connected to a 20-page editable Canva design");
+  const [status, setStatus] = useState("Ready to generate from the Sample 1 baseline");
   const [syncedProofs, setSyncedProofs] = useState<string[]>(proofOptions);
   const [syncStatus, setSyncStatus] = useState("Not synced this session");
 
   const designs = useMemo(
-    () => buildRows({ audience, mainPromise, proofAvailable, visualMode, selectedAsset, batchName, anglePlan: anglePlans[batchMode] }),
-    [audience, mainPromise, proofAvailable, visualMode, selectedAsset, batchName, batchMode],
+    () => buildRows({ audience, mainPromise, proofAvailable, visualMode, selectedAssets, batchName, anglePlan: anglePlans[batchMode], baselineDesign }),
+    [audience, mainPromise, proofAvailable, visualMode, selectedAssets, batchName, batchMode],
   );
   const proofDropdownOptions = useMemo(() => {
     const syncedOptions = syncedProofs.map((proof) => `Transcript: ${proof}`);
     return Array.from(new Set([...proofSourceOptions, ...syncedOptions]));
   }, [syncedProofs]);
-  const qaResults = useMemo(() => qaDesigns(designs, visualMode), [designs, visualMode]);
+  const qaResults = useMemo(() => qaDesigns(designs, visualMode, baselineDesign, selectedAssets), [designs, visualMode, selectedAssets]);
   const qaIssues = qaResults.filter((result) => result.issues.length);
   const qaPassed = qaIssues.length === 0 && designs.length === 20;
+  const assetCoverage = useMemo(
+    () => selectedAssets.map((asset) => ({
+      asset,
+      count: designs.filter((design) => design["Asset Used"] === asset).length,
+    })),
+    [designs, selectedAssets],
+  );
+
+  function toggleAsset(asset: string) {
+    setSelectedAssets((current) => current.includes(asset) ? current.filter((item) => item !== asset) : [...current, asset]);
+  }
+
+  function generateCanvaDesign() {
+    if (qaPassed) {
+      setStatus(`Generated ${designs.length} checked design directions from ${baselineDesign}`);
+    } else {
+      setStatus(`Generated draft set with ${qaIssues.length} checks to fix before Canva polish`);
+    }
+    window.open(canvaDesignUrl, "_blank", "noopener,noreferrer");
+  }
 
   function copyCanvaBriefs() {
     const brief = designs.map((design) => [
@@ -283,6 +324,7 @@ export default function Home() {
       `Bottom: ${design["Bottom Text"]}`,
       `Visual: ${design["Visual Direction"]}`,
       `Asset: ${design["Asset Needed"]}`,
+      `Asset used: ${design["Asset Used"]}`,
       `CTA: ${design.CTA}`,
     ].join("\n")).join("\n\n---\n\n");
     navigator.clipboard?.writeText(brief);
@@ -386,11 +428,21 @@ export default function Home() {
 
           {visualMode === "Use Assets image" && (
             <>
-              <label htmlFor="asset">Asset from Drive</label>
-              <select id="asset" value={selectedAsset} onChange={(event) => setSelectedAsset(event.target.value)}>
-                {assetOptions.map((asset) => <option key={asset}>{asset}</option>)}
-              </select>
-              <span className="hint">Use images/design references from the Assets folder inside the Canva design.</span>
+              <div className="baseline-card">
+                <span>Baseline design</span>
+                <b>{baselineDesign}</b>
+                <p>All generated ads should borrow the structure from this sample, then rotate selected Assets into the visual slot.</p>
+              </div>
+              <label>Assets from Drive</label>
+              <div className="asset-checklist">
+                {mixableAssetOptions.map((asset) => (
+                  <label className="check-row" key={asset}>
+                    <input type="checkbox" checked={selectedAssets.includes(asset)} onChange={() => toggleAsset(asset)} />
+                    <span>{asset}</span>
+                  </label>
+                ))}
+              </div>
+              <span className="hint">Checked assets will be mixed across the 20 designs. Private Drive images may still need manual import into Canva if Canva cannot render them from the link.</span>
             </>
           )}
 
@@ -427,10 +479,18 @@ export default function Home() {
             ))}
           </div>
           <div className="actions-bar">
-            <a className="generate" href={canvaDesignUrl} target="_blank" rel="noreferrer">Open Canva design <span>→</span></a>
+            <button className="generate" onClick={generateCanvaDesign}>Generate Canva design <span>→</span></button>
+            <a className="secondary-action link-action" href={canvaDesignUrl} target="_blank" rel="noreferrer">Open Canva design</a>
             <button className="secondary-action" onClick={copyCanvaBriefs}>Copy 20 design briefs</button>
             <span>{status}</span>
           </div>
+          {visualMode === "Use Assets image" && (
+            <div className="asset-coverage">
+              {assetCoverage.map((item) => (
+                <span key={item.asset}><b>{item.count}</b> {item.asset}</span>
+              ))}
+            </div>
+          )}
 
           <div className="design-grid">
             {designs.map((design, index) => (
@@ -449,6 +509,7 @@ export default function Home() {
                   <strong>RADICAL EDGE</strong>
                 </div>
                 <p>{design["Visual Direction"]}</p>
+                <small className="asset-used">Asset: {design["Asset Used"]}</small>
                 <span className={qaResults[index].status === "Pass" ? "design-qa pass" : "design-qa check"}>
                   {qaResults[index].status === "Pass" ? "QA pass" : "Needs check"}
                 </span>
