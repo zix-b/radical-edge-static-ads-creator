@@ -130,16 +130,19 @@ function buildRows({
   batchName,
   selectedProofs,
   baselineDesign,
+  variantSeed,
 }: {
   audience: string;
   mainPromise: string;
   batchName: string;
   selectedProofs: ProofSource[];
   baselineDesign: string;
+  variantSeed: number;
 }): AdRow[] {
   return Array.from({ length: 20 }, (_, index) => {
-    const proofSource = selectedProofs[index % selectedProofs.length] ?? proofSources[0];
-    const layout = proofLayouts[index % proofLayouts.length];
+    const variantIndex = index + variantSeed;
+    const proofSource = selectedProofs[variantIndex % selectedProofs.length] ?? proofSources[0];
+    const layout = proofLayouts[variantIndex % proofLayouts.length];
     const id = `RE-${String(index + 1).padStart(2, "0")}`;
     const proofText = proofSource?.proof ?? "Select a proof source.";
     const hook = `${proofSource?.client ?? "Client"} proof ad`;
@@ -148,7 +151,7 @@ function buildRows({
     const topText = hook;
     const sourceType = proofSource?.sourceType ?? "Transcript";
     const proofLabel = sourceType === "Conversion" ? `Conversion proof ${String(index + 1).padStart(2, "0")}` : proofSource?.client ?? "Unassigned";
-    const fittedProofText = fitCopy(proofText, 150);
+    const fittedProofText = fitCopy(proofText, 120);
     const middleText = `${sourceType}: ${proofLabel}: ${fittedProofText}`;
     const bottomText = `${cta}. Results vary.`;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
@@ -205,7 +208,7 @@ function qaDesigns(designs: AdRow[], baselineDesign: string, selectedProofs: Pro
       issues.push("Visual direction must reference the Sample 1 baseline");
     }
     if (design["Top Text"].length > 120) issues.push("Top text may be too long for 1080 x 1350");
-    if (middleText.length > 260) issues.push("Middle proof may need trimming in Canva");
+    if (middleText.length > 260) issues.push("Generated proof copy was not auto-fitted");
     if (design["Angle Type"] === "Proof / Result" && !/Transcript|Conversion/i.test(proofText)) {
       issues.push("Proof ad must cite testimonial transcript or Conversion source");
     }
@@ -227,14 +230,15 @@ export default function Home() {
   const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(proofSources.map((source) => source.label));
   const [batchName, setBatchName] = useState("Masterclass Batch 01");
   const [status, setStatus] = useState("Ready to generate proof previews.");
+  const [variantSeed, setVariantSeed] = useState(0);
   const selectedProofs = useMemo(
     () => proofSources.filter((source) => selectedProofLabels.includes(source.label)),
     [selectedProofLabels],
   );
 
   const designs = useMemo(
-    () => buildRows({ audience, mainPromise, selectedProofs, batchName, baselineDesign }),
-    [audience, mainPromise, selectedProofs, batchName],
+    () => buildRows({ audience, mainPromise, selectedProofs, batchName, baselineDesign, variantSeed }),
+    [audience, mainPromise, selectedProofs, batchName, variantSeed],
   );
   const qaResults = useMemo(() => qaDesigns(designs, baselineDesign, selectedProofs), [designs, selectedProofs]);
   const qaIssues = qaResults.filter((result) => result.issues.length);
@@ -252,8 +256,9 @@ export default function Home() {
   }
 
   function generateProofPreviews() {
+    setVariantSeed((current) => current + 1);
     if (qaPassed) {
-      setStatus(`Generated ${designs.length} checked proof previews from ${baselineDesign}`);
+      setStatus(`Regenerated ${designs.length} checked proof previews from ${baselineDesign}`);
     } else {
       setStatus(`Regenerated with auto-fit copy. ${qaIssues.length} check${qaIssues.length === 1 ? "" : "s"} still need review.`);
     }
@@ -360,7 +365,7 @@ export default function Home() {
           <div className={qaPassed ? "qa-card pass" : "qa-card check"}>
             <div>
               <b>{qaPassed ? "QA passed" : "Needs design check"}</b>
-              <span>{qaPassed ? "20 / 20 designs have source, copy, CTA, disclaimer and visual direction." : `${qaIssues.length} design${qaIssues.length === 1 ? "" : "s"} need review before approval.`}</span>
+              <span>{qaPassed ? "20 / 20 designs have source, fitted copy, CTA, disclaimer and visual direction." : `${qaIssues.length} design${qaIssues.length === 1 ? "" : "s"} could not be auto-fitted. Regenerate or remove the longest proof source.`}</span>
             </div>
             <small>{qaPassed ? "Approved for Canva polish" : "Draft only"}</small>
           </div>
