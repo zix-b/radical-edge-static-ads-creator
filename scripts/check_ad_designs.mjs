@@ -4,12 +4,13 @@ import proofDatabase from "../content/proof-library.json" with { type: "json" };
 const angles = Array(20).fill("Proof / Result");
 
 const transcriptProofs = proofDatabase.clients.map((client) => `Transcript: ${client.proofSummary}`);
-const conversionProofs = proofDatabase.conversionFiles.map((file) => `Conversion: ${file.title} (${file.type})`);
+const conversionProofs = proofDatabase.conversionFiles.map((file) => `Conversion: ${file.summary ?? `${file.title} (${file.type})`}`);
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
 
 assert.equal(angles.length, 20, "Ad set must generate exactly 20 designs.");
 assert.ok(transcriptProofs.length > 0, "At least one testimonial transcript proof source is required.");
 assert.ok(conversionProofs.length > 0, "At least one Conversion proof source is required.");
+assert.ok(proofDatabase.conversionFiles.every((file) => file.summary && file.status), "Every Conversion proof source needs a summary and verification status.");
 assert.ok(baselineAsset, "A design sample baseline is required.");
 
 const checks = angles.map((angle, index) => {

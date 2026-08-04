@@ -21,24 +21,81 @@
   ],
   "conversionFiles": [
     {
+      "title": "Screenshot 2026-08-04 at 9.22.34 PM.png",
+      "fileId": "1DH3VMV3LnKjXY5peyIeFfvYT4CJ-0j4Z",
+      "type": "proof screenshot",
+      "summary": "Prospect said the call was super insightful and that sales training was more valuable because it contextualised sales for someone with a strong personal brand. Verify name, consent and attribution before publishing.",
+      "status": "Image read; verify attribution before publishing"
+    },
+    {
       "title": "Screenshot 2026-07-29 at 4.41.28 PM.png",
       "fileId": "1Ep7pFnUPySIeIgiZZc8oQVvj_avAhUCf",
-      "type": "proof screenshot"
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
     },
     {
       "title": "IMG_4286.PNG",
       "fileId": "18jwSkdvi8xcBU76gyh3OjNsPzxAXyLSA",
-      "type": "proof screenshot"
-    },
-    {
-      "title": "AD analytics summary.pdf",
-      "fileId": "1CBvN4HRUhyjDe3HcmHwogrncEEdR7Qpd",
-      "type": "analytics proof"
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
     },
     {
       "title": "Screenshot 2026-06-30 at 4.05.04 PM.png",
       "fileId": "1-V8J2SrtPf_Uqx5fjLFlZUXKKv3jUHZl",
-      "type": "proof screenshot"
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
+    },
+    {
+      "title": "Screenshot 2026-06-25 at 1.30.47 PM.png",
+      "fileId": "1BMndvzFSCUwUB-U0S6owy4jlZCfIGyWx",
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
+    },
+    {
+      "title": "Screenshot 2026-06-10 at 10.02.29 AM.png",
+      "fileId": "1nxPG4y_Fq0Zmp16bH8U9NOQgoZP8L3nw",
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
+    },
+    {
+      "title": "AD analytics summary.pdf",
+      "fileId": "1CBvN4HRUhyjDe3HcmHwogrncEEdR7Qpd",
+      "type": "analytics proof",
+      "summary": "Analytics proof from Drive. Verify metric definitions, date range and attribution before publishing.",
+      "status": "Needs image read / attribution check"
+    },
+    {
+      "title": "Screenshot 2026-06-02 at 11.50.26 AM.png",
+      "fileId": "1QBzZkd0dWPXt9JApQIhxVilJYW4FhhGG",
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
+    },
+    {
+      "title": "Screenshot 2026-05-28 at 10.12.02 AM.png",
+      "fileId": "1JgmM-ad_ydlXATMjyBeRqS0GKWUuPrq3",
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
+    },
+    {
+      "title": "Copy of Screenshot 2026-05-26 at 9.20.01 PM.png",
+      "fileId": "1x0NQAY1un166cZzjyajGFFGof4sExmIt",
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
+    },
+    {
+      "title": "Copy of 2026-05-27 10.27.56.jpg",
+      "fileId": "1FiLrHWtxmcD6P-57_GO2jhsi1zTCSICx",
+      "type": "proof screenshot",
+      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
+      "status": "Needs image read / attribution check"
     }
   ],
   "assetFiles": [
@@ -117,7 +174,11 @@
       "status": "Awaiting transcript approval",
       "proofSummary": "$30k+ closed from organic leads, including a fast $10k sales window. Verify exact wording, timeframe and attribution before publishing.",
       "suggestedFormat": "Result + proof stack",
-      "tags": ["revenue", "organic leads", "sales"]
+      "tags": [
+        "revenue",
+        "organic leads",
+        "sales"
+      ]
     },
     {
       "name": "Louisa",
@@ -125,7 +186,11 @@
       "status": "Awaiting transcript approval",
       "proofSummary": "1M views and 1,000 followers from 9 videos and 5 hours of shooting. Verify exact wording and context before publishing.",
       "suggestedFormat": "Analytics spotlight",
-      "tags": ["views", "authority", "organic"]
+      "tags": [
+        "views",
+        "authority",
+        "organic"
+      ]
     },
     {
       "name": "Jared",
@@ -133,7 +198,11 @@
       "status": "Awaiting transcript approval",
       "proofSummary": "Chosen over more established competitors after prospects consumed his content. Verify exact quote and attribution before publishing.",
       "suggestedFormat": "Pull-quote",
-      "tags": ["competition", "trust", "sales-call"]
+      "tags": [
+        "competition",
+        "trust",
+        "sales-call"
+      ]
     },
     {
       "name": "Edrick",
@@ -141,15 +210,24 @@
       "status": "Awaiting transcript approval",
       "proofSummary": "$50k+ bootcamp revenue and stronger recognition as a go-to authority. Verify exact wording, offer and timeframe before publishing.",
       "suggestedFormat": "Mini case study",
-      "tags": ["revenue", "authority", "education"]
+      "tags": [
+        "revenue",
+        "authority",
+        "education"
+      ]
     },
     {
       "name": "Melvin",
       "role": "Founder / expert",
-      "status": "Awaiting transcript approval",
-      "proofSummary": "Transcript pending. Use only after the claim, timeframe and attribution have been extracted.",
-      "suggestedFormat": "Message-first",
-      "tags": ["pending transcript"]
+      "status": "Transcript added; verify exact wording and attribution before publishing",
+      "proofSummary": "Client says Kev helped clarify the attractive character, content topics and video editing needed to get attention and create more leads. Verify exact pull-quote and attribution before publishing.",
+      "suggestedFormat": "Pull-quote",
+      "tags": [
+        "attention",
+        "attractive character",
+        "content strategy",
+        "leads"
+      ]
     },
     {
       "name": "Bernice",
@@ -157,7 +235,11 @@
       "status": "Awaiting transcript approval",
       "proofSummary": "1M+ monthly views and stronger parent/student trust before enquiry. Verify exact wording and revenue context before publishing.",
       "suggestedFormat": "Analytics spotlight",
-      "tags": ["views", "education", "trust"]
+      "tags": [
+        "views",
+        "education",
+        "trust"
+      ]
     },
     {
       "name": "Sandra",
@@ -165,7 +247,12 @@
       "status": "Transcript added; verify attribution before publishing",
       "proofSummary": "Close to 1M combined TikTok/Instagram views, around 2,500 followers, stronger recognition and enquiries for the centre. Verify exact wording and attribution before publishing.",
       "suggestedFormat": "Founder story + proof stack",
-      "tags": ["views", "followers", "enquiries", "education"]
+      "tags": [
+        "views",
+        "followers",
+        "enquiries",
+        "education"
+      ]
     },
     {
       "name": "Custom proof",
@@ -173,7 +260,9 @@
       "status": "Use when proof is not in the library yet",
       "proofSummary": "Paste the exact WhatsApp message, screenshot context or number you want to turn into an ad.",
       "suggestedFormat": "Result + proof stack",
-      "tags": ["manual"]
+      "tags": [
+        "manual"
+      ]
     }
   ]
 }

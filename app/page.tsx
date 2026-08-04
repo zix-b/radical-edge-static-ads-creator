@@ -9,6 +9,7 @@ type ProofSource = {
   client: string;
   proof: string;
   status: string;
+  sourceType: "Transcript" | "Conversion";
 };
 type QaResult = {
   adId: string;
@@ -50,11 +51,10 @@ const radicalEdgeVoice =
   "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
 
 const offer = "One-day Radical Edge masterclass";
-const canvaDesignUrl = process.env.NEXT_PUBLIC_CANVA_DESIGN_URL ?? "https://www.canva.com/d/N79ctvwCqtZze9Z";
+const canvaTemplateUrl = process.env.NEXT_PUBLIC_CANVA_TEMPLATE_URL ?? "https://www.canva.com/d/N79ctvwCqtZze9Z";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 
 const allowedDriveFolders = proofDatabase.allowedDriveFolders;
-const conversionOptions = proofDatabase.conversionFiles.map((file) => `${file.title} (${file.type})`);
 const testimonialSources: ProofSource[] = proofDatabase.clients
   .filter((client) => client.name !== "Custom proof")
   .map((client) => ({
@@ -62,13 +62,18 @@ const testimonialSources: ProofSource[] = proofDatabase.clients
     client: client.name,
     proof: client.proofSummary,
     status: client.status,
+    sourceType: "Transcript",
   }));
+const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file) => ({
+  label: `${file.title}: ${file.summary ?? `${file.title} (${file.type})`}`,
+  client: `Conversion: ${file.title}`,
+  proof: file.summary ?? `${file.title} (${file.type})`,
+  status: file.status ?? "Needs image read / attribution check",
+  sourceType: "Conversion",
+}));
+const proofSources = [...testimonialSources, ...conversionSources];
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
 const baselineDesign = baselineAsset ? `${baselineAsset.title} (${baselineAsset.type})` : "Sample 1 (design sample)";
-const proofSourceOptions = [
-  ...testimonialSources.map((source) => `Transcript: ${source.label}`),
-  ...conversionOptions.map((proof) => `Conversion: ${proof}`),
-];
 const proofLayouts = ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"];
 
 function buildSampleHeadline(design: AdRow) {
@@ -120,19 +125,20 @@ function buildRows({
   baselineDesign: string;
 }): AdRow[] {
   return Array.from({ length: 20 }, (_, index) => {
-    const proofSource = selectedProofs[index % selectedProofs.length] ?? testimonialSources[0];
+    const proofSource = selectedProofs[index % selectedProofs.length] ?? proofSources[0];
     const layout = proofLayouts[index % proofLayouts.length];
     const id = `RE-${String(index + 1).padStart(2, "0")}`;
-    const proofText = proofSource?.proof ?? "Select a testimonial proof source.";
+    const proofText = proofSource?.proof ?? "Select a proof source.";
     const hook = `${proofSource?.client ?? "Client"} proof ad`;
     const subhook = `Build a personal brand that attracts high-ticket clients without outsourcing your voice.`;
     const cta = "Join the masterclass";
     const topText = hook;
-    const middleText = `Transcript: ${proofSource?.client ?? "Unassigned"}: ${proofText}`;
+    const sourceType = proofSource?.sourceType ?? "Transcript";
+    const middleText = `${sourceType}: ${proofSource?.client ?? "Unassigned"}: ${proofText}`;
     const bottomText = `${cta}. Results vary.`;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
-    const visualDirection = `${baselineInstruction} Use ${proofSource?.client ?? "the selected testimonial"} proof as the main evidence. Do not use client or founder photos in this Canva draft.`;
-    const assetNeeded = `${baselineDesign} structure reference plus approved pull-quote/number from testimonial transcripts. No image asset required.`;
+    const visualDirection = `${baselineInstruction} Use ${proofSource?.client ?? "the selected proof source"} as the main evidence. Do not use client or founder photos in this Canva draft.`;
+    const assetNeeded = `${baselineDesign} structure reference plus approved pull-quote, number, WhatsApp screenshot or Conversion proof. No image asset required.`;
 
     return {
       "Ad ID": id,
@@ -158,9 +164,9 @@ function buildRows({
       "Meta Primary Text": `${hook}\n\n${subhook}\n\n${mainPromise}\n\n${cta}. Example only. Results vary.`,
       "Meta Headline": hook.length > 52 ? hook.slice(0, 49).trimEnd() + "..." : hook,
       "Meta Description": `${offer} for ${audience}.`,
-      Hypothesis: `If ${audience.toLowerCase()} trust ${proofSource?.client ?? "this testimonial"} proof, then this creative should improve qualified attention for the masterclass.`,
-      Status: proofSource?.status.includes("pending") ? "Verify proof" : "Ready for Canva",
-      Notes: `Canva page direction. Layout: ${layout}. Testimonial: ${proofSource?.client ?? "Unassigned"}.`,
+      Hypothesis: `If ${audience.toLowerCase()} trust ${proofSource?.client ?? "this proof source"}, then this creative should improve qualified attention for the masterclass.`,
+      Status: /pending|verify|needs/i.test(proofSource?.status ?? "") ? "Verify proof" : "Ready for Canva",
+      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofSource?.client ?? "Unassigned"}.`,
     };
   });
 }
@@ -189,7 +195,7 @@ function qaDesigns(designs: AdRow[], baselineDesign: string, selectedProofs: Pro
       issues.push("Proof ad must cite testimonial transcript or Conversion source");
     }
     if (selectedProofs.length === 0) {
-      issues.push("Select at least one testimonial for proof ads");
+      issues.push("Select at least one proof source for proof ads");
     }
     return {
       adId: design["Ad ID"],
@@ -203,13 +209,11 @@ function qaDesigns(designs: AdRow[], baselineDesign: string, selectedProofs: Pro
 export default function Home() {
   const [audience, setAudience] = useState("Founders");
   const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
-  const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(testimonialSources.map((source) => source.label));
+  const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(proofSources.map((source) => source.label));
   const [batchName, setBatchName] = useState("Masterclass Batch 01");
-  const [status, setStatus] = useState("Ready to generate from the Sample 1 baseline");
-  const [syncedProofs, setSyncedProofs] = useState<string[]>(testimonialSources.map((source) => source.proof));
-  const [syncStatus, setSyncStatus] = useState("Not synced this session");
+  const [status, setStatus] = useState("Ready to generate proof previews. Canva opens as a reference only.");
   const selectedProofs = useMemo(
-    () => testimonialSources.filter((source) => selectedProofLabels.includes(source.label)),
+    () => proofSources.filter((source) => selectedProofLabels.includes(source.label)),
     [selectedProofLabels],
   );
 
@@ -217,10 +221,6 @@ export default function Home() {
     () => buildRows({ audience, mainPromise, selectedProofs, batchName, baselineDesign }),
     [audience, mainPromise, selectedProofs, batchName],
   );
-  const proofDropdownOptions = useMemo(() => {
-    const syncedOptions = syncedProofs.map((proof) => `Transcript: ${proof}`);
-    return Array.from(new Set([...proofSourceOptions, ...syncedOptions]));
-  }, [syncedProofs]);
   const qaResults = useMemo(() => qaDesigns(designs, baselineDesign, selectedProofs), [designs, selectedProofs]);
   const qaIssues = qaResults.filter((result) => result.issues.length);
   const qaPassed = qaIssues.length === 0 && designs.length === 20;
@@ -236,13 +236,12 @@ export default function Home() {
     setSelectedProofLabels((current) => current.includes(label) ? current.filter((item) => item !== label) : [...current, label]);
   }
 
-  function generateCanvaDesign() {
+  function generateProofPreviews() {
     if (qaPassed) {
-      setStatus(`Generated ${designs.length} checked design directions from ${baselineDesign}`);
+      setStatus(`Generated ${designs.length} checked proof previews from ${baselineDesign}`);
     } else {
-      setStatus(`Generated draft set with ${qaIssues.length} checks to fix before Canva polish`);
+      setStatus(`Generated draft previews with ${qaIssues.length} checks to fix before Canva polish`);
     }
-    window.open(canvaDesignUrl, "_blank", "noopener,noreferrer");
   }
 
   async function copyText(text: string) {
@@ -279,30 +278,6 @@ export default function Home() {
     setStatus(copied ? "20 design briefs copied for Canva" : "Copy failed; select the briefs manually");
   }
 
-  async function syncTranscripts() {
-    setSyncStatus("Syncing Drive transcripts...");
-    try {
-      let synced: string[] = [];
-      const localResponse = await fetch("/api/sync-transcripts/").catch(() => undefined);
-      if (localResponse?.ok) {
-        const data = await localResponse.json();
-        synced = data.summaries ?? [];
-        if (data.mode === "local-proof-library") {
-          setSyncedProofs([]);
-          setSyncStatus(`Loaded ${synced.length} saved proof sources; live Drive auth is not configured`);
-        } else {
-          setSyncedProofs(synced);
-          setSyncStatus(`Synced ${synced.length} transcript files from Drive`);
-        }
-      } else {
-        const errorData = localResponse ? await localResponse.json().catch(() => undefined) : undefined;
-        throw new Error(errorData?.error ?? "Local transcript sync route is unavailable");
-      }
-    } catch (error) {
-      setSyncStatus(`Drive sync failed: ${error instanceof Error ? error.message : "unknown error"}`);
-    }
-  }
-
   return (
     <main>
       <header className="topbar">
@@ -337,25 +312,16 @@ export default function Home() {
           <label htmlFor="promise">Main promise</label>
           <textarea id="promise" rows={4} value={mainPromise} onChange={(event) => setMainPromise(event.target.value)} />
 
-          <label>Testimonials to use</label>
+          <label>Proof sources to use</label>
           <div className="testimonial-checklist">
-            {testimonialSources.map((source) => (
+            {proofSources.map((source) => (
               <label className="check-row proof-row" key={source.label}>
                 <input type="checkbox" checked={selectedProofLabels.includes(source.label)} onChange={() => toggleProof(source.label)} />
-                <span><b>{source.client}</b>{source.proof}</span>
+                <span><b>{source.sourceType}: {source.client}</b>{source.proof}</span>
               </label>
             ))}
           </div>
-          <span className="hint">Every generated ad is a proof ad and uses exactly one selected testimonial. Keep only the testimonials you want in this batch.</span>
-
-          <div className="sync-card">
-            <button className="secondary-form-action" onClick={syncTranscripts}>Sync testimonial transcripts from Drive</button>
-            <span>{syncStatus}</span>
-            <select value="" onChange={(event) => event.target.value && setStatus(`Selected proof reference: ${event.target.value.slice(0, 90)}`)}>
-              <option value="">Use proof source...</option>
-              {proofDropdownOptions.map((proof) => <option key={proof} value={proof}>{proof}</option>)}
-            </select>
-          </div>
+          <span className="hint">Every generated ad is a proof ad and uses exactly one selected proof source. Keep only the transcripts or Conversion screenshots you want in this batch.</span>
 
           <div className="baseline-card">
             <span>Baseline design</span>
@@ -375,7 +341,7 @@ export default function Home() {
         </aside>
 
         <section className="design-panel">
-          <div className="section-heading light"><span>02</span><h2>Canva design set</h2><small>{designs.length} designs</small></div>
+          <div className="section-heading light"><span>02</span><h2>Proof preview set</h2><small>{designs.length} designs</small></div>
           <div className={qaPassed ? "qa-card pass" : "qa-card check"}>
             <div>
               <b>{qaPassed ? "QA passed" : "Needs design check"}</b>
@@ -392,12 +358,12 @@ export default function Home() {
           )}
           <div className="batch-summary">
             <div><b>{designs.length}</b><span>Proof / Result Ads</span></div>
-            <div><b>{selectedProofs.length}</b><span>Testimonials In Rotation</span></div>
+            <div><b>{selectedProofs.length}</b><span>Proof Sources In Rotation</span></div>
             <div><b>0</b><span>Image Assets Required</span></div>
           </div>
           <div className="actions-bar">
-            <button className="generate" onClick={generateCanvaDesign}>Generate Canva design <span>→</span></button>
-            <a className="secondary-action link-action" href={canvaDesignUrl} target="_blank" rel="noreferrer">Open Canva design</a>
+            <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
+            <a className="secondary-action link-action" href={canvaTemplateUrl} target="_blank" rel="noreferrer">Open Canva reference</a>
             <button className="secondary-action" onClick={copyCanvaBriefs}>Copy 20 design briefs</button>
             <span>{status}</span>
           </div>

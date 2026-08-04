@@ -34,10 +34,6 @@ select:focus, textarea:focus, input:focus { box-shadow:0 0 0 3px var(--acid); }
 .mode-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 .mode-grid button { min-height:48px; border:1px solid var(--line); background:transparent; padding:11px 12px; text-align:left; font-size:12px; font-weight:900; }
 .mode-grid button:hover, .mode-grid button.active { background:var(--ink); color:white; border-color:var(--ink); }
-.sync-card { margin-top:14px; border:1px solid var(--line); background:#faf8f3; padding:14px; display:grid; gap:10px; }
-.sync-card span { color:var(--muted); font-size:11px; line-height:1.35; }
-.secondary-form-action { width:100%; padding:13px 14px; border:1px solid var(--ink); background:transparent; color:var(--ink); font-size:12px; font-weight:900; text-align:left; }
-.secondary-form-action:hover { background:var(--ink); color:white; }
 .baseline-card { margin-top:16px; border:1px solid var(--ink); background:#faf8f3; padding:14px; display:grid; gap:7px; }
 .baseline-card span { font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); }
 .baseline-card b { font-size:15px; line-height:1.25; }
