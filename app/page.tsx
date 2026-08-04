@@ -51,7 +51,6 @@ const radicalEdgeVoice =
   "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
 
 const offer = "One-day Radical Edge masterclass";
-const canvaTemplateUrl = process.env.NEXT_PUBLIC_CANVA_TEMPLATE_URL ?? "https://www.canva.com/d/N79ctvwCqtZze9Z";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 
 const allowedDriveFolders = proofDatabase.allowedDriveFolders;
@@ -97,6 +96,20 @@ function proofSnippet(proof: string) {
     .slice(0, 118);
 }
 
+function fitCopy(text: string, maxLength: number) {
+  const cleaned = text
+    .replace(/\s*Verify exact (wording|pull-quote).*$/i, "")
+    .replace(/\s*Read image\/OCR and verify exact wording.*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (cleaned.length <= maxLength) return cleaned;
+
+  const sliced = cleaned.slice(0, maxLength - 1);
+  const lastSpace = sliced.lastIndexOf(" ");
+  return `${sliced.slice(0, lastSpace > 60 ? lastSpace : maxLength - 1).trimEnd()}...`;
+}
+
 function buildProofLines(design: AdRow) {
   return [
     `${design["Proof Client"]} proof`,
@@ -134,7 +147,9 @@ function buildRows({
     const cta = "Join the masterclass";
     const topText = hook;
     const sourceType = proofSource?.sourceType ?? "Transcript";
-    const middleText = `${sourceType}: ${proofSource?.client ?? "Unassigned"}: ${proofText}`;
+    const proofLabel = sourceType === "Conversion" ? `Conversion proof ${String(index + 1).padStart(2, "0")}` : proofSource?.client ?? "Unassigned";
+    const fittedProofText = fitCopy(proofText, 150);
+    const middleText = `${sourceType}: ${proofLabel}: ${fittedProofText}`;
     const bottomText = `${cta}. Results vary.`;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
     const visualDirection = `${baselineInstruction} Use ${proofSource?.client ?? "the selected proof source"} as the main evidence. Do not use client or founder photos in this Canva draft.`;
@@ -146,9 +161,9 @@ function buildRows({
       "Batch Name": batchName,
       "Target Audience": audience,
       "Angle Type": "Proof / Result",
-      "Proof Client": proofSource?.client ?? "Unassigned",
+      "Proof Client": proofLabel,
       "Baseline Design": baselineDesign,
-      "Pain / Desire": proofText,
+      "Pain / Desire": fittedProofText,
       "Core Message": mainPromise,
       Hook: hook,
       Subhook: subhook,
@@ -166,7 +181,7 @@ function buildRows({
       "Meta Description": `${offer} for ${audience}.`,
       Hypothesis: `If ${audience.toLowerCase()} trust ${proofSource?.client ?? "this proof source"}, then this creative should improve qualified attention for the masterclass.`,
       Status: /pending|verify|needs/i.test(proofSource?.status ?? "") ? "Verify proof" : "Ready for Canva",
-      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofSource?.client ?? "Unassigned"}.`,
+      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofSource?.client ?? "Unassigned"}. Auto-fit copy before QA.`,
     };
   });
 }
@@ -211,7 +226,7 @@ export default function Home() {
   const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
   const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(proofSources.map((source) => source.label));
   const [batchName, setBatchName] = useState("Masterclass Batch 01");
-  const [status, setStatus] = useState("Ready to generate proof previews. Canva opens as a reference only.");
+  const [status, setStatus] = useState("Ready to generate proof previews.");
   const selectedProofs = useMemo(
     () => proofSources.filter((source) => selectedProofLabels.includes(source.label)),
     [selectedProofLabels],
@@ -227,7 +242,7 @@ export default function Home() {
   const proofCoverage = useMemo(
     () => selectedProofs.map((source) => ({
       client: source.client,
-      count: designs.filter((design) => design["Proof Client"] === source.client).length,
+      count: designs.filter((design) => design.Notes.includes(`Proof source: ${source.client}.`)).length,
     })),
     [designs, selectedProofs],
   );
@@ -240,7 +255,7 @@ export default function Home() {
     if (qaPassed) {
       setStatus(`Generated ${designs.length} checked proof previews from ${baselineDesign}`);
     } else {
-      setStatus(`Generated draft previews with ${qaIssues.length} checks to fix before Canva polish`);
+      setStatus(`Regenerated with auto-fit copy. ${qaIssues.length} check${qaIssues.length === 1 ? "" : "s"} still need review.`);
     }
   }
 
@@ -363,7 +378,6 @@ export default function Home() {
           </div>
           <div className="actions-bar">
             <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
-            <a className="secondary-action link-action" href={canvaTemplateUrl} target="_blank" rel="noreferrer">Open Canva reference</a>
             <button className="secondary-action" onClick={copyCanvaBriefs}>Copy 20 design briefs</button>
             <span>{status}</span>
           </div>

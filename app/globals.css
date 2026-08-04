@@ -65,13 +65,12 @@ select:focus, textarea:focus, input:focus { box-shadow:0 0 0 3px var(--acid); }
 .qa-issues { border:1px solid #5d574f; margin:-4px 0 14px; padding:12px 14px; display:grid; gap:8px; }
 .qa-issues p { margin:0; color:#f2efe8; font-size:12px; line-height:1.35; }
 .qa-issues b { color:#ff4d2e; }
-.actions-bar { display:grid; grid-template-columns:minmax(220px,320px) minmax(140px,190px) minmax(160px,220px) 1fr; gap:12px; align-items:center; margin-bottom:14px; }
+.actions-bar { display:grid; grid-template-columns:minmax(220px,320px) minmax(160px,220px) 1fr; gap:12px; align-items:center; margin-bottom:14px; }
 .actions-bar>span { color:#d8d4ca; font-size:12px; }
 .generate { width:100%; padding:16px 18px; border:1px solid var(--ink); background:var(--acid); color:var(--ink); font-weight:900; text-align:left; display:flex; justify-content:space-between; box-shadow:5px 5px 0 #000; text-decoration:none; }
 .generate:active { transform:translate(3px,3px); box-shadow:2px 2px 0 #000; }
 .secondary-action { width:100%; min-height:49px; padding:15px 16px; border:1px solid #5d574f; background:transparent; color:white; font-size:12px; font-weight:900; text-align:left; }
 .secondary-action:hover { background:white; color:var(--ink); }
-.link-action { display:flex; align-items:center; text-decoration:none; }
 .asset-coverage { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
 .asset-coverage span { border:1px solid #3d3a35; color:#d8d4ca; padding:8px 10px; font-size:11px; line-height:1.2; }
 .asset-coverage b { color:var(--acid); }
