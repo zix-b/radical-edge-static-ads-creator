@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import proofDatabase from "../content/proof-library.json";
 
@@ -243,6 +244,22 @@ export default function Home() {
   const qaResults = useMemo(() => qaDesigns(designs, baselineDesign, selectedProofs), [designs, selectedProofs]);
   const qaIssues = qaResults.filter((result) => result.issues.length);
   const qaPassed = qaIssues.length === 0 && designs.length === 20;
+  const selectedProofIndexes = useMemo(
+    () => selectedProofLabels
+      .map((label) => proofSources.findIndex((source) => source.label === label))
+      .filter((index) => index >= 0),
+    [selectedProofLabels],
+  );
+  const previewHref = {
+    pathname: "/canva-preview/",
+    query: {
+      audience,
+      promise: mainPromise,
+      batch: batchName,
+      seed: String(variantSeed),
+      proofs: selectedProofIndexes.join(","),
+    },
+  };
   const proofCoverage = useMemo(
     () => selectedProofs.map((source) => ({
       client: source.client,
@@ -262,40 +279,6 @@ export default function Home() {
     } else {
       setStatus(`Regenerated with auto-fit copy. ${qaIssues.length} check${qaIssues.length === 1 ? "" : "s"} still need review.`);
     }
-  }
-
-  async function copyText(text: string) {
-    try {
-      await navigator.clipboard?.writeText(text);
-      return true;
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      const copied = document.execCommand("copy");
-      textarea.remove();
-      return copied;
-    }
-  }
-
-  async function copyCanvaBriefs() {
-    const brief = designs.map((design) => [
-      `${design["Ad ID"]} - ${design["Canva Layout Type"]}`,
-      `Angle: ${design["Angle Type"]}`,
-      `Top: ${design["Top Text"]}`,
-      `Middle: ${design["Middle Text"]}`,
-      `Bottom: ${design["Bottom Text"]}`,
-      `Visual: ${design["Visual Direction"]}`,
-      `Asset: ${design["Asset Needed"]}`,
-      `Asset used: ${design["Asset Used"]}`,
-      `CTA: ${design.CTA}`,
-    ].join("\n")).join("\n\n---\n\n");
-    const copied = await copyText(brief);
-    setStatus(copied ? "20 design briefs copied for Canva" : "Copy failed; select the briefs manually");
   }
 
   return (
@@ -383,7 +366,7 @@ export default function Home() {
           </div>
           <div className="actions-bar">
             <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
-            <button className="secondary-action" onClick={copyCanvaBriefs}>Copy 20 design briefs</button>
+            <Link className="secondary-action link-action" href={previewHref} target="_blank">Open rendered cards</Link>
             <span>{status}</span>
           </div>
           <div className="asset-coverage proof-coverage">
