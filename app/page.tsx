@@ -293,13 +293,17 @@ export default function Home() {
       if (localResponse?.ok) {
         const data = await localResponse.json();
         synced = data.summaries ?? [];
+        if (data.mode === "local-proof-library") {
+          setSyncStatus(`Loaded ${synced.length} saved proof sources; live Drive auth is not configured`);
+        } else {
+          setSyncStatus(`Synced ${synced.length} transcript files from Drive`);
+        }
       } else {
         const errorData = localResponse ? await localResponse.json().catch(() => undefined) : undefined;
         throw new Error(errorData?.error ?? "Local transcript sync route is unavailable");
       }
       setSyncedProofs(synced);
       setProofAvailable(`Transcript: ${synced[0] ?? ""}`);
-      setSyncStatus(`Synced ${synced.length} transcript files from Drive`);
     } catch (error) {
       setSyncStatus(`Drive sync failed: ${error instanceof Error ? error.message : "unknown error"}`);
     }

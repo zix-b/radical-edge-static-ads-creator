@@ -23,13 +23,18 @@ export async function GET() {
   const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
 
   if (!bearerToken && !apiKey) {
-    return Response.json(
-      {
-        error: "Google Drive auth is not configured for the website runtime.",
-        required: "Set GOOGLE_DRIVE_BEARER_TOKEN for private/shared Drive files, or GOOGLE_DRIVE_API_KEY for public files.",
-      },
-      { status: 501 },
-    );
+    const summaries = proofDatabase.clients.map((client) => (
+      `${client.name}: ${client.proofSummary}`
+    ));
+
+    return Response.json({
+      syncedAt: new Date().toISOString(),
+      mode: "local-proof-library",
+      count: summaries.length,
+      transcripts: [],
+      summaries,
+      warning: "Google Drive auth is not configured, so the app used the checked-in proof library instead of live Drive transcripts.",
+    });
   }
 
   const transcripts = await Promise.all(
