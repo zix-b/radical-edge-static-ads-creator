@@ -53,9 +53,8 @@ const proofOptions = proofDatabase.clients.map((client) => client.proofSummary);
 const conversionOptions = proofDatabase.conversionFiles.map((file) => `${file.title} (${file.type})`);
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
 const baselineDesign = baselineAsset ? `${baselineAsset.title} (${baselineAsset.type})` : "Sample 1 (design sample)";
-const mixableAssetOptions = proofDatabase.assetFiles
-  .filter((file) => file.type !== "design sample")
-  .map((file) => `${file.title} (${file.type})`);
+const mixableAssetFiles = proofDatabase.assetFiles.filter((file) => file.type !== "design sample");
+const mixableAssetOptions = mixableAssetFiles.map((file) => `${file.title} (${file.type})`);
 const proofSourceOptions = [
   ...proofOptions.map((proof) => `Transcript: ${proof}`),
   ...conversionOptions.map((proof) => `Conversion: ${proof}`),
@@ -149,6 +148,104 @@ const promptBank: Record<AngleType, string[]> = {
   "Mechanism / Framework": mechanismPrompts,
   "Founder POV": founderPrompts,
 };
+
+function assetImageUrl(asset: string) {
+  const assetFile = mixableAssetFiles.find((file) => `${file.title} (${file.type})` === asset);
+  if (!assetFile) return "";
+  if (assetFile.title.startsWith("Kevin")) return "/sample-assets/kevin-reference.png";
+  return `https://drive.google.com/thumbnail?id=${assetFile.fileId}&sz=w900`;
+}
+
+function buildSampleHeadline(design: AdRow) {
+  if (design["Angle Type"] === "Proof / Result") {
+    const proofText = proofSnippet(design["Middle Text"]);
+    const hasRevenue = /\$|closed|revenue/i.test(proofText);
+    const hasViews = /views|followers/i.test(proofText);
+    return {
+      highlight: hasRevenue ? "$10K+ CLOSED" : hasViews ? "1M+ VIEWS" : "RESULTS LIKE THIS",
+      lineOne: hasRevenue ? "from organic demand" : hasViews ? "from authority content" : "come from authority",
+      lineTwo: "not cold chasing",
+    };
+  }
+  if (design["Angle Type"] === "Contrarian Belief") {
+    return {
+      highlight: "STOP POSTING",
+      lineOne: "like another expert",
+      lineTwo: "in a crowded feed",
+    };
+  }
+  if (design["Angle Type"] === "Mechanism / Framework") {
+    return {
+      highlight: "THE SYSTEM",
+      lineOne: "behind inbound",
+      lineTwo: "high-ticket demand",
+    };
+  }
+  if (design["Angle Type"] === "Founder POV") {
+    return {
+      highlight: "BECOME",
+      lineOne: "the person prospects",
+      lineTwo: "already trust",
+    };
+  }
+  return {
+    highlight: "IF THEY DON'T",
+    lineOne: "remember you",
+    lineTwo: "they won't buy",
+  };
+}
+
+function proofSnippet(proof: string) {
+  return proof
+    .replace(/^Transcript:\s*/i, "")
+    .replace(/^Conversion:\s*/i, "")
+    .replace(/\s*Verify exact wording.*$/i, "")
+    .slice(0, 118);
+}
+
+function buildProofLines(design: AdRow) {
+  if (design["Angle Type"] === "Proof / Result") {
+    return [
+      "Guys I just broke a PB",
+      proofSnippet(design["Middle Text"]) || "Proof from testimonial transcript",
+      "A few more pending payments and it'll clear",
+    ];
+  }
+  if (design["Angle Type"] === "Contrarian Belief") {
+    return [
+      "Not more content",
+      "A sharper point of view",
+      "So prospects arrive already sold on you",
+    ];
+  }
+  if (design["Angle Type"] === "Mechanism / Framework") {
+    return [
+      "Identity",
+      "Content proof",
+      "Conversion into booked calls",
+    ];
+  }
+  if (design["Angle Type"] === "Founder POV") {
+    return [
+      "Founder-led voice",
+      "Not generic agency content",
+      "Build trust before the sales call",
+    ];
+  }
+  return [
+    "Prospect sees your content",
+    "They understand why you're different",
+    "They come in warmer before the call",
+  ];
+}
+
+function bottomClaim(design: AdRow) {
+  if (design["Angle Type"] === "Proof / Result") return "Turn proof into demand";
+  if (design["Angle Type"] === "Contrarian Belief") return "Stop blending in online";
+  if (design["Angle Type"] === "Mechanism / Framework") return "Build the system behind demand";
+  if (design["Angle Type"] === "Founder POV") return "Make your voice the asset";
+  return "Get prospects that come to you";
+}
 
 function buildRows({
   audience,
@@ -315,7 +412,25 @@ export default function Home() {
     window.open(canvaDesignUrl, "_blank", "noopener,noreferrer");
   }
 
-  function copyCanvaBriefs() {
+  async function copyText(text: string) {
+    try {
+      await navigator.clipboard?.writeText(text);
+      return true;
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      return copied;
+    }
+  }
+
+  async function copyCanvaBriefs() {
     const brief = designs.map((design) => [
       `${design["Ad ID"]} - ${design["Canva Layout Type"]}`,
       `Angle: ${design["Angle Type"]}`,
@@ -327,8 +442,8 @@ export default function Home() {
       `Asset used: ${design["Asset Used"]}`,
       `CTA: ${design.CTA}`,
     ].join("\n")).join("\n\n---\n\n");
-    navigator.clipboard?.writeText(brief);
-    setStatus("20 design briefs copied for Canva");
+    const copied = await copyText(brief);
+    setStatus(copied ? "20 design briefs copied for Canva" : "Copy failed; select the briefs manually");
   }
 
   async function syncTranscripts() {
@@ -493,20 +608,38 @@ export default function Home() {
           )}
 
           <div className="design-grid">
-            {designs.map((design, index) => (
+            {designs.map((design, index) => {
+              const headline = buildSampleHeadline(design);
+              const imageUrl = assetImageUrl(design["Asset Used"]);
+              return (
               <article className={`design-card design-${(index % 5) + 1}`} key={design["Ad ID"]}>
                 <div className="design-meta">
                   <span>{design["Ad ID"]}</span>
                   <b>{design["Canva Layout Type"]}</b>
                 </div>
                 <div className="mock-static-ad">
+                  <div className="sample-noise" />
                   <small>{design["Angle Type"]}</small>
-                  <h3>{design["Top Text"]}</h3>
+                  <h3>
+                    <span>{headline.highlight}</span>
+                    {headline.lineOne}
+                    <em>{headline.lineTwo}</em>
+                  </h3>
+                  {visualMode === "Use Assets image" && (
+                    <div className="person-slot" aria-label={design["Asset Used"]}>
+                      {/* Plain img keeps the static export simple for local reference assets and optional Drive thumbnails. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {imageUrl && <img src={imageUrl} alt="" onError={(event) => { event.currentTarget.hidden = true; }} />}
+                    </div>
+                  )}
                   <div className="proof-slot">
-                    <span>{design["Middle Text"]}</span>
+                    {buildProofLines(design).map((line) => <span className="proof-line" key={line}>{line}</span>)}
                   </div>
-                  <p>{design["Bottom Text"]}</p>
-                  <strong>RADICAL EDGE</strong>
+                  <div className="sample-bottom">
+                    <p>{bottomClaim(design)} <span>already convinced</span></p>
+                    <i />
+                    <strong>Learn how this happened inside the one-day masterclass</strong>
+                  </div>
                 </div>
                 <p>{design["Visual Direction"]}</p>
                 <small className="asset-used">Asset: {design["Asset Used"]}</small>
@@ -514,7 +647,7 @@ export default function Home() {
                   {qaResults[index].status === "Pass" ? "QA pass" : "Needs check"}
                 </span>
               </article>
-            ))}
+            );})}
           </div>
         </section>
       </section>
