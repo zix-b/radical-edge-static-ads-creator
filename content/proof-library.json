@@ -1,0 +1,179 @@
+{
+  "allowedDriveFolders": [
+    {
+      "label": "Conversion",
+      "url": "https://drive.google.com/drive/folders/16tRdjt1kGrQeNxvJUFX_VdDIBd-MqyIL"
+    },
+    {
+      "label": "testimonial transcripts",
+      "url": "https://drive.google.com/drive/folders/13lsQaVxxCYK18LgRUxH7OHCM74y5wJ1w"
+    },
+    {
+      "label": "Assets",
+      "url": "https://drive.google.com/drive/folders/1pt53DqqH5zh_uo4HbePsAW-0Dbippe7j"
+    }
+  ],
+  "referenceLinks": [
+    {
+      "label": "Testimonial slide deck",
+      "url": "https://docs.google.com/presentation/d/1LQ_37EJTo3TwLT4wMLLJMUKa4jIh5M43Itq6gEqiCkE/edit?slide=id.g3d6f4f10856_3_5#slide=id.g3d6f4f10856_3_5"
+    }
+  ],
+  "conversionFiles": [
+    {
+      "title": "Screenshot 2026-07-29 at 4.41.28 PM.png",
+      "fileId": "1Ep7pFnUPySIeIgiZZc8oQVvj_avAhUCf",
+      "type": "proof screenshot"
+    },
+    {
+      "title": "IMG_4286.PNG",
+      "fileId": "18jwSkdvi8xcBU76gyh3OjNsPzxAXyLSA",
+      "type": "proof screenshot"
+    },
+    {
+      "title": "AD analytics summary.pdf",
+      "fileId": "1CBvN4HRUhyjDe3HcmHwogrncEEdR7Qpd",
+      "type": "analytics proof"
+    },
+    {
+      "title": "Screenshot 2026-06-30 at 4.05.04 PM.png",
+      "fileId": "1-V8J2SrtPf_Uqx5fjLFlZUXKKv3jUHZl",
+      "type": "proof screenshot"
+    }
+  ],
+  "assetFiles": [
+    {
+      "title": "Kevin 1",
+      "fileId": "16Zr2C_7aLupRRCzogcz_5q3oL2d9scGg",
+      "type": "founder image"
+    },
+    {
+      "title": "Kevin 2",
+      "fileId": "1Vmp1xiFZOQjXDQuix0tFIw6pCdhj54V1",
+      "type": "founder image"
+    },
+    {
+      "title": "Kevin 3",
+      "fileId": "1uuqNwEPAFay-qEkdw3GRsXG-xkDD8JT2",
+      "type": "founder image"
+    },
+    {
+      "title": "Sample 1",
+      "fileId": "1oX24viKALEqKoQjrujS8PQQqs0YJVgty",
+      "type": "design sample"
+    }
+  ],
+  "transcriptFiles": [
+    {
+      "client": "Sandra",
+      "title": "Sandra",
+      "fileId": "1_86mXR3KFu1u3kq8lOnhOpgQPOcnGd3P"
+    },
+    {
+      "client": "Melvin",
+      "title": "Melvin",
+      "fileId": "14ZAblkuzjvQkgkq68THfzXgm7-4i8t_v"
+    },
+    {
+      "client": "Jared",
+      "title": "jared",
+      "fileId": "1RlJSBMFxQZTDltEoDS6mkcN0e70D79Fh"
+    },
+    {
+      "client": "Hakim",
+      "title": "hakim",
+      "fileId": "1pncp10tKw9Di2clgTk_26Q_tPdaWIZKo"
+    },
+    {
+      "client": "Edrick",
+      "title": "Edrick 2",
+      "fileId": "1qyIXrmrYaIkLbUbmTJsFBaW4iqrD0aIX"
+    },
+    {
+      "client": "Edrick",
+      "title": "Edrick",
+      "fileId": "1Q6y2ef3hzfS8Y6xyHc34Hhz8AGXcTTN1"
+    },
+    {
+      "client": "Louisa",
+      "title": "Louisa",
+      "fileId": "1sO1gOypm7XRwri0SttDFmLWZh1-J6D_T"
+    },
+    {
+      "client": "Hakim",
+      "title": "Hakim 30k mo",
+      "fileId": "1x6mDlWzr8cVVTqlSZWquL6C-2Ga9ucSv"
+    },
+    {
+      "client": "Bernice",
+      "title": "bernice",
+      "fileId": "1Dt_3RmITxSB7jBGK2u4W5UFYlob2OfXO"
+    }
+  ],
+  "clients": [
+    {
+      "name": "Hakim",
+      "role": "Education / expert business",
+      "status": "Awaiting transcript approval",
+      "proofSummary": "$30k+ closed from organic leads, including a fast $10k sales window. Verify exact wording, timeframe and attribution before publishing.",
+      "suggestedFormat": "Result + proof stack",
+      "tags": ["revenue", "organic leads", "sales"]
+    },
+    {
+      "name": "Louisa",
+      "role": "Education / founder-led offer",
+      "status": "Awaiting transcript approval",
+      "proofSummary": "1M views and 1,000 followers from 9 videos and 5 hours of shooting. Verify exact wording and context before publishing.",
+      "suggestedFormat": "Analytics spotlight",
+      "tags": ["views", "authority", "organic"]
+    },
+    {
+      "name": "Jared",
+      "role": "Agent / adviser",
+      "status": "Awaiting transcript approval",
+      "proofSummary": "Chosen over more established competitors after prospects consumed his content. Verify exact quote and attribution before publishing.",
+      "suggestedFormat": "Pull-quote",
+      "tags": ["competition", "trust", "sales-call"]
+    },
+    {
+      "name": "Edrick",
+      "role": "Finance / education",
+      "status": "Awaiting transcript approval",
+      "proofSummary": "$50k+ bootcamp revenue and stronger recognition as a go-to authority. Verify exact wording, offer and timeframe before publishing.",
+      "suggestedFormat": "Mini case study",
+      "tags": ["revenue", "authority", "education"]
+    },
+    {
+      "name": "Melvin",
+      "role": "Founder / expert",
+      "status": "Awaiting transcript approval",
+      "proofSummary": "Transcript pending. Use only after the claim, timeframe and attribution have been extracted.",
+      "suggestedFormat": "Message-first",
+      "tags": ["pending transcript"]
+    },
+    {
+      "name": "Bernice",
+      "role": "Education / centre owner",
+      "status": "Awaiting transcript approval",
+      "proofSummary": "1M+ monthly views and stronger parent/student trust before enquiry. Verify exact wording and revenue context before publishing.",
+      "suggestedFormat": "Analytics spotlight",
+      "tags": ["views", "education", "trust"]
+    },
+    {
+      "name": "Sandra",
+      "role": "Education / centre owner",
+      "status": "Transcript added; verify attribution before publishing",
+      "proofSummary": "Close to 1M combined TikTok/Instagram views, around 2,500 followers, stronger recognition and enquiries for the centre. Verify exact wording and attribution before publishing.",
+      "suggestedFormat": "Founder story + proof stack",
+      "tags": ["views", "followers", "enquiries", "education"]
+    },
+    {
+      "name": "Custom proof",
+      "role": "Manual entry",
+      "status": "Use when proof is not in the library yet",
+      "proofSummary": "Paste the exact WhatsApp message, screenshot context or number you want to turn into an ad.",
+      "suggestedFormat": "Result + proof stack",
+      "tags": ["manual"]
+    }
+  ]
+}

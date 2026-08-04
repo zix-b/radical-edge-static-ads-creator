@@ -7,15 +7,19 @@ Primary asset folder: https://drive.google.com/drive/folders/1x2r2lrmiKXyLn8Vcew
 
 ## Drive folders
 
-- Primary testimonial folder: https://drive.google.com/drive/folders/1x2r2lrmiKXyLn8Vcewwz-OwLs5OKagb7
-- Testimonial transcripts folder: https://drive.google.com/drive/folders/13lsQaVxxCYK18LgRUxH7OHCM74y5wJ1w
-- Video/photo testimonials folder: https://drive.google.com/drive/folders/1yYj9iYS9jKGm1lvSXkec_f1NHL0Fq_dO
-- Personal Testimonial folder: https://drive.google.com/drive/folders/11tnHTnswirTbZ6zHMshiuub_odx8LtYC
-- Landscape Raw Testimonials folder: https://drive.google.com/drive/folders/10GazIyLKvWcuYjBxeFaOA_QGRtXfOk6W
-- Conversion folder: https://drive.google.com/drive/folders/16tRdjt1kGrQeNxvJUFX_VdDIBd-MqyIL
-- BnA folder: https://drive.google.com/drive/folders/1FjzMj_d-yKIm8GtVGDHalCOtc-H6gQqc
+The ad creator should only use these Drive folders:
 
-The testimonial transcripts folder was checked on 3 August 2026 and is currently empty.
+- Conversion: https://drive.google.com/drive/folders/16tRdjt1kGrQeNxvJUFX_VdDIBd-MqyIL
+- testimonial transcripts: https://drive.google.com/drive/folders/13lsQaVxxCYK18LgRUxH7OHCM74y5wJ1w
+- Assets: https://drive.google.com/drive/folders/1pt53DqqH5zh_uo4HbePsAW-0Dbippe7j
+
+Other folders in the parent Drive directory are intentionally excluded from the app-facing proof database unless Radical Edge explicitly moves approved material into one of the three folders above.
+
+The testimonial transcripts folder was checked on 4 August 2026 and contains text transcripts for Hakim, Hakim 30k mo, Louisa, Jared, Edrick, Edrick 2, Bernice, and Melvin.
+
+## Reference links
+
+- Testimonial slide deck: https://docs.google.com/presentation/d/1LQ_37EJTo3TwLT4wMLLJMUKa4jIh5M43Itq6gEqiCkE/edit?slide=id.g3d6f4f10856_3_5#slide=id.g3d6f4f10856_3_5
 
 ## Status key
 
@@ -30,8 +34,7 @@ The testimonial transcripts folder was checked on 3 August 2026 and is currently
 **Known proof hook:** “30k month” (from source filename; verify against transcript before use)  
 **Source assets:**
 
-- [hakim 30k month.MOV](https://drive.google.com/file/d/1nlHYeP54-j8YScFn3cfDIRnPIcTz2fOw/view)
-- [Copy of Hakim testimonial](https://drive.google.com/file/d/1U1udp7jSirkue8VhvvAnjWxEdpiSWUXr/view)
+Use only approved material placed under `Conversion`, `testimonial transcripts`, or `Assets`.
 
 ### Verbatim transcript
 
@@ -52,7 +55,7 @@ _Pending verification._
 **Status:** AWAITING TRANSCRIPT  
 **Source assets:**
 
-- [louisa video.mov](https://drive.google.com/file/d/1eHmbV-rg90xQqCH_-KadPQIrvLG-T2pC/view)
+Use only approved material placed under `Conversion`, `testimonial transcripts`, or `Assets`.
 
 ### Verbatim transcript
 
@@ -73,8 +76,7 @@ _Pending verification._
 **Status:** AWAITING TRANSCRIPT  
 **Source assets:**
 
-- [jared full testimonial.MOV](https://drive.google.com/file/d/134FNOlZj8MZpHVnRwqNop0Qavcpn2QWk/view)
-- [Jared testimonial.mov](https://drive.google.com/file/d/1WFtGXNgmLGaq8ukf13SSs6T4pO2P7mos/view)
+Use only approved material placed under `Conversion`, `testimonial transcripts`, or `Assets`.
 
 ### Verbatim transcript
 
@@ -95,10 +97,7 @@ _Pending verification._
 **Status:** AWAITING TRANSCRIPT  
 **Source assets:**
 
-- [Edrick testimonial.mov](https://drive.google.com/file/d/1znLxQ880RtvnjdmvhaqGv_Ibyp6gTtRg/view)
-- [Edricks Testimonial (1).mp4](https://drive.google.com/file/d/1luL9kcZ_9O1uPJpq4WAUuGt9a1dUWWv8/view)
-- [Edrick_.mov](https://drive.google.com/file/d/1XLUz_cuZR7dmPjYe_ozuu2wPyfkQTSgK/view)
-- [Edricks Testimonial.mp4](https://drive.google.com/file/d/1JpIrFrIE-3-9a_CMk-sbqX_MRI6_qZP8/view)
+Use only approved material placed under `Conversion`, `testimonial transcripts`, or `Assets`.
 
 ### Verbatim transcript
 
@@ -119,7 +118,7 @@ _Pending verification._
 **Status:** AWAITING TRANSCRIPT  
 **Source assets:**
 
-- [Melvin_.mov](https://drive.google.com/file/d/12Br_-Gt1h0FljEQUcX4TWUI48f1vHdAP/view)
+Use only approved material placed under `Conversion`, `testimonial transcripts`, or `Assets`.
 
 ### Verbatim transcript
 
@@ -140,9 +139,7 @@ _Pending verification._
 **Status:** AWAITING TRANSCRIPT  
 **Source assets:**
 
-- [Bernice Short Form 2.mp4](https://drive.google.com/file/d/1ObJseVufMpOilL53WyKSulfpji_a6a0y/view)
-- [Bernice short form_.mp4](https://drive.google.com/file/d/1HoJ_8kycgiV0TqZSCdCEwcU4ZhE8phRQ/view)
-- [Bernice_.mov](https://drive.google.com/file/d/1HvbKc1VKK_8rMoKpqyKWGsMGpuH6wbl8/view)
+Use only approved material placed under `Conversion`, `testimonial transcripts`, or `Assets`.
 
 ### Verbatim transcript
 
@@ -162,10 +159,7 @@ _Pending verification._
 
 These assets need a client name or context before they can be safely used.
 
-- [TESTIMONIALS COMPILATION_1.mp4](https://drive.google.com/file/d/1LRcV12MrldP4KECN-SOIOsc9nWiPjPr0/view)
-- [IMG_3190.MOV](https://drive.google.com/file/d/1dg6tTwKbGq51hHEOicCC42ZMiowdBNPj/view)
-- [IMG_8730.MP4](https://drive.google.com/file/d/1NEYe_QE8mQA2r8nT4yKg8u2e03R7SFEo/view)
-- [copy_688A2185-0309-4614-A3ED-218DA9D11097.mov](https://drive.google.com/file/d/1j_1yPelMWLfkA7U7w6u9X5qeyA-Uc0cp/view)
+Do not use unassigned assets in ads until they are moved into `Conversion`, `testimonial transcripts`, or `Assets` with clear client context.
 
 ## Transcript intake template
 

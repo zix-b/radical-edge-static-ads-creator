@@ -1,139 +1,314 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import proofDatabase from "../content/proof-library.json";
 
-type AdFormat = "Result + proof stack" | "Message-first" | "Pull-quote" | "Analytics spotlight" | "Before → after" | "Mini case study";
+type AngleType = "Pain / Problem" | "Contrarian Belief" | "Proof / Result" | "Mechanism / Framework" | "Founder POV";
+type BatchMode = "Balanced mix" | "Proof-heavy" | "Pain-heavy" | "Contrarian-heavy" | "Mechanism-heavy";
+type VisualMode = "Use Assets image" | "Text / proof only";
+type QaResult = {
+  adId: string;
+  label: string;
+  status: "Pass" | "Check";
+  issues: string[];
+};
 
-type AdTemplate = {
-  name: AdFormat;
-  note: string;
-  angle: string;
-  headline: string;
-  support: string;
-  interpretation: string;
-  asset: string;
-  layout: string;
-  variants: string[];
+type AdRow = {
+  "Ad ID": string;
+  "Campaign Name": string;
+  "Batch Name": string;
+  "Target Audience": string;
+  "Angle Type": AngleType;
+  "Pain / Desire": string;
+  "Core Message": string;
+  Hook: string;
+  Subhook: string;
+  "Proof / Evidence": string;
+  CTA: string;
+  "Visual Direction": string;
+  "Asset Needed": string;
+  "Canva Layout Type": string;
+  "Top Text": string;
+  "Middle Text": string;
+  "Bottom Text": string;
+  "Meta Primary Text": string;
+  "Meta Headline": string;
+  "Meta Description": string;
+  Hypothesis: string;
+  Status: string;
+  Notes: string;
 };
 
 const radicalEdgeVoice =
-  "Radical Edge turns heart-and-hunger agents, educators, founders and experts into irreplaceable, heart-led symbols that inspire respect, loyalty and sales without outsourcing their voice to a soulless agency.";
+  "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
 
-const adTemplates: AdTemplate[] = [
-  {
-    name: "Result + proof stack",
-    note: "Default · supplied Canva reference",
-    angle: "Specific commercial proof, framed as a signal of authority",
-    headline: "$10,000 closed in 2 days from organic leads",
-    support: "When the market trusts your ideas before the call, sales conversations start warmer.",
-    interpretation: "This is what content looks like when it builds recognition, trust and demand.",
-    asset: "A WhatsApp message, screenshot or numeric proof asset showing the result. Redact names, phone numbers, private notes and financial details that should not be public.",
-    layout: "Top 20%: oversized result headline. Middle 55%: WhatsApp screenshot or numeric proof in the supplied Canva reference style. Bottom 25%: interpretation, 1-day masterclass CTA and result disclaimer.",
-    variants: [
-      "$10,000 closed in 2 days from organic leads",
-      "The lead did not need convincing. The content already did the work.",
-      "A warm sales conversation starts before the first call.",
-    ],
-  },
-  {
-    name: "Message-first",
-    note: "Evidence dominates the frame",
-    angle: "Inbound demand shown through the actual message",
-    headline: "“I’ve been following your content for months.”",
-    support: "The strongest proof is often the way prospects describe why they came in already convinced.",
-    interpretation: "Your content should make your expertise feel familiar before someone enquires.",
-    asset: "A large WhatsApp, DM or email screenshot showing inbound buying language. Keep the message readable, but redact all private identity details.",
-    layout: "Top 18%: short recognition or inbound headline. Middle 62%: one large message screenshot. Bottom 20%: what the message proves and the masterclass CTA.",
-    variants: [
-      "The enquiry arrived already convinced.",
-      "This is what pre-sold attention sounds like.",
-      "Your next lead should already know why you matter.",
-    ],
-  },
-  {
-    name: "Pull-quote",
-    note: "Exact words create credibility",
-    angle: "A client or prospect quote proves the positioning landed",
-    headline: "“I already knew you were the person to speak to.”",
-    support: "Authority is not just reach. It is being recognised as the obvious choice by the right people.",
-    interpretation: "The goal is not louder content. It is becoming unmistakably you in the market.",
-    asset: "An approved quote from a WhatsApp message, transcript or testimonial screenshot. Use first name only or anonymise unless attribution is approved.",
-    layout: "Top 35%: exact quote in large type. Middle 40%: supporting screenshot, transcript excerpt or numeric context. Bottom 25%: mechanism, CTA and result disclaimer.",
-    variants: [
-      "“I already knew you were the person to speak to.”",
-      "The right content makes you easier to choose.",
-      "Recognition is when the sale starts before the call.",
-    ],
-  },
-  {
-    name: "Analytics spotlight",
-    note: "One meaningful number",
-    angle: "A metric becomes proof only when tied to commercial demand",
-    headline: "1M views from 9 videos is not the whole story",
-    support: "The useful question is whether the right people started trusting, remembering and enquiring.",
-    interpretation: "Reach matters when it turns your expertise into a recognisable buying signal.",
-    asset: "A cropped analytics screenshot or numeric result. Highlight one number only: views, reach, saves, profile visits, replies, leads or sales attribution.",
-    layout: "Top 22%: one metric plus business relevance. Middle 53%: tightly cropped analytics proof. Bottom 25%: why the metric mattered and the masterclass CTA.",
-    variants: [
-      "1M views from 9 videos is not the whole story",
-      "Views only matter when buyers start paying attention.",
-      "The metric is reach. The win is recognition.",
-    ],
-  },
-  {
-    name: "Before → after",
-    note: "Transformation sequence",
-    angle: "A clear shift from invisible expert to recognised authority",
-    headline: "From posting to be seen to being remembered by buyers",
-    support: "Most experts do not need more content. They need a sharper identity, clearer proof and a system that turns attention into demand.",
-    interpretation: "Radical Edge builds the content engine around the person, not around generic agency templates.",
-    asset: "Before-and-after numbers, screenshots or message proof. Include timeframe only when it is known and approved.",
-    layout: "Top 18%: transformation headline. Middle 57%: before, shift and after sequence with evidence. Bottom 25%: system change, CTA and disclaimer.",
-    variants: [
-      "From invisible expert to recognisable authority.",
-      "The shift was not more posting. It was sharper positioning.",
-      "When your edge becomes clear, the right people remember you.",
-    ],
-  },
-  {
-    name: "Mini case study",
-    note: "Context + mechanism",
-    angle: "A compact proof story with enough context to stay credible",
-    headline: "How content turned attention into qualified conversations",
-    support: "The result matters. The mechanism matters more: positioning, proof, repeated ideas and conversion paths.",
-    interpretation: "See the system behind results like this in the 1-day Radical Edge masterclass.",
-    asset: "A screenshot or numeric proof asset supported by starting point, intervention, result and context. Do not infer claims from filenames.",
-    layout: "Top 20%: client category and observable result. Middle 55%: starting point, intervention, outcome and proof snippet. Bottom 25%: how this happened, CTA and disclaimer.",
-    variants: [
-      "How content turned attention into qualified conversations",
-      "The result is visible. The system is what made it repeatable.",
-      "A clear edge turns proof into demand.",
-    ],
-  },
+const offer = "One-day Radical Edge masterclass";
+const canvaDesignUrl = process.env.NEXT_PUBLIC_CANVA_DESIGN_URL ?? "https://www.canva.com/d/N79ctvwCqtZze9Z";
+const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
+
+const allowedDriveFolders = proofDatabase.allowedDriveFolders;
+const proofOptions = proofDatabase.clients.map((client) => client.proofSummary);
+const conversionOptions = proofDatabase.conversionFiles.map((file) => `${file.title} (${file.type})`);
+const assetOptions = proofDatabase.assetFiles.map((file) => `${file.title} (${file.type})`);
+const proofSourceOptions = [
+  ...proofOptions.map((proof) => `Transcript: ${proof}`),
+  ...conversionOptions.map((proof) => `Conversion: ${proof}`),
 ];
 
-function copyText(text: string) {
-  navigator.clipboard?.writeText(text);
+const anglePlans: Record<BatchMode, AngleType[]> = {
+  "Balanced mix": [
+  ...Array<AngleType>(5).fill("Pain / Problem"),
+  ...Array<AngleType>(5).fill("Contrarian Belief"),
+  ...Array<AngleType>(5).fill("Proof / Result"),
+  ...Array<AngleType>(3).fill("Mechanism / Framework"),
+  ...Array<AngleType>(2).fill("Founder POV"),
+  ],
+  "Proof-heavy": [
+    ...Array<AngleType>(3).fill("Pain / Problem"),
+    ...Array<AngleType>(3).fill("Contrarian Belief"),
+    ...Array<AngleType>(10).fill("Proof / Result"),
+    ...Array<AngleType>(2).fill("Mechanism / Framework"),
+    ...Array<AngleType>(2).fill("Founder POV"),
+  ],
+  "Pain-heavy": [
+    ...Array<AngleType>(10).fill("Pain / Problem"),
+    ...Array<AngleType>(3).fill("Contrarian Belief"),
+    ...Array<AngleType>(3).fill("Proof / Result"),
+    ...Array<AngleType>(2).fill("Mechanism / Framework"),
+    ...Array<AngleType>(2).fill("Founder POV"),
+  ],
+  "Contrarian-heavy": [
+    ...Array<AngleType>(3).fill("Pain / Problem"),
+    ...Array<AngleType>(10).fill("Contrarian Belief"),
+    ...Array<AngleType>(3).fill("Proof / Result"),
+    ...Array<AngleType>(2).fill("Mechanism / Framework"),
+    ...Array<AngleType>(2).fill("Founder POV"),
+  ],
+  "Mechanism-heavy": [
+    ...Array<AngleType>(3).fill("Pain / Problem"),
+    ...Array<AngleType>(3).fill("Contrarian Belief"),
+    ...Array<AngleType>(4).fill("Proof / Result"),
+    ...Array<AngleType>(8).fill("Mechanism / Framework"),
+    ...Array<AngleType>(2).fill("Founder POV"),
+  ],
+};
+
+const layoutByAngle: Record<AngleType, string[]> = {
+  "Pain / Problem": ["Problem / Solution", "Checklist", "Big Claim + Small Proof", "Message Screenshot", "Before / After"],
+  "Contrarian Belief": ["Myth vs Truth", "Big Claim + Small Proof", "Quote Card", "Problem / Solution", "Founder POV"],
+  "Proof / Result": ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"],
+  "Mechanism / Framework": ["Framework Diagram", "Checklist", "Problem / Solution"],
+  "Founder POV": ["Founder POV", "Quote Card"],
+};
+
+const painPrompts = [
+  "Your content sounds competent, but forgettable.",
+  "You are good at what you do, but the market does not remember you yet.",
+  "Posting more will not fix a weak point of view.",
+  "Your best prospects still need too much convincing before the call.",
+  "You are outsourcing content, but losing the voice that makes people trust you.",
+];
+
+const contrarianPrompts = [
+  "The goal is not to go viral. The goal is to become the obvious choice.",
+  "A content agency cannot manufacture your conviction for you.",
+  "More content is not the same as more demand.",
+  "A personal brand is not aesthetics. It is repeated trust.",
+  "If your content could come from anyone, it will convert like everyone else.",
+];
+
+const proofPrompts = [
+  "Proof that content can pre-sell before the first call.",
+  "Proof that recognition compounds when the message is sharp.",
+  "Proof that the right audience can arrive already convinced.",
+  "Proof that views matter only when they create commercial conversations.",
+  "Proof that authority makes selling feel less like chasing.",
+];
+
+const mechanismPrompts = [
+  "The Radical Edge system: identity, content, proof, conversion.",
+  "Turn attention into demand by giving every post a commercial job.",
+  "Build a content engine around the person, not around generic templates.",
+];
+
+const founderPrompts = [
+  "Kevin’s POV: the market does not need another polished expert. It needs a recognisable one.",
+  "Radical Edge exists because soulless content makes strong founders look average.",
+];
+
+const promptBank: Record<AngleType, string[]> = {
+  "Pain / Problem": painPrompts,
+  "Contrarian Belief": contrarianPrompts,
+  "Proof / Result": proofPrompts,
+  "Mechanism / Framework": mechanismPrompts,
+  "Founder POV": founderPrompts,
+};
+
+function buildRows({
+  audience,
+  mainPromise,
+  proofAvailable,
+  visualMode,
+  selectedAsset,
+  batchName,
+  anglePlan,
+}: {
+  audience: string;
+  mainPromise: string;
+  proofAvailable: string;
+  visualMode: VisualMode;
+  selectedAsset: string;
+  batchName: string;
+  anglePlan: AngleType[];
+}): AdRow[] {
+  return anglePlan.map((angleType, index) => {
+    const angleIndex = anglePlan.slice(0, index + 1).filter((angle) => angle === angleType).length - 1;
+    const prompt = promptBank[angleType][angleIndex] ?? promptBank[angleType][0];
+    const layout = layoutByAngle[angleType][angleIndex % layoutByAngle[angleType].length];
+    const id = `RE-${String(index + 1).padStart(2, "0")}`;
+    const hook =
+      angleType === "Proof / Result"
+        ? prompt
+        : angleType === "Contrarian Belief"
+          ? prompt
+          : `${audience}: ${prompt}`;
+    const subhook = `Build a personal brand that attracts high-ticket clients without outsourcing your voice.`;
+    const cta = "Join the masterclass";
+    const topText = hook;
+    const middleText = angleType === "Proof / Result" ? proofAvailable : visualMode === "Use Assets image" ? selectedAsset : mainPromise;
+    const bottomText = `${cta}. Results vary.`;
+    const visualDirection =
+      angleType === "Proof / Result"
+        ? `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets with a redacted Conversion screenshot or transcript pull-quote.` : "Use a redacted Conversion screenshot, transcript pull-quote, or proof number as the middle evidence layer."}`
+        : angleType === "Mechanism / Framework"
+          ? `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets beside a simple 3-4 step framework.` : "Use a simple 3-4 step framework layout with one strong phrase per step."}`
+          : angleType === "Founder POV"
+            ? `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets with direct founder POV copy.` : "Use founder-led styling, direct POV headline, and minimal proof support."}`
+            : `${visualMode === "Use Assets image" ? `Use ${selectedAsset} from Assets as the visual anchor.` : "Use bold top text, one strong middle statement, and a clean CTA band."}`;
+    const assetNeeded =
+      visualMode === "Use Assets image"
+        ? `${selectedAsset} from Assets, plus proof from testimonial transcripts or Conversion where relevant.`
+        : angleType === "Proof / Result"
+          ? "Redacted proof screenshot from Conversion or approved pull-quote/number from testimonial transcripts."
+          : "No image required; use text-first Canva layout.";
+
+    return {
+      "Ad ID": id,
+      "Campaign Name": `Masterclass - ${audience}`,
+      "Batch Name": batchName,
+      "Target Audience": audience,
+      "Angle Type": angleType,
+      "Pain / Desire": prompt,
+      "Core Message": mainPromise,
+      Hook: hook,
+      Subhook: subhook,
+      "Proof / Evidence": angleType === "Proof / Result" ? proofAvailable : "Support with transcript or Conversion proof only if available.",
+      CTA: cta,
+      "Visual Direction": visualDirection,
+      "Asset Needed": assetNeeded,
+      "Canva Layout Type": layout,
+      "Top Text": topText,
+      "Middle Text": middleText,
+      "Bottom Text": bottomText,
+      "Meta Primary Text": `${hook}\n\n${subhook}\n\n${mainPromise}\n\n${cta}. Example only. Results vary.`,
+      "Meta Headline": hook.length > 52 ? hook.slice(0, 49).trimEnd() + "..." : hook,
+      "Meta Description": `${offer} for ${audience}.`,
+      Hypothesis: `If ${audience.toLowerCase()} resonate with the ${angleType.toLowerCase()} angle, then this creative should improve qualified attention for the masterclass.`,
+      Status: angleType === "Proof / Result" ? "Needs proof" : "Ready for Canva",
+      Notes: `Canva page direction. Layout: ${layout}.`,
+    };
+  });
+}
+
+function qaDesigns(designs: AdRow[], visualMode: VisualMode): QaResult[] {
+  return designs.map((design) => {
+    const issues: string[] = [];
+    const proofText = design["Proof / Evidence"];
+    const middleText = design["Middle Text"];
+
+    if (!design["Top Text"].trim()) issues.push("Missing top text");
+    if (!middleText.trim()) issues.push("Missing middle proof/message");
+    if (!design["Bottom Text"].includes("Join the masterclass")) issues.push("Missing masterclass CTA");
+    if (!design["Bottom Text"].includes("Results vary")) issues.push("Missing results disclaimer");
+    if (!design["Visual Direction"].trim()) issues.push("Missing visual direction");
+    if (!design["Asset Needed"].trim()) issues.push("Missing asset instruction");
+    if (design["Top Text"].length > 120) issues.push("Top text may be too long for 1080 x 1350");
+    if (middleText.length > 260) issues.push("Middle proof may need trimming in Canva");
+    if (design["Angle Type"] === "Proof / Result" && !/Transcript|Conversion/i.test(proofText)) {
+      issues.push("Proof ad must cite testimonial transcript or Conversion source");
+    }
+    if (visualMode === "Use Assets image" && !/Assets/i.test(design["Asset Needed"])) {
+      issues.push("Image-backed design must use Assets folder");
+    }
+
+    return {
+      adId: design["Ad ID"],
+      label: design["Canva Layout Type"],
+      status: issues.length ? "Check" : "Pass",
+      issues,
+    };
+  });
 }
 
 export default function Home() {
-  const [adFormat, setAdFormat] = useState<AdFormat>("Result + proof stack");
-  const [audience, setAudience] = useState("Founders & experts");
-  const [proofDetail, setProofDetail] = useState("An inbound lead said they had followed the content for months before reaching out.");
+  const [audience, setAudience] = useState("Founders");
+  const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
+  const [proofAvailable, setProofAvailable] = useState(proofSourceOptions[0] ?? "");
+  const [visualMode, setVisualMode] = useState<VisualMode>("Use Assets image");
+  const [selectedAsset, setSelectedAsset] = useState(assetOptions[0] ?? "Kevin 1 (founder image)");
+  const [batchName, setBatchName] = useState("Masterclass Batch 01");
+  const [batchMode, setBatchMode] = useState<BatchMode>("Balanced mix");
+  const [status, setStatus] = useState("Connected to a 20-page editable Canva design");
+  const [syncedProofs, setSyncedProofs] = useState<string[]>(proofOptions);
+  const [syncStatus, setSyncStatus] = useState("Not synced this session");
 
-  const concept = useMemo(() => {
-    const template = adTemplates.find((item) => item.name === adFormat) ?? adTemplates[0];
-    const cta = "Join the 1-day Radical Edge masterclass";
-    const caption = `${proofDetail}\n\nThat is the difference between posting for visibility and becoming a recognised authority people already trust.\n\n${radicalEdgeVoice}\n\nAt the 1-day Radical Edge masterclass, we break down the system behind results like this: how to crystallise your point of view, turn proof into demand and convert attention into qualified conversations.\n\nFor ${audience.toLowerCase()} in Singapore. Results vary; this is an example, not a promise of identical outcomes.\n\n${cta}.`;
-    return {
-      ...template,
-      cta,
-      caption,
-      ctas: [cta, "See the system behind this", "Build authority that creates inbound demand"],
-    };
-  }, [adFormat, audience, proofDetail]);
+  const designs = useMemo(
+    () => buildRows({ audience, mainPromise, proofAvailable, visualMode, selectedAsset, batchName, anglePlan: anglePlans[batchMode] }),
+    [audience, mainPromise, proofAvailable, visualMode, selectedAsset, batchName, batchMode],
+  );
+  const qaResults = useMemo(() => qaDesigns(designs, visualMode), [designs, visualMode]);
+  const qaIssues = qaResults.filter((result) => result.issues.length);
+  const qaPassed = qaIssues.length === 0 && designs.length === 20;
 
-  const fullOutput = `AD FORMAT\n${adFormat}\n\nRADICAL EDGE VOICE LAYER\n${radicalEdgeVoice}\n\nAD ANGLE\n${concept.angle}\n\nMAIN HEADLINE\n${concept.headline}\n\nSUPPORTING LINE\n${concept.support}\n\nCTA\n${concept.cta}\n\nVISUAL LAYOUT\n${concept.layout} 1080×1350, generous margins, high contrast.\n\nPROOF ASSET NEEDED\n${concept.asset}\n\nCAPTION\n${concept.caption}\n\nHEADLINE VARIANTS\n${concept.variants.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\nCTA VARIANTS\n${concept.ctas.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\nWHY IT SHOULD WORK\nIt leads with proof, interprets the evidence through Radical Edge’s heart-led authority positioning, avoids identical-result promises, and invites a Singapore-based expert audience to learn the underlying system.`;
+  function copyCanvaBriefs() {
+    const brief = designs.map((design) => [
+      `${design["Ad ID"]} - ${design["Canva Layout Type"]}`,
+      `Angle: ${design["Angle Type"]}`,
+      `Top: ${design["Top Text"]}`,
+      `Middle: ${design["Middle Text"]}`,
+      `Bottom: ${design["Bottom Text"]}`,
+      `Visual: ${design["Visual Direction"]}`,
+      `Asset: ${design["Asset Needed"]}`,
+      `CTA: ${design.CTA}`,
+    ].join("\n")).join("\n\n---\n\n");
+    navigator.clipboard?.writeText(brief);
+    setStatus("20 design briefs copied for Canva");
+  }
+
+  async function syncTranscripts() {
+    setSyncStatus("Syncing Drive transcripts...");
+    try {
+      let synced: string[] = [];
+      const localResponse = await fetch("/api/sync-transcripts/").catch(() => undefined);
+      if (localResponse?.ok) {
+        const data = await localResponse.json();
+        synced = data.summaries ?? [];
+      } else {
+        const errorData = localResponse ? await localResponse.json().catch(() => undefined) : undefined;
+        throw new Error(errorData?.error ?? "Local transcript sync route is unavailable");
+      }
+      setSyncedProofs(synced);
+      setProofAvailable(`Transcript: ${synced[0] ?? ""}`);
+      setSyncStatus(`Synced ${synced.length} transcript files from Drive`);
+    } catch (error) {
+      setSyncStatus(`Drive sync failed: ${error instanceof Error ? error.message : "unknown error"}`);
+    }
+  }
+
+  const counts = designs.reduce<Record<string, number>>((acc, design) => {
+    acc[design["Angle Type"]] = (acc[design["Angle Type"]] ?? 0) + 1;
+    return acc;
+  }, {});
 
   return (
     <main>
@@ -142,98 +317,140 @@ export default function Home() {
           <span className="brand-mark">R/</span>
           <span>RADICAL EDGE</span>
         </a>
-        <span className="product-label">STATIC ADS CREATOR</span>
+        <span className="product-label">ADS BATCH CREATOR</span>
       </header>
 
-      <section className="hero" id="top">
-        <div>
-          <span className="eyebrow">PROOF, MADE IMPOSSIBLE TO IGNORE.</span>
-          <h1>Turn real proof into<br /><em>high-converting ads.</em></h1>
-        </div>
-        <p>Generate premium, direct Meta ad concepts for the 1-day Radical Edge masterclass. Built for 1080×1350. Ready for Canva.</p>
+      <section className="hero compact" id="top">
+        <p>Use this to create structured Meta static ad variations fast, then polish the winners manually in Canva.</p>
       </section>
 
-      <section className="studio">
+      <section className="batch-studio">
         <aside className="brief-panel">
-          <div className="section-heading"><span>01</span><h2>Build the brief</h2></div>
+          <div className="section-heading"><span>01</span><h2>Batch brief</h2></div>
 
-          <label>Reusable ad format</label>
-          <div className="format-grid">
-            {adTemplates.map((format) => (
-              <button
-                className={adFormat === format.name ? "active" : ""}
-                onClick={() => setAdFormat(format.name)}
-                key={format.name}
-              >
-                <strong>{format.name}</strong>
-                <span>{format.note}</span>
+          <div className="fixed-offer">
+            <span>Offer</span>
+            <b>{offer}</b>
+          </div>
+
+          <label htmlFor="audience">Audience</label>
+          <select id="audience" value={audience} onChange={(event) => setAudience(event.target.value)}>
+            {audiences.map((item) => <option key={item}>{item}</option>)}
+          </select>
+
+          <label htmlFor="batch">Batch name</label>
+          <input id="batch" value={batchName} onChange={(event) => setBatchName(event.target.value)} />
+
+          <label>Ad concept focus</label>
+          <div className="mode-grid">
+            {(Object.keys(anglePlans) as BatchMode[]).map((mode) => (
+              <button className={batchMode === mode ? "active" : ""} key={mode} onClick={() => setBatchMode(mode)}>
+                {mode}
               </button>
             ))}
           </div>
 
-          <label htmlFor="audience">Audience</label>
-          <select id="audience" value={audience} onChange={(e) => setAudience(e.target.value)}>
-            <option>Founders & experts</option><option>Coaches & educators</option><option>Advisers & agents</option><option>All authority-led businesses</option>
-          </select>
+          <label htmlFor="promise">Main promise</label>
+          <textarea id="promise" rows={4} value={mainPromise} onChange={(event) => setMainPromise(event.target.value)} />
 
-          <label htmlFor="proof">What does the proof show?</label>
-          <textarea id="proof" rows={5} value={proofDetail} onChange={(e) => setProofDetail(e.target.value)} />
-          <span className="hint">Use WhatsApp messages, screenshots or numbers. Remove names or sensitive details.</span>
+          <label htmlFor="proof">Proof source</label>
+          <textarea id="proof" rows={5} value={proofAvailable} onChange={(event) => setProofAvailable(event.target.value)} />
+          <span className="hint">Generate testimonials from a mix of testimonial transcripts and Conversion proof. Assets are for visuals, with or without an image.</span>
 
-          <div className="voice-card">
-            <b>Permanent voice layer</b>
-            <p>{radicalEdgeVoice}</p>
+          <div className="sync-card">
+            <button className="secondary-form-action" onClick={syncTranscripts}>Sync testimonial transcripts from Drive</button>
+            <span>{syncStatus}</span>
+            <select value="" onChange={(event) => event.target.value && setProofAvailable(event.target.value)}>
+              <option value="">Use proof source...</option>
+              {proofSourceOptions.map((proof) => <option key={proof} value={proof}>{proof}</option>)}
+              {syncedProofs.map((proof) => <option key={proof} value={`Transcript: ${proof}`}>{`Transcript: ${proof}`}</option>)}
+            </select>
           </div>
 
-          <button className="generate" onClick={() => copyText(fullOutput)}>Copy selected ad concept <span>↗</span></button>
-          <p className="guardrail">No identical-result promises. No client photos unless provided.</p>
+          <label>Canva visual</label>
+          <div className="mode-grid">
+            {(["Use Assets image", "Text / proof only"] as VisualMode[]).map((mode) => (
+              <button className={visualMode === mode ? "active" : ""} key={mode} onClick={() => setVisualMode(mode)}>
+                {mode}
+              </button>
+            ))}
+          </div>
+
+          {visualMode === "Use Assets image" && (
+            <>
+              <label htmlFor="asset">Asset from Drive</label>
+              <select id="asset" value={selectedAsset} onChange={(event) => setSelectedAsset(event.target.value)}>
+                {assetOptions.map((asset) => <option key={asset}>{asset}</option>)}
+              </select>
+              <span className="hint">Use images/design references from the Assets folder inside the Canva design.</span>
+            </>
+          )}
+
+          <div className="source-card">
+            <b>Allowed Drive sources</b>
+            <p>The generator should only reference approved material from these folders.</p>
+            <ul>
+              {allowedDriveFolders.map((folder) => (
+                <li key={folder.url}><a href={folder.url} target="_blank" rel="noreferrer">{folder.label}</a></li>
+              ))}
+            </ul>
+          </div>
         </aside>
 
-        <div className="canvas-panel">
-          <div className="section-heading light"><span>02</span><h2>Canva-ready preview</h2><small>1080 × 1350</small></div>
-          <div className="ad-shell">
-            <div className="ad-card">
-              <div className="ad-top">
-                <span className="ad-kicker">{adFormat.toUpperCase()} / PROOF AD</span>
-                <h3>{concept.headline}</h3>
-              </div>
-              <div className="proof-window">
-                <div className="proof-chrome"><i></i><i></i><i></i><span>PROOF ASSET</span></div>
-                <div className="blur-line wide"></div><div className="blur-line"></div><div className="blur-line short"></div>
-                <p>{proofDetail}</p>
-                <div className="redaction"></div>
-              </div>
-              <div className="ad-bottom">
-                <p>{concept.interpretation}</p>
-                <div><strong>RADICAL EDGE</strong><span>{concept.cta} →</span></div>
-                <small>Example only. Results vary.</small>
-              </div>
+        <section className="design-panel">
+          <div className="section-heading light"><span>02</span><h2>Canva design set</h2><small>{designs.length} designs</small></div>
+          <div className={qaPassed ? "qa-card pass" : "qa-card check"}>
+            <div>
+              <b>{qaPassed ? "QA passed" : "Needs design check"}</b>
+              <span>{qaPassed ? "20 / 20 designs have source, copy, CTA, disclaimer and visual direction." : `${qaIssues.length} design${qaIssues.length === 1 ? "" : "s"} need review before approval.`}</span>
             </div>
+            <small>{qaPassed ? "Approved for Canva polish" : "Draft only"}</small>
           </div>
-        </div>
+          {qaIssues.length > 0 && (
+            <div className="qa-issues">
+              {qaIssues.slice(0, 6).map((result) => (
+                <p key={result.adId}><b>{result.adId}</b> {result.issues.join("; ")}</p>
+              ))}
+            </div>
+          )}
+          <div className="batch-summary">
+            {Object.entries(counts).map(([label, count]) => (
+              <div key={label}><b>{count}</b><span>{label}</span></div>
+            ))}
+          </div>
+          <div className="actions-bar">
+            <a className="generate" href={canvaDesignUrl} target="_blank" rel="noreferrer">Open Canva design <span>→</span></a>
+            <button className="secondary-action" onClick={copyCanvaBriefs}>Copy 20 design briefs</button>
+            <span>{status}</span>
+          </div>
+
+          <div className="design-grid">
+            {designs.map((design, index) => (
+              <article className={`design-card design-${(index % 5) + 1}`} key={design["Ad ID"]}>
+                <div className="design-meta">
+                  <span>{design["Ad ID"]}</span>
+                  <b>{design["Canva Layout Type"]}</b>
+                </div>
+                <div className="mock-static-ad">
+                  <small>{design["Angle Type"]}</small>
+                  <h3>{design["Top Text"]}</h3>
+                  <div className="proof-slot">
+                    <span>{design["Middle Text"]}</span>
+                  </div>
+                  <p>{design["Bottom Text"]}</p>
+                  <strong>RADICAL EDGE</strong>
+                </div>
+                <p>{design["Visual Direction"]}</p>
+                <span className={qaResults[index].status === "Pass" ? "design-qa pass" : "design-qa check"}>
+                  {qaResults[index].status === "Pass" ? "QA pass" : "Needs check"}
+                </span>
+              </article>
+            ))}
+          </div>
+        </section>
       </section>
 
-      <section className="output-section">
-        <div className="output-head">
-          <div className="section-heading"><span>03</span><h2>Your complete concept</h2></div>
-          <button className="copy-all" onClick={() => copyText(fullOutput)}>Copy full concept</button>
-        </div>
-        <div className="output-grid">
-          <article><b>Ad angle</b><p>{concept.angle}</p></article>
-          <article><b>Main headline</b><p>{concept.headline}</p></article>
-          <article><b>Supporting line</b><p>{concept.support}</p></article>
-          <article><b>CTA line</b><p>{concept.cta}</p></article>
-          <article><b>Visual layout · {adFormat}</b><p>{concept.layout}</p></article>
-          <article><b>Proof asset needed</b><p>{concept.asset}</p></article>
-          <article className="wide"><b>Radical Edge voice layer</b><p>{radicalEdgeVoice}</p></article>
-          <article className="wide"><b>Caption copy</b><p className="caption">{concept.caption}</p><button onClick={() => copyText(concept.caption)}>Copy caption</button></article>
-          <article><b>3 headline variants</b><ol>{concept.variants.map((v) => <li key={v}>{v}</li>)}</ol></article>
-          <article><b>3 CTA variants</b><ol>{concept.ctas.map((v) => <li key={v}>{v}</li>)}</ol></article>
-          <article className="wide rationale"><b>Why this should work</b><p>It leads with proof, interprets the evidence through Radical Edge’s heart-led authority positioning, avoids identical-result promises, and invites a Singapore-based expert audience to learn the underlying system.</p></article>
-        </div>
-      </section>
-
-      <footer><span>RADICAL EDGE</span><p>Make your expertise the obvious choice.</p></footer>
+      <footer><span>RADICAL EDGE</span><p>{radicalEdgeVoice}</p></footer>
     </main>
   );
 }
