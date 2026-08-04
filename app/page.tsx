@@ -266,6 +266,10 @@ export default function Home() {
     () => buildRows({ audience, mainPromise, proofAvailable, visualMode, selectedAsset, batchName, anglePlan: anglePlans[batchMode] }),
     [audience, mainPromise, proofAvailable, visualMode, selectedAsset, batchName, batchMode],
   );
+  const proofDropdownOptions = useMemo(() => {
+    const syncedOptions = syncedProofs.map((proof) => `Transcript: ${proof}`);
+    return Array.from(new Set([...proofSourceOptions, ...syncedOptions]));
+  }, [syncedProofs]);
   const qaResults = useMemo(() => qaDesigns(designs, visualMode), [designs, visualMode]);
   const qaIssues = qaResults.filter((result) => result.issues.length);
   const qaPassed = qaIssues.length === 0 && designs.length === 20;
@@ -294,15 +298,16 @@ export default function Home() {
         const data = await localResponse.json();
         synced = data.summaries ?? [];
         if (data.mode === "local-proof-library") {
+          setSyncedProofs([]);
           setSyncStatus(`Loaded ${synced.length} saved proof sources; live Drive auth is not configured`);
         } else {
+          setSyncedProofs(synced);
           setSyncStatus(`Synced ${synced.length} transcript files from Drive`);
         }
       } else {
         const errorData = localResponse ? await localResponse.json().catch(() => undefined) : undefined;
         throw new Error(errorData?.error ?? "Local transcript sync route is unavailable");
       }
-      setSyncedProofs(synced);
       setProofAvailable(`Transcript: ${synced[0] ?? ""}`);
     } catch (error) {
       setSyncStatus(`Drive sync failed: ${error instanceof Error ? error.message : "unknown error"}`);
@@ -366,8 +371,7 @@ export default function Home() {
             <span>{syncStatus}</span>
             <select value="" onChange={(event) => event.target.value && setProofAvailable(event.target.value)}>
               <option value="">Use proof source...</option>
-              {proofSourceOptions.map((proof) => <option key={proof} value={proof}>{proof}</option>)}
-              {syncedProofs.map((proof) => <option key={proof} value={`Transcript: ${proof}`}>{`Transcript: ${proof}`}</option>)}
+              {proofDropdownOptions.map((proof) => <option key={proof} value={proof}>{proof}</option>)}
             </select>
           </div>
 
