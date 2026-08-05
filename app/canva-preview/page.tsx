@@ -7,6 +7,7 @@ import proofDatabase from "../../content/proof-library.json";
 type ProofSource = {
   client: string;
   proof: string;
+  publicClaim?: string;
   extractedText?: string;
   proofMeaning?: string;
   adHeader?: string;
@@ -54,7 +55,8 @@ const testimonialSources: ProofSource[] = proofDatabase.clients
 
 const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file) => ({
   client: file.title,
-  proof: file.summary ?? `${file.title} (${file.type})`,
+  proof: file.summary ?? file.title,
+  publicClaim: file.publicClaim,
   extractedText: file.extractedText,
   proofMeaning: file.proofMeaning,
   adHeader: file.adHeader,
@@ -67,7 +69,7 @@ const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file
 const proofSources = [...testimonialSources, ...conversionSources];
 
 function hasUsablePublicProof(source: ProofSource) {
-  if (source.sourceType === "Conversion" && source.fileId && /proof screenshot/i.test(source.fileType ?? "")) return true;
+  if (source.sourceType === "Conversion" && source.fileId && /screenshot|pdf/i.test(source.fileType ?? "")) return true;
   return !/Read image\/OCR|Conversion screenshot from Drive|Analytics proof from Drive|Transcript pending|Paste the exact/i.test(source.proof);
 }
 
@@ -191,7 +193,10 @@ function bottomClaim(proof: string) {
 }
 
 function parseIndexes(value: string | null) {
-  const usableIndexes = proofSources.map((source, index) => hasUsablePublicProof(source) ? index : -1).filter((index) => index >= 0);
+  const conversionIndexes = proofSources.map((source, index) => source.sourceType === "Conversion" && hasUsablePublicProof(source) ? index : -1).filter((index) => index >= 0);
+  const usableIndexes = conversionIndexes.length
+    ? conversionIndexes
+    : proofSources.map((source, index) => hasUsablePublicProof(source) ? index : -1).filter((index) => index >= 0);
   if (!value) return usableIndexes;
   const parsed = value
     .split(",")
@@ -212,10 +217,10 @@ function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
       angle: "Proof / Result",
       proofName: proofSource.client,
       proof: proofSource.sourceType === "Conversion"
-        ? proofSource.proofMeaning || `Conversion screenshot: ${proofSource.client}`
+        ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.proof || proofSource.client
         : "Transcript signal: headline only",
       sourceType: proofSource.sourceType,
-      treatment: proofSource.sourceType === "Conversion" && /proof screenshot/i.test(proofSource.fileType ?? "") ? "Screenshot proof" : "Copy-only proof",
+      treatment: proofSource.sourceType === "Conversion" && /screenshot/i.test(proofSource.fileType ?? "") ? "Screenshot proof" : "Copy-only proof",
       fileId: proofSource.fileId ?? "",
       headline: buildHeadline(proofSource),
       cta: "Join the masterclass",

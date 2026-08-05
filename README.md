@@ -19,6 +19,27 @@ npm install
 npm run dev
 ```
 
+## Local proof reading backend
+
+The proof reader is a local/server backend route at `/api/read-proof`. It uses OpenAI to read screenshots, PDFs, or pasted proof text, then returns a review-only proof object. It does not approve proof for ads automatically.
+
+Create `.env.local`:
+
+```bash
+OPENAI_API_KEY="your_api_key_here"
+OPENAI_PROOF_MODEL="gpt-5-mini"
+```
+
+Then restart:
+
+```bash
+npm run dev
+```
+
+Use the Proof reader panel to upload a PNG, JPG, WEBP, PDF, or paste manual proof text. Review the raw extracted text, public claim, headline options, blur list, and risk notes before adding anything to the proof database.
+
+GitHub Pages is static, so the proof reader backend only works in local/server mode.
+
 ## Validation
 
 ```bash

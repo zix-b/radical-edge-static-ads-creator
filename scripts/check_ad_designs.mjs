@@ -11,14 +11,15 @@ const transcriptProofs = proofDatabase.clients
     proof: client.proofSummary,
   }));
 const conversionProofs = proofDatabase.conversionFiles
-  .filter((file) => /proof screenshot/i.test(file.type) && file.fileId)
+  .filter((file) => /screenshot|pdf/i.test(file.type) && file.fileId)
   .map((file) => ({
     sourceType: "Conversion",
     client: file.title,
-    proof: file.summary ?? `${file.title} (${file.type})`,
+    proof: file.publicClaim ?? file.summary ?? file.title,
     proofMeaning: file.proofMeaning,
     adHeader: file.adHeader,
     fileId: file.fileId,
+    fileType: file.type,
   }));
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
 const hiddenPublicNames = [
@@ -77,7 +78,7 @@ const checks = angles.map((angle, index) => {
   const id = `RE-${String(index + 1).padStart(2, "0")}`;
   const source = index % 2 === 0 ? transcriptProofs[index % transcriptProofs.length] : conversionProofs[index % conversionProofs.length];
   const publicProof = publicProofCopy(source.proof);
-  const usesScreenshot = source.sourceType === "Conversion";
+  const usesScreenshot = source.sourceType === "Conversion" && /screenshot/i.test(source.fileType ?? "");
   const centerLabel = usesScreenshot ? source.client : source.client;
   const headline = buildHeadline(source);
   const baseline = `${baselineAsset.title} (${baselineAsset.type})`;

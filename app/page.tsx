@@ -9,15 +9,33 @@ type ProofSource = {
   label: string;
   client: string;
   proof: string;
+  publicClaim?: string;
   extractedText?: string;
   proofMeaning?: string;
   adHeader?: string;
   fileId?: string;
   fileType?: string;
+  visualUse?: string;
+  needsBlur?: string;
   status: string;
   displayProof: string;
   sourceType: "Transcript" | "Conversion";
   treatment: ProofTreatment;
+};
+
+type ExtractedProof = {
+  proofName: string;
+  sourceType: "Conversion screenshot" | "Analytics PDF" | "Transcript" | "Manual text";
+  clientName: string;
+  rawExtractedText: string;
+  privateDetailsFound: string[];
+  publicClaim: string;
+  proofMeaning: string;
+  headlineOptions: string[];
+  riskNotes: string[];
+  needsBlur: string[];
+  suggestedTreatment: ProofTreatment;
+  approvedForAds: false;
 };
 
 type AdRow = {
@@ -63,6 +81,7 @@ const radicalEdgeVoice =
 const offer = "One-day Radical Edge masterclass";
 const editableCanvaDesignUrl = "https://www.canva.com/d/urqxhQ5Rp4ZgXhC";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
+const metadataDoc = proofDatabase.referenceLinks.find((link) => link.label === "Conversion proof metadata");
 
 const testimonialSources: ProofSource[] = proofDatabase.clients
   .filter((client) => client.name !== "Custom proof")
@@ -76,21 +95,21 @@ const testimonialSources: ProofSource[] = proofDatabase.clients
     treatment: "Copy-only proof",
   }));
 const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file) => ({
-  label: `${file.title}: ${file.summary ?? `${file.title} (${file.type})`}`,
+  label: file.proofId ?? file.title,
   client: file.title,
-  proof: file.summary ?? `${file.title} (${file.type})`,
+  proof: file.summary ?? file.title,
+  publicClaim: file.publicClaim,
   extractedText: file.extractedText,
   proofMeaning: file.proofMeaning,
   adHeader: file.adHeader,
   fileId: file.fileId,
   fileType: file.type,
+  visualUse: file.visualUse,
+  needsBlur: file.needsBlur,
   status: file.status ?? "Needs image read / attribution check",
-  displayProof: (file.summary ?? `${file.title} (${file.type})`)
-    .replace(/\s*Verify\b.*$/i, "")
-    .replace(/\s*Read image\/OCR\b.*$/i, "")
-    .trim(),
+  displayProof: file.publicClaim ?? file.summary ?? file.title,
   sourceType: "Conversion",
-  treatment: /proof screenshot/i.test(file.type) ? "Screenshot proof" : "Copy-only proof",
+  treatment: /screenshot/i.test(file.type) ? "Screenshot proof" : "Copy-only proof",
 }));
 const proofSources = [...testimonialSources, ...conversionSources];
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
@@ -108,7 +127,9 @@ function hasUsablePublicProof(source: ProofSource) {
 }
 
 function proofSourceDisplayText(source: ProofSource) {
-  return /analytics proof/i.test(source.fileType ?? "") ? "Analytics proof PDF" : "";
+  if (source.sourceType === "Transcript") return "Transcript shapes headline only";
+  if (/pdf/i.test(source.fileType ?? "")) return "Analytics PDF metadata";
+  return source.publicClaim || source.proofMeaning || source.proof;
 }
 
 function proofSourceTitle(source: ProofSource) {
@@ -265,19 +286,19 @@ function buildRows({
     const topText = hook;
     const sourceType = proofSource?.sourceType ?? "Transcript";
     const proofTreatment = proofSource?.treatment ?? "Copy-only proof";
-    const proofLabel = sourceType === "Conversion" ? `Conversion proof ${String(index + 1).padStart(2, "0")}` : proofSource?.client ?? "Unassigned";
+    const proofLabel = proofSource?.client ?? "Unassigned";
     const proofName = proofSourceTitle(proofSource);
-    const fittedProofText = publicProofCopy(proofText, 120);
+    const fittedProofText = publicProofCopy(proofSource?.publicClaim || proofText, 120);
     const headline = buildProofHeadline(proofSource);
     const middleText = sourceType === "Conversion"
-      ? proofSource.proofMeaning || proofSource.displayProof || proofSource.client
+      ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.displayProof || proofSource.client
       : "Transcript signal: headline only";
     const centerMode = proofTreatment === "Screenshot proof" ? "Screenshot proof" : "Copy-only proof";
     const bottomText = `${cta}. Results vary.`;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
     const visualDirection = `${baselineInstruction} Use the selected proof source as the evidence base. Transcript sources shape the headline/claim. Conversion screenshots go in the center frame. Do not use client photos or founder photos in this Canva draft.`;
     const assetNeeded = proofTreatment === "Screenshot proof"
-      ? "Approved Conversion screenshot. Blur names, phone numbers, profile pictures and sensitive details in Canva before publishing."
+      ? `Manual screenshot paste. ${proofSource.needsBlur || "Blur private details before publishing."}`
       : "No image asset. Use anonymised copy-only proof shaped from the manual proof database.";
 
     return {
@@ -298,7 +319,7 @@ function buildRows({
       Subhook: subhook,
       "Proof / Evidence": middleText,
       CTA: cta,
-      "Visual Direction": visualDirection,
+      "Visual Direction": proofSource.visualUse ? `${visualDirection} ${proofSource.visualUse}` : visualDirection,
       "Asset Needed": assetNeeded,
       "Asset Used": proofTreatment === "Screenshot proof" ? "Conversion screenshot" : "No image asset",
       "Canva Layout Type": layout,
@@ -314,7 +335,7 @@ function buildRows({
       "Meta Description": `${offer} for ${audience}.`,
       Hypothesis: `If ${audience.toLowerCase()} trust this proof source, then this creative should improve qualified attention for the masterclass.`,
       Status: !hasUsablePublicProof(proofSource) || /pending|verify|needs/i.test(proofSource?.status ?? "") ? "Verify proof" : "Ready for Canva",
-      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofName}. Auto-fit copy before QA.`,
+      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofName}. ${proofSource.status}`,
     };
   });
 }
@@ -322,9 +343,16 @@ function buildRows({
 export default function Home() {
   const [audience, setAudience] = useState("Founders");
   const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
-  const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(proofSources.filter(hasUsablePublicProof).map((source) => source.label));
+  const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(conversionSources.filter(hasUsablePublicProof).map((source) => source.label));
   const [batchName, setBatchName] = useState("Masterclass Batch 01");
   const [variantSeed, setVariantSeed] = useState(0);
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofSourceName, setProofSourceName] = useState("");
+  const [proofNotes, setProofNotes] = useState("");
+  const [manualProofText, setManualProofText] = useState("");
+  const [extractedProof, setExtractedProof] = useState<ExtractedProof | null>(null);
+  const [extractError, setExtractError] = useState("");
+  const [isExtracting, setIsExtracting] = useState(false);
   const selectedProofs = useMemo(
     () => proofSources.filter((source) => selectedProofLabels.includes(source.label)),
     [selectedProofLabels],
@@ -335,12 +363,62 @@ export default function Home() {
     [audience, mainPromise, selectedProofs, batchName, variantSeed],
   );
 
+  const renderedPreviewUrl = useMemo(() => {
+    const selectedIndexes = proofSources
+      .map((source, index) => selectedProofLabels.includes(source.label) ? index : -1)
+      .filter((index) => index >= 0);
+    const params = new URLSearchParams({
+      audience,
+      promise: mainPromise,
+      batch: batchName,
+      seed: String(variantSeed),
+      proofs: selectedIndexes.join(","),
+    });
+    return `/canva-preview/?${params.toString()}`;
+  }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
+
   function toggleProof(label: string) {
     setSelectedProofLabels((current) => current.includes(label) ? current.filter((item) => item !== label) : [...current, label]);
   }
 
   function generateProofPreviews() {
     setVariantSeed((current) => current + 1);
+  }
+
+  async function readProof() {
+    setExtractError("");
+    setExtractedProof(null);
+
+    if (!proofFile && !manualProofText.trim()) {
+      setExtractError("Upload a proof screenshot/PDF or paste proof text first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("sourceName", proofSourceName.trim() || proofFile?.name || "Manual proof");
+    formData.set("notes", proofNotes);
+    formData.set("manualText", manualProofText);
+    if (proofFile) formData.set("file", proofFile);
+
+    setIsExtracting(true);
+    try {
+      const response = await fetch("/api/read-proof", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setExtractError(data?.error || "Proof reading failed.");
+        return;
+      }
+
+      setExtractedProof(data.extraction);
+    } catch {
+      setExtractError("Proof reader backend is unavailable. Run the local server with OPENAI_API_KEY set.");
+    } finally {
+      setIsExtracting(false);
+    }
   }
 
   return (
@@ -378,6 +456,11 @@ export default function Home() {
           <textarea id="promise" rows={4} value={mainPromise} onChange={(event) => setMainPromise(event.target.value)} />
 
           <label>Proof sources to use</label>
+          {metadataDoc ? (
+            <a className="metadata-link" href={metadataDoc.url} target="_blank" rel="noreferrer">
+              Open proof metadata doc
+            </a>
+          ) : null}
           <div className="testimonial-checklist">
             {proofSources.map((source) => (
               <label className="check-row proof-row" key={source.label}>
@@ -387,6 +470,70 @@ export default function Home() {
             ))}
           </div>
           <span className="hint">Every generated ad is a proof ad and uses exactly one selected proof source. Keep only the transcripts or Conversion screenshots you want in this batch.</span>
+
+          <div className="proof-reader">
+            <div className="reader-heading">
+              <span>Proof reader</span>
+              <b>Backend OCR</b>
+            </div>
+
+            <label htmlFor="proof-source-name">Proof name</label>
+            <input id="proof-source-name" value={proofSourceName} onChange={(event) => setProofSourceName(event.target.value)} placeholder="e.g. hakim 5k in a day" />
+
+            <label htmlFor="proof-upload">Screenshot or PDF</label>
+            <input
+              id="proof-upload"
+              type="file"
+              accept="image/png,image/jpeg,image/webp,application/pdf"
+              onChange={(event) => setProofFile(event.target.files?.[0] ?? null)}
+            />
+
+            <label htmlFor="manual-proof">Manual text</label>
+            <textarea
+              id="manual-proof"
+              rows={4}
+              value={manualProofText}
+              onChange={(event) => setManualProofText(event.target.value)}
+              placeholder="Paste transcript excerpt, WhatsApp text, or notes if there is no file."
+            />
+
+            <label htmlFor="proof-notes">Context notes</label>
+            <textarea
+              id="proof-notes"
+              rows={3}
+              value={proofNotes}
+              onChange={(event) => setProofNotes(event.target.value)}
+              placeholder="Client, timeframe, what needs redaction, attribution status."
+            />
+
+            <button className="reader-button" onClick={readProof} disabled={isExtracting}>
+              {isExtracting ? "Reading proof..." : "Read proof with OpenAI"}
+            </button>
+            {extractError ? <p className="reader-error">{extractError}</p> : null}
+
+            {extractedProof ? (
+              <div className="extraction-result">
+                <div className="result-topline">
+                  <b>{extractedProof.proofName}</b>
+                  <span>{extractedProof.approvedForAds ? "Approved" : "Review required"}</span>
+                </div>
+                <dl>
+                  <dt>Public claim</dt>
+                  <dd>{extractedProof.publicClaim || "No safe public claim extracted yet."}</dd>
+                  <dt>What this proves</dt>
+                  <dd>{extractedProof.proofMeaning || "Needs human context."}</dd>
+                  <dt>Headlines</dt>
+                  <dd>{extractedProof.headlineOptions.length ? extractedProof.headlineOptions.join(" / ") : "No headline options returned."}</dd>
+                  <dt>Blur before use</dt>
+                  <dd>{extractedProof.needsBlur.length ? extractedProof.needsBlur.join(", ") : "No blur list returned."}</dd>
+                  <dt>Risk notes</dt>
+                  <dd>{extractedProof.riskNotes.length ? extractedProof.riskNotes.join(" / ") : "No risk notes returned."}</dd>
+                  <dt>Raw extracted text</dt>
+                  <dd className="raw-text">{extractedProof.rawExtractedText || "No raw text returned."}</dd>
+                </dl>
+              </div>
+            ) : null}
+          </div>
 
           <div className="baseline-card">
             <span>Baseline design</span>
@@ -401,6 +548,7 @@ export default function Home() {
           <div className="actions-bar">
             <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
             <a className="secondary-action link-action" href={editableCanvaDesignUrl} target="_blank" rel="noreferrer">Open editable Canva design</a>
+            <a className="secondary-action link-action" href={renderedPreviewUrl} target="_blank" rel="noreferrer">Open rendered proof cards</a>
           </div>
 
           <div className="design-grid">
