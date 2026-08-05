@@ -61,7 +61,7 @@ const radicalEdgeVoice =
   "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
 
 const offer = "One-day Radical Edge masterclass";
-const editableCanvaDesignUrl = "https://www.canva.com/d/WasolYWbdM8qH6Z";
+const editableCanvaDesignUrl = "https://www.canva.com/d/urqxhQ5Rp4ZgXhC";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 
 const testimonialSources: ProofSource[] = proofDatabase.clients
