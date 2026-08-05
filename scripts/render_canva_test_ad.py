@@ -76,7 +76,7 @@ draw.multiline_text((78, 996), interpretation, fill=INK, font=font(39, True), sp
 draw.text((78, 1235), "RADICAL EDGE", fill=INK, font=font(31, True))
 draw.rectangle((656, 1174, 1002, 1276), fill=ACID)
 draw_wrapped(draw, (690, 1210), "Join the 1-day Radical Edge masterclass", 27, INK, font(22, True), line_gap=5)
-draw.text((78, 1305), "Hakim proof. Example only. Results vary.", fill=MUTED, font=font(14))
+draw.text((78, 1305), "Client proof. Example only. Results vary.", fill=MUTED, font=font(14))
 
 img.save(OUT)
 print(OUT)
