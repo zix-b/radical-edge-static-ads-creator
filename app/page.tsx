@@ -9,6 +9,9 @@ type ProofSource = {
   label: string;
   client: string;
   proof: string;
+  extractedText?: string;
+  proofMeaning?: string;
+  adHeader?: string;
   fileId?: string;
   fileType?: string;
   status: string;
@@ -58,7 +61,7 @@ const radicalEdgeVoice =
   "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
 
 const offer = "One-day Radical Edge masterclass";
-const editableCanvaDesignUrl = "https://www.canva.com/d/uYs98sQB9EOSXnn";
+const editableCanvaDesignUrl = "https://www.canva.com/d/VKrqLWsHVyG6p3z";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 
 const testimonialSources: ProofSource[] = proofDatabase.clients
@@ -76,6 +79,9 @@ const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file
   label: `${file.title}: ${file.summary ?? `${file.title} (${file.type})`}`,
   client: file.title,
   proof: file.summary ?? `${file.title} (${file.type})`,
+  extractedText: file.extractedText,
+  proofMeaning: file.proofMeaning,
+  adHeader: file.adHeader,
   fileId: file.fileId,
   fileType: file.type,
   status: file.status ?? "Needs image read / attribution check",
@@ -136,7 +142,7 @@ function publicProofCopy(text: string, maxLength = 120) {
 }
 
 function conversionHeadlineLabel(source: ProofSource) {
-  return source.client.toUpperCase();
+  return (source.adHeader || source.proofMeaning || source.client).toUpperCase();
 }
 
 function buildProofHeadline(source: ProofSource) {
@@ -271,7 +277,9 @@ function buildRows({
     const proofName = proofSourceTitle(proofSource);
     const fittedProofText = publicProofCopy(proofText, 120);
     const headline = buildProofHeadline(proofSource);
-    const middleText = sourceType === "Conversion" ? `Conversion screenshot: ${proofSource.client}` : "Transcript signal: headline only";
+    const middleText = sourceType === "Conversion"
+      ? proofSource.proofMeaning || proofSource.displayProof || proofSource.client
+      : "Transcript signal: headline only";
     const centerMode = proofTreatment === "Screenshot proof" ? "Screenshot proof" : "Copy-only proof";
     const bottomText = `${cta}. Results vary.`;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;

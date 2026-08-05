@@ -21,6 +21,9 @@ const testimonialSources = proofDatabase.clients
 const conversionSources = proofDatabase.conversionFiles.map((file) => ({
   client: file.title,
   proof: file.summary ?? `${file.title} (${file.type})`,
+  extractedText: file.extractedText,
+  proofMeaning: file.proofMeaning,
+  adHeader: file.adHeader,
   fileId: file.fileId,
   fileType: file.type,
   sourceType: "Conversion",
@@ -77,7 +80,7 @@ function proofSnippet(proof) {
 }
 
 function conversionHeadlineLabel(source) {
-  return source.client.toUpperCase();
+  return (source.adHeader || source.proofMeaning || source.client).toUpperCase();
 }
 
 function buildHeadline(source) {

@@ -24,71 +24,101 @@
       "title": "Dev after call",
       "fileId": "1DH3VMV3LnKjXY5peyIeFfvYT4CJ-0j4Z",
       "type": "proof screenshot",
-      "summary": "Prospect said the call was super insightful and that sales training was more valuable because it contextualised sales for someone with a strong personal brand. Verify name, consent and attribution before publishing.",
-      "status": "Image read; verify attribution before publishing"
+      "summary": "Prospect said the call was super insightful and that sales training was more valuable because it contextualised sales for someone with a strong personal brand.",
+      "extractedText": "Call feedback said the session was super insightful and made sales training more valuable because it matched the context of a strong personal brand.",
+      "proofMeaning": "The sales advice landed because it was tied to the founder's actual positioning, not a generic script.",
+      "adHeader": "THE CALL MADE SALES MAKE SENSE",
+      "status": "Needs redaction and attribution check before publishing"
     },
     {
       "title": "sandra mindspace",
       "fileId": "1Ep7pFnUPySIeIgiZZc8oQVvj_avAhUCf",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Mindspace proof suggests the enquiry came after trust was built through content and positioning.",
+      "extractedText": "Manual extraction pending. Filename indicates Mindspace related conversion proof.",
+      "proofMeaning": "The useful angle is not the file name. It is that the prospect had context before the sales conversation.",
+      "adHeader": "THE ENQUIRY CAME FROM TRUST",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     },
     {
       "title": "sandra enquiry from personal brand",
       "fileId": "18jwSkdvi8xcBU76gyh3OjNsPzxAXyLSA",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Enquiry came from the personal brand rather than a cold pitch.",
+      "extractedText": "Manual extraction pending. Filename indicates an enquiry attributed to personal brand content.",
+      "proofMeaning": "The ad should sell pre-sold demand, not attention for its own sake.",
+      "adHeader": "SHE DIDN'T START FROM COLD",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     },
     {
       "title": "hakim 20k month",
       "fileId": "1BMndvzFSCUwUB-U0S6owy4jlZCfIGyWx",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Proof source points to a $20k month driven by organic demand.",
+      "extractedText": "Manual extraction pending. Filename indicates a $20k month result.",
+      "proofMeaning": "Content should build demand before the sales call, not just views.",
+      "adHeader": "$20K MONTH FROM ORGANIC DEMAND",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     },
     {
       "title": "sandra warm leads conversion",
       "fileId": "1nxPG4y_Fq0Zmp16bH8U9NOQgoZP8L3nw",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Conversion proof points to leads arriving warm instead of needing to be convinced from zero.",
+      "extractedText": "Manual extraction pending. Filename indicates a warm lead conversion.",
+      "proofMeaning": "The strongest hook is that the sales conversation starts with trust already built.",
+      "adHeader": "THE LEAD WAS WARM BEFORE THE CALL",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     },
     {
       "title": "AD analytics summary.pdf",
       "fileId": "1CBvN4HRUhyjDe3HcmHwogrncEEdR7Qpd",
       "type": "analytics proof",
-      "summary": "Analytics proof from Drive. Verify metric definitions, date range and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Analytics proof should be used only after the exact metric, date range and source are extracted.",
+      "extractedText": "PDF extraction pending.",
+      "proofMeaning": "Use analytics only when the metric proves demand, attention quality or conversion movement.",
+      "adHeader": "THE NUMBERS SHOW THE CONTENT WORKED",
+      "status": "Needs PDF extraction and metric check before publishing"
     },
     {
       "title": "hakim 5k in a day",
       "fileId": "1QBzZkd0dWPXt9JApQIhxVilJYW4FhhGG",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Proof source points to $5k closed in a day.",
+      "extractedText": "Manual extraction pending. Filename indicates $5k closed in a day.",
+      "proofMeaning": "The ad should show that demand was already built before the sale happened.",
+      "adHeader": "$5K CLOSED IN A DAY",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     },
     {
       "title": "jared listing referral",
       "fileId": "1JgmM-ad_ydlXATMjyBeRqS0GKWUuPrq3",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Proof source points to a listing referral created through trust and visibility.",
+      "extractedText": "Manual extraction pending. Filename indicates a listing referral.",
+      "proofMeaning": "Authority content can create referral paths before a direct pitch happens.",
+      "adHeader": "THE REFERRAL CAME THROUGH CONTENT",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     },
     {
       "title": "jared listing viewing from content",
       "fileId": "1x0NQAY1un166cZzjyajGFFGof4sExmIt",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Proof source points to a property viewing that came from content.",
+      "extractedText": "Manual extraction pending. Filename indicates listing viewing from content.",
+      "proofMeaning": "Content did the trust work before the prospect took action.",
+      "adHeader": "THE VIEWING CAME FROM CONTENT",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     },
     {
       "title": "10k month hakim",
       "fileId": "1FiLrHWtxmcD6P-57_GO2jhsi1zTCSICx",
       "type": "proof screenshot",
-      "summary": "Conversion screenshot from Drive. Read image/OCR and verify exact wording, client, consent and attribution before publishing.",
-      "status": "Needs image read / attribution check"
+      "summary": "Proof source points to a $10k month from organic leads.",
+      "extractedText": "Manual extraction pending. Filename indicates a $10k month.",
+      "proofMeaning": "Organic content should create sales opportunities, not just reach.",
+      "adHeader": "$10K MONTH FROM ORGANIC LEADS",
+      "status": "Needs OCR, redaction and attribution check before publishing"
     }
   ],
   "assetFiles": [

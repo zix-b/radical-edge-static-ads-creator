@@ -16,6 +16,8 @@ const conversionProofs = proofDatabase.conversionFiles
     sourceType: "Conversion",
     client: file.title,
     proof: file.summary ?? `${file.title} (${file.type})`,
+    proofMeaning: file.proofMeaning,
+    adHeader: file.adHeader,
     fileId: file.fileId,
   }));
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
@@ -45,7 +47,7 @@ function publicProofCopy(text) {
 }
 
 function conversionHeadlineLabel(source) {
-  return source.client.toUpperCase();
+  return (source.adHeader || source.proofMeaning || source.client).toUpperCase();
 }
 
 function buildHeadline(source) {
@@ -68,6 +70,7 @@ assert.equal(angles.length, 20, "Ad set must generate exactly 20 designs.");
 assert.ok(transcriptProofs.length > 0, "At least one testimonial transcript proof source is required.");
 assert.ok(conversionProofs.length > 0, "At least one Conversion proof source is required.");
 assert.ok(proofDatabase.conversionFiles.every((file) => file.summary && file.status), "Every Conversion proof source needs a summary and verification status.");
+assert.ok(proofDatabase.conversionFiles.every((file) => file.adHeader && file.proofMeaning), "Every Conversion proof source needs extracted proof meaning and an ad header.");
 assert.ok(baselineAsset, "A design sample baseline is required.");
 
 const checks = angles.map((angle, index) => {
@@ -88,6 +91,7 @@ const checks = angles.map((angle, index) => {
   if (!bottom.includes("Results vary")) issues.push("missing disclaimer");
   if (angle !== "Proof / Result") issues.push("non-proof ad generated");
   if (!headline || /RESULTS LIKE THIS|\$10K\+ CLOSED|1M\+ VIEWS|CHOSEN FIRST|PROOF STRAIGHT FROM THE CHAT|CHAT PROOF|SCREENSHOT CARRIES|USE THE MESSAGE|CONVERSION SCREENSHOT PROOF/.test(headline)) issues.push("headline is still using generic rotated buckets");
+  if (source.sourceType === "Conversion" && headline === source.client.toUpperCase()) issues.push("conversion headline is still using the file name");
   if (source.sourceType === "Transcript" && centerLabel !== source.client) issues.push("transcript source should show only the proof name in the center");
   if (source.sourceType === "Transcript" && /^Proof:/i.test(publicProof)) issues.push("transcript proof should not be pasted into the center");
   if (source.sourceType === "Conversion" && centerLabel !== source.client) issues.push("conversion source should use the renamed proof source");

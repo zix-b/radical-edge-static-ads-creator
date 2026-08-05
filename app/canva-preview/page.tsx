@@ -7,6 +7,9 @@ import proofDatabase from "../../content/proof-library.json";
 type ProofSource = {
   client: string;
   proof: string;
+  extractedText?: string;
+  proofMeaning?: string;
+  adHeader?: string;
   fileId?: string;
   fileType?: string;
   status: string;
@@ -52,6 +55,9 @@ const testimonialSources: ProofSource[] = proofDatabase.clients
 const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file) => ({
   client: file.title,
   proof: file.summary ?? `${file.title} (${file.type})`,
+  extractedText: file.extractedText,
+  proofMeaning: file.proofMeaning,
+  adHeader: file.adHeader,
   fileId: file.fileId,
   fileType: file.type,
   status: file.status ?? "Needs image read / attribution check",
@@ -101,7 +107,7 @@ function proofSnippet(proof: string) {
 }
 
 function conversionHeadlineLabel(source: ProofSource) {
-  return source.client.toUpperCase();
+  return (source.adHeader || source.proofMeaning || source.client).toUpperCase();
 }
 
 function buildHeadline(source: ProofSource) {
@@ -209,7 +215,9 @@ function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
       layout: proofLayouts[variantIndex % proofLayouts.length],
       angle: "Proof / Result",
       proofName: proofSource.client,
-      proof: proofSource.sourceType === "Conversion" ? `Conversion screenshot: ${proofSource.client}` : "Transcript signal: headline only",
+      proof: proofSource.sourceType === "Conversion"
+        ? proofSource.proofMeaning || `Conversion screenshot: ${proofSource.client}`
+        : "Transcript signal: headline only",
       sourceType: proofSource.sourceType,
       treatment: proofSource.sourceType === "Conversion" && /proof screenshot/i.test(proofSource.fileType ?? "") ? "Screenshot proof" : "Copy-only proof",
       fileId: proofSource.fileId ?? "",
