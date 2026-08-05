@@ -16,12 +16,6 @@ type ProofSource = {
   sourceType: "Transcript" | "Conversion";
   treatment: ProofTreatment;
 };
-type QaResult = {
-  adId: string;
-  label: string;
-  status: "Pass" | "Check";
-  issues: string[];
-};
 
 type AdRow = {
   "Ad ID": string;
@@ -67,7 +61,6 @@ const offer = "One-day Radical Edge masterclass";
 const editableCanvaDesignUrl = "https://www.canva.com/d/uYs98sQB9EOSXnn";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 
-const allowedDriveFolders = proofDatabase.allowedDriveFolders;
 const testimonialSources: ProofSource[] = proofDatabase.clients
   .filter((client) => client.name !== "Custom proof")
   .map((client) => ({
@@ -326,63 +319,11 @@ function buildRows({
   });
 }
 
-function qaDesigns(designs: AdRow[], baselineDesign: string, selectedProofs: ProofSource[]): QaResult[] {
-  return designs.map((design) => {
-    const issues: string[] = [];
-    const proofText = design["Proof / Evidence"];
-    const middleText = design["Middle Text"];
-
-    if (!design["Top Text"].trim()) issues.push("Missing top text");
-    if (!middleText.trim()) issues.push("Missing middle proof/message");
-    if (!design["Bottom Text"].includes("Join the masterclass")) issues.push("Missing masterclass CTA");
-    if (!design["Bottom Text"].includes("Results vary")) issues.push("Missing results disclaimer");
-    if (!design["Visual Direction"].trim()) issues.push("Missing visual direction");
-    if (!design["Asset Needed"].trim()) issues.push("Missing asset instruction");
-    if (!design["Baseline Design"].includes("Sample 1") && !/design sample/i.test(design["Baseline Design"])) {
-      issues.push("Baseline should come from the Assets design sample");
-    }
-    if (!design["Visual Direction"].includes(baselineDesign)) {
-      issues.push("Visual direction must reference the Sample 1 baseline");
-    }
-    if (design["Top Text"].length > 120) issues.push("Top text may be too long for 1080 x 1350");
-    if (middleText.length > 260) issues.push("Generated proof copy was not auto-fitted");
-    if (design["Angle Type"] !== "Proof / Result") issues.push("Generated ad must stay proof/result only");
-    if (design["Proof Source Type"] === "Transcript" && design["Center Mode"] !== "Copy-only proof") {
-      issues.push("Transcript sources must use copy-only proof");
-    }
-    if (design["Proof Source Type"] === "Transcript" && /^Proof:/i.test(middleText)) {
-      issues.push("Transcript proof should not be pasted into the center block");
-    }
-    if (design["Proof Treatment"] === "Screenshot proof" && design["Center Mode"] !== "Screenshot proof") {
-      issues.push("Screenshot proofs must use the center image slot");
-    }
-    if (design["Proof Treatment"] === "Screenshot proof" && !design["Proof File ID"]) {
-      issues.push("Conversion screenshot is missing a Drive file ID");
-    }
-    if (/Read image\/OCR|Conversion screenshot from Drive|Analytics proof from Drive|Verify exact/i.test(proofText)) {
-      issues.push("Internal proof hygiene notes leaked into public copy");
-    }
-    if (/Approved proof goes here after the source is verified/i.test(proofText)) {
-      issues.push("Selected proof source needs manual proof copy before Canva approval");
-    }
-    if (selectedProofs.length === 0) {
-      issues.push("Select at least one proof source for proof ads");
-    }
-    return {
-      adId: design["Ad ID"],
-      label: design["Canva Layout Type"],
-      status: issues.length ? "Check" : "Pass",
-      issues,
-    };
-  });
-}
-
 export default function Home() {
   const [audience, setAudience] = useState("Founders");
   const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
   const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(proofSources.filter(hasUsablePublicProof).map((source) => source.label));
   const [batchName, setBatchName] = useState("Masterclass Batch 01");
-  const [status, setStatus] = useState("Ready to generate proof previews.");
   const [variantSeed, setVariantSeed] = useState(0);
   const selectedProofs = useMemo(
     () => proofSources.filter((source) => selectedProofLabels.includes(source.label)),
@@ -393,16 +334,6 @@ export default function Home() {
     () => buildRows({ audience, mainPromise, selectedProofs, batchName, baselineDesign, variantSeed }),
     [audience, mainPromise, selectedProofs, batchName, variantSeed],
   );
-  const qaResults = useMemo(() => qaDesigns(designs, baselineDesign, selectedProofs), [designs, selectedProofs]);
-  const qaIssues = qaResults.filter((result) => result.issues.length);
-  const qaPassed = qaIssues.length === 0 && designs.length === 20;
-  const proofCoverage = useMemo(
-    () => selectedProofs.map((source) => ({
-      client: source.client,
-      count: designs.filter((design) => design.Notes.includes(`Proof source: ${source.client}.`)).length,
-    })),
-    [designs, selectedProofs],
-  );
 
   function toggleProof(label: string) {
     setSelectedProofLabels((current) => current.includes(label) ? current.filter((item) => item !== label) : [...current, label]);
@@ -410,11 +341,6 @@ export default function Home() {
 
   function generateProofPreviews() {
     setVariantSeed((current) => current + 1);
-    if (qaPassed) {
-      setStatus(`Regenerated ${designs.length} checked proof previews from ${baselineDesign}`);
-    } else {
-      setStatus(`Regenerated with auto-fit copy. ${qaIssues.length} check${qaIssues.length === 1 ? "" : "s"} still need review.`);
-    }
   }
 
   return (
@@ -468,47 +394,13 @@ export default function Home() {
             <p>Use this as the structure reference only. The generated ads are proof-first and do not depend on image assets.</p>
           </div>
 
-          <div className="source-card">
-            <b>Manual proof database</b>
-            <p>Use Drive as the parking spot for approved inputs, then manually extract usable proof into the checked proof database. No live Drive auto-ingestion for now.</p>
-            <ul>
-              {allowedDriveFolders.map((folder) => (
-                <li key={folder.url}><a href={folder.url} target="_blank" rel="noreferrer">{folder.label}</a></li>
-              ))}
-            </ul>
-          </div>
         </aside>
 
         <section className="design-panel">
           <div className="section-heading light"><span>02</span><h2>Proof preview set</h2><small>{designs.length} designs</small></div>
-          <div className={qaPassed ? "qa-card pass" : "qa-card check"}>
-            <div>
-              <b>{qaPassed ? "QA passed" : "Needs design check"}</b>
-              <span>{qaPassed ? "20 / 20 designs have source, fitted copy, CTA, disclaimer and visual direction." : `${qaIssues.length} design${qaIssues.length === 1 ? "" : "s"} could not be auto-fitted. Regenerate or remove the longest proof source.`}</span>
-            </div>
-            <small>{qaPassed ? "Approved for Canva polish" : "Draft only"}</small>
-          </div>
-          {qaIssues.length > 0 && (
-            <div className="qa-issues">
-              {qaIssues.slice(0, 6).map((result) => (
-                <p key={result.adId}><b>{result.adId}</b> {result.issues.join("; ")}</p>
-              ))}
-            </div>
-          )}
-          <div className="batch-summary">
-            <div><b>{designs.length}</b><span>Proof / Result Ads</span></div>
-            <div><b>{selectedProofs.length}</b><span>Proof Sources In Rotation</span></div>
-            <div><b>{designs.filter((design) => design["Proof Treatment"] === "Screenshot proof").length}</b><span>Conversion Screenshots</span></div>
-          </div>
           <div className="actions-bar">
             <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
             <a className="secondary-action link-action" href={editableCanvaDesignUrl} target="_blank" rel="noreferrer">Open editable Canva design</a>
-            <span>{status}</span>
-          </div>
-          <div className="asset-coverage proof-coverage">
-            {proofCoverage.map((item) => (
-              <span key={item.client}><b>{item.count}</b> {item.client}</span>
-            ))}
           </div>
 
           <div className="design-grid">
@@ -539,9 +431,6 @@ export default function Home() {
                     <strong>Learn how this happened inside the one-day masterclass</strong>
                   </div>
                 </div>
-                <span className={qaResults[index].status === "Pass" ? "design-qa pass" : "design-qa check"}>
-                  {qaResults[index].status === "Pass" ? "QA pass" : "Needs check"}
-                </span>
               </article>
             );})}
           </div>
