@@ -61,7 +61,7 @@ const radicalEdgeVoice =
   "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
 
 const offer = "One-day Radical Edge masterclass";
-const editableCanvaDesignUrl = "https://www.canva.com/d/VKrqLWsHVyG6p3z";
+const editableCanvaDesignUrl = "https://www.canva.com/d/WasolYWbdM8qH6Z";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 
 const testimonialSources: ProofSource[] = proofDatabase.clients
@@ -228,15 +228,7 @@ function proofSnippet(proof: string) {
     .slice(0, 118);
 }
 
-function driveThumbnailUrl(fileId: string) {
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w900`;
-}
-
 function buildProofLines(design: AdRow) {
-  if (design["Center Mode"] === "Screenshot proof") {
-    return [];
-  }
-
   return [design["Proof Name"]];
 }
 
@@ -428,9 +420,6 @@ export default function Home() {
                     <em>{design["Headline Line Two"]}</em>
                   </h3>
                   <div className={`proof-slot ${design["Center Mode"] === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
-                    {design["Center Mode"] === "Screenshot proof" && design["Proof File ID"] ? (
-                      <img src={driveThumbnailUrl(design["Proof File ID"])} alt={`${design["Ad ID"]} conversion proof screenshot`} />
-                    ) : null}
                     {buildProofLines(design).map((line) => <span className="proof-line" key={line}>{line}</span>)}
                   </div>
                   <div className="sample-bottom">

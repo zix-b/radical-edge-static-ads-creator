@@ -190,10 +190,6 @@ function bottomClaim(proof: string) {
   return "Get prospects that come to you";
 }
 
-function driveThumbnailUrl(fileId: string) {
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w900`;
-}
-
 function parseIndexes(value: string | null) {
   const usableIndexes = proofSources.map((source, index) => hasUsablePublicProof(source) ? index : -1).filter((index) => index >= 0);
   if (!value) return usableIndexes;
@@ -264,14 +260,7 @@ function CanvaPreviewContent() {
                 <em>{ad.headline.lineTwo}</em>
               </h2>
               <div className={`rendered-proof ${ad.treatment === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
-                {ad.treatment === "Screenshot proof" && ad.fileId ? (
-                  <img src={driveThumbnailUrl(ad.fileId)} alt={`${ad.id} conversion proof screenshot`} />
-                ) : null}
-                {ad.treatment === "Screenshot proof" ? null : (
-                  <>
-                    <strong>{ad.proofName}</strong>
-                  </>
-                )}
+                <strong>{ad.proofName}</strong>
               </div>
               <div className="rendered-bottom">
                 <p>{bottomClaim(ad.proof)} <span>already convinced</span></p>
