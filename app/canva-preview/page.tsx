@@ -19,6 +19,7 @@ type PreviewAd = {
   id: string;
   layout: string;
   angle: string;
+  proofName: string;
   proof: string;
   sourceType: "Transcript" | "Conversion";
   treatment: ProofTreatment;
@@ -100,34 +101,17 @@ function proofSnippet(proof: string) {
 }
 
 function conversionHeadlineLabel(source: ProofSource) {
-  const dateMatch = source.client.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if (dateMatch) {
-    const date = new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}T00:00:00`);
-    return `${date.toLocaleString("en-US", { month: "short" }).toUpperCase()} ${Number(dateMatch[3])} CHAT PROOF`;
-  }
-
-  const imageMatch = source.client.match(/IMG[_ -]?(\d+)/i);
-  if (imageMatch) return `CHAT PROOF IMG ${imageMatch[1]}`;
-
-  return "CONVERSION SCREENSHOT PROOF";
+  return source.client.toUpperCase();
 }
 
 function buildHeadline(source: ProofSource) {
   const proofText = proofSnippet(source.proof);
 
   if (source.sourceType === "Conversion") {
-    if (/sales training|contextualised sales|personal brand/i.test(proofText)) {
-      return {
-        highlight: "THE CALL MADE SALES CLICK",
-        lineOne: "because the advice matched their brand",
-        lineTwo: "not a generic script",
-      };
-    }
-
     return {
       highlight: conversionHeadlineLabel(source),
-      lineOne: "the screenshot carries the proof",
-      lineTwo: "use the message in the center",
+      lineOne: "",
+      lineTwo: "",
     };
   }
 
@@ -224,6 +208,7 @@ function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
       id: `RE-${String(index + 1).padStart(2, "0")}`,
       layout: proofLayouts[variantIndex % proofLayouts.length],
       angle: "Proof / Result",
+      proofName: proofSource.client,
       proof: proofSource.sourceType === "Conversion" ? `Conversion screenshot: ${proofSource.client}` : "Transcript signal: headline only",
       sourceType: proofSource.sourceType,
       treatment: proofSource.sourceType === "Conversion" && /proof screenshot/i.test(proofSource.fileType ?? "") ? "Screenshot proof" : "Copy-only proof",
@@ -274,17 +259,9 @@ function CanvaPreviewContent() {
                 {ad.treatment === "Screenshot proof" && ad.fileId ? (
                   <img src={driveThumbnailUrl(ad.fileId)} alt={`${ad.id} conversion proof screenshot`} />
                 ) : null}
-                {ad.treatment === "Screenshot proof" ? (
+                {ad.treatment === "Screenshot proof" ? null : (
                   <>
-                    <span>SCREENSHOT PROOF</span>
-                    <strong>Place the approved Conversion screenshot in this frame</strong>
-                    <span>Blur names, numbers, profile pictures and sensitive details</span>
-                  </>
-                ) : (
-                  <>
-                    <span>COPY-ONLY PROOF</span>
-                    <strong>Private proof shaped the headline and claim</strong>
-                    <span>No client name, photo or private transcript text shown</span>
+                    <strong>{ad.proofName}</strong>
                   </>
                 )}
               </div>

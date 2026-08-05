@@ -30,6 +30,7 @@ type AdRow = {
   "Target Audience": string;
   "Angle Type": AngleType;
   "Proof Client": string;
+  "Proof Name": string;
   "Proof Source Type": "Transcript" | "Conversion";
   "Proof Treatment": ProofTreatment;
   "Proof File ID": string;
@@ -63,27 +64,10 @@ const radicalEdgeVoice =
   "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
 
 const offer = "One-day Radical Edge masterclass";
-const editableCanvaDesignUrl = "https://www.canva.com/d/AV2RmUlTg6EQbZL";
+const editableCanvaDesignUrl = "https://www.canva.com/d/uYs98sQB9EOSXnn";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 
 const allowedDriveFolders = proofDatabase.allowedDriveFolders;
-const proofTreatments: Array<{ title: ProofTreatment; bestFor: string; rule: string }> = [
-  {
-    title: "Copy-only proof",
-    bestFor: "Privacy-sensitive testimonial ads",
-    rule: "Use the proof to shape the headline and anonymised claim. Do not show names, phone numbers, profile pictures or private transcript text.",
-  },
-  {
-    title: "Screenshot proof",
-    bestFor: "Trust-heavy proof ads and retargeting",
-    rule: "Use only Conversion screenshots in the center frame. Blur names, phone numbers, profile pictures and sensitive details in Canva before publishing.",
-  },
-  {
-    title: "Narrative proof",
-    bestFor: "Landing pages, emails and founder posts",
-    rule: "Keep this in notes for now. Do not turn it into a static ad layout until the story has consent, context and approved attribution.",
-  },
-];
 const testimonialSources: ProofSource[] = proofDatabase.clients
   .filter((client) => client.name !== "Custom proof")
   .map((client) => ({
@@ -125,49 +109,11 @@ function hasUsablePublicProof(source: ProofSource) {
 }
 
 function proofSourceDisplayText(source: ProofSource) {
-  if (source.sourceType === "Conversion" && /proof screenshot/i.test(source.fileType ?? "")) {
-    const context = /Conversion screenshot from Drive|Read image\/OCR/i.test(source.proof)
-      ? "OCR/context still needed before writing any public claim."
-      : source.displayProof;
-
-    return `Use as centre screenshot proof. Blur names, numbers, profile pictures and sensitive details in Canva. ${context}`;
-  }
-
-  if (source.sourceType === "Conversion" && /analytics proof/i.test(source.fileType ?? "")) {
-    return "Analytics proof PDF. Do not use directly as an ad yet; extract the exact metric, date range, source and attribution first.";
-  }
-
-  if (!hasUsablePublicProof(source)) {
-    return "Not ready for public ad copy yet. Extract the exact claim, context, consent and attribution before using.";
-  }
-
-  return source.displayProof;
-}
-
-function formatSourceDate(title: string) {
-  const dateMatch = title.match(/(\d{4})-(\d{2})-(\d{2})(?: at ([\d.]+) (AM|PM))?/i);
-  if (!dateMatch) return "";
-
-  const [, year, month, day, rawTime, meridiem] = dateMatch;
-  const date = new Date(`${year}-${month}-${day}T00:00:00`);
-  const dateLabel = `${date.toLocaleString("en-US", { month: "short" })} ${Number(day)}, ${year}`;
-  if (!rawTime || !meridiem) return dateLabel;
-
-  return `${dateLabel}, ${rawTime.replaceAll(".", ":")} ${meridiem.toUpperCase()}`;
+  return /analytics proof/i.test(source.fileType ?? "") ? "Analytics proof PDF" : "";
 }
 
 function proofSourceTitle(source: ProofSource) {
-  if (source.sourceType === "Transcript") return `Copy-only proof: ${source.client}`;
-
-  if (/analytics proof/i.test(source.fileType ?? "")) return `Analytics proof: ${source.client}`;
-
-  const readableDate = formatSourceDate(source.client);
-  if (readableDate) return `Screenshot proof: ${readableDate}`;
-
-  const imageMatch = source.client.match(/IMG[_ -]?(\d+)/i);
-  if (imageMatch) return `Screenshot proof: IMG ${imageMatch[1]}`;
-
-  return `Screenshot proof: ${source.client}`;
+  return source.client;
 }
 
 function anonymiseProofText(text: string) {
@@ -197,34 +143,17 @@ function publicProofCopy(text: string, maxLength = 120) {
 }
 
 function conversionHeadlineLabel(source: ProofSource) {
-  const dateMatch = source.client.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if (dateMatch) {
-    const date = new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}T00:00:00`);
-    return `${date.toLocaleString("en-US", { month: "short" }).toUpperCase()} ${Number(dateMatch[3])} CHAT PROOF`;
-  }
-
-  const imageMatch = source.client.match(/IMG[_ -]?(\d+)/i);
-  if (imageMatch) return `CHAT PROOF IMG ${imageMatch[1]}`;
-
-  return "CONVERSION SCREENSHOT PROOF";
+  return source.client.toUpperCase();
 }
 
 function buildProofHeadline(source: ProofSource) {
   const proofText = proofSnippet(source.proof);
 
   if (source.sourceType === "Conversion") {
-    if (/sales training|contextualised sales|personal brand/i.test(proofText)) {
-      return {
-        highlight: "THE CALL MADE SALES CLICK",
-        lineOne: "because the advice matched their brand",
-        lineTwo: "not a generic script",
-      };
-    }
-
     return {
       highlight: conversionHeadlineLabel(source),
-      lineOne: "the screenshot carries the proof",
-      lineTwo: "use the message in the center",
+      lineOne: "",
+      lineTwo: "",
     };
   }
 
@@ -306,18 +235,10 @@ function driveThumbnailUrl(fileId: string) {
 
 function buildProofLines(design: AdRow) {
   if (design["Center Mode"] === "Screenshot proof") {
-    return [
-      "SCREENSHOT PROOF",
-      "Place the approved Conversion screenshot in this frame",
-      "Blur names, numbers, profile pictures and sensitive details",
-    ];
+    return [];
   }
 
-  return [
-    "COPY-ONLY PROOF",
-    "Private proof shaped the headline and claim",
-    "No client name, photo or private transcript text shown",
-  ];
+  return [design["Proof Name"]];
 }
 
 function bottomClaim(design: AdRow) {
@@ -354,13 +275,14 @@ function buildRows({
     const sourceType = proofSource?.sourceType ?? "Transcript";
     const proofTreatment = proofSource?.treatment ?? "Copy-only proof";
     const proofLabel = sourceType === "Conversion" ? `Conversion proof ${String(index + 1).padStart(2, "0")}` : proofSource?.client ?? "Unassigned";
+    const proofName = proofSourceTitle(proofSource);
     const fittedProofText = publicProofCopy(proofText, 120);
     const headline = buildProofHeadline(proofSource);
     const middleText = sourceType === "Conversion" ? `Conversion screenshot: ${proofSource.client}` : "Transcript signal: headline only";
     const centerMode = proofTreatment === "Screenshot proof" ? "Screenshot proof" : "Copy-only proof";
     const bottomText = `${cta}. Results vary.`;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
-    const visualDirection = `${baselineInstruction} Use the selected proof source as the evidence base. Transcript sources are copy-only and should only shape the headline/claim. Conversion screenshots go in the center frame. Do not use client names, client photos or founder photos in this Canva draft.`;
+    const visualDirection = `${baselineInstruction} Use the selected proof source as the evidence base. Transcript sources shape the headline/claim. Conversion screenshots go in the center frame. Do not use client photos or founder photos in this Canva draft.`;
     const assetNeeded = proofTreatment === "Screenshot proof"
       ? "Approved Conversion screenshot. Blur names, phone numbers, profile pictures and sensitive details in Canva before publishing."
       : "No image asset. Use anonymised copy-only proof shaped from the manual proof database.";
@@ -372,6 +294,7 @@ function buildRows({
       "Target Audience": audience,
       "Angle Type": "Proof / Result",
       "Proof Client": proofLabel,
+      "Proof Name": proofName,
       "Proof Source Type": sourceType,
       "Proof Treatment": proofTreatment,
       "Proof File ID": proofSource?.fileId ?? "",
@@ -396,9 +319,9 @@ function buildRows({
       "Meta Primary Text": `${hook}\n\n${subhook}\n\n${mainPromise}\n\n${cta}. Example only. Results vary.`,
       "Meta Headline": hook.length > 52 ? hook.slice(0, 49).trimEnd() + "..." : hook,
       "Meta Description": `${offer} for ${audience}.`,
-      Hypothesis: `If ${audience.toLowerCase()} trust this ${proofTreatment.toLowerCase()} source, then this creative should improve qualified attention for the masterclass.`,
+      Hypothesis: `If ${audience.toLowerCase()} trust this proof source, then this creative should improve qualified attention for the masterclass.`,
       Status: !hasUsablePublicProof(proofSource) || /pending|verify|needs/i.test(proofSource?.status ?? "") ? "Verify proof" : "Ready for Canva",
-      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofSource?.client ?? "Unassigned"}. Auto-fit copy before QA.`,
+      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofName}. Auto-fit copy before QA.`,
     };
   });
 }
@@ -435,9 +358,6 @@ function qaDesigns(designs: AdRow[], baselineDesign: string, selectedProofs: Pro
     }
     if (design["Proof Treatment"] === "Screenshot proof" && !design["Proof File ID"]) {
       issues.push("Conversion screenshot is missing a Drive file ID");
-    }
-    if (hiddenPublicNames.some((name) => new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(proofText))) {
-      issues.push("Public design must not include client or founder names");
     }
     if (/Read image\/OCR|Conversion screenshot from Drive|Analytics proof from Drive|Verify exact/i.test(proofText)) {
       issues.push("Internal proof hygiene notes leaked into public copy");
@@ -536,21 +456,11 @@ export default function Home() {
             {proofSources.map((source) => (
               <label className="check-row proof-row" key={source.label}>
                 <input type="checkbox" checked={selectedProofLabels.includes(source.label)} onChange={() => toggleProof(source.label)} />
-                <span><b>{proofSourceTitle(source)}</b>{proofSourceDisplayText(source)}</span>
+                <span><b>{proofSourceTitle(source)}</b>{proofSourceDisplayText(source) ? <small>{proofSourceDisplayText(source)}</small> : null}</span>
               </label>
             ))}
           </div>
           <span className="hint">Every generated ad is a proof ad and uses exactly one selected proof source. Keep only the transcripts or Conversion screenshots you want in this batch.</span>
-
-          <div className="proof-treatment-grid">
-            {proofTreatments.map((item) => (
-              <div className="treatment-card" key={item.title}>
-                <b>{item.title}</b>
-                <span>{item.bestFor}</span>
-                <p>{item.rule}</p>
-              </div>
-            ))}
-          </div>
 
           <div className="baseline-card">
             <span>Baseline design</span>
@@ -588,7 +498,7 @@ export default function Home() {
           <div className="batch-summary">
             <div><b>{designs.length}</b><span>Proof / Result Ads</span></div>
             <div><b>{selectedProofs.length}</b><span>Proof Sources In Rotation</span></div>
-            <div><b>{designs.filter((design) => design["Proof Treatment"] === "Screenshot proof").length}</b><span>Screenshot Proof Slots</span></div>
+            <div><b>{designs.filter((design) => design["Proof Treatment"] === "Screenshot proof").length}</b><span>Conversion Screenshots</span></div>
           </div>
           <div className="actions-bar">
             <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
@@ -629,8 +539,6 @@ export default function Home() {
                     <strong>Learn how this happened inside the one-day masterclass</strong>
                   </div>
                 </div>
-                <p>{design["Visual Direction"]}</p>
-                <small className="asset-used">Asset: {design["Asset Used"]}</small>
                 <span className={qaResults[index].status === "Pass" ? "design-qa pass" : "design-qa check"}>
                   {qaResults[index].status === "Pass" ? "QA pass" : "Needs check"}
                 </span>

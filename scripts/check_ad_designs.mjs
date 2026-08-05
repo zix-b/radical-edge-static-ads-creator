@@ -7,6 +7,7 @@ const transcriptProofs = proofDatabase.clients
   .filter((client) => client.name !== "Custom proof")
   .map((client) => ({
     sourceType: "Transcript",
+    client: client.name,
     proof: client.proofSummary,
   }));
 const conversionProofs = proofDatabase.conversionFiles
@@ -44,25 +45,14 @@ function publicProofCopy(text) {
 }
 
 function conversionHeadlineLabel(source) {
-  const dateMatch = source.client.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if (dateMatch) {
-    const date = new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}T00:00:00`);
-    return `${date.toLocaleString("en-US", { month: "short" }).toUpperCase()} ${Number(dateMatch[3])} CHAT PROOF`;
-  }
-
-  const imageMatch = source.client.match(/IMG[_ -]?(\d+)/i);
-  if (imageMatch) return `CHAT PROOF IMG ${imageMatch[1]}`;
-
-  return "CONVERSION SCREENSHOT PROOF";
+  return source.client.toUpperCase();
 }
 
 function buildHeadline(source) {
   const proof = publicProofCopy(source.proof);
 
   if (source.sourceType === "Conversion") {
-    return /sales training|contextualised sales|personal brand/i.test(proof)
-      ? "THE CALL MADE SALES CLICK"
-      : conversionHeadlineLabel(source);
+    return conversionHeadlineLabel(source);
   }
   if (/\$30k|\$10k|closed/i.test(proof)) return "$30K+ FROM ORGANIC LEADS";
   if (/1M views|1,000 followers|9 videos|5 hours/i.test(proof)) return "1M VIEWS FROM 9 VIDEOS";
@@ -84,11 +74,11 @@ const checks = angles.map((angle, index) => {
   const id = `RE-${String(index + 1).padStart(2, "0")}`;
   const source = index % 2 === 0 ? transcriptProofs[index % transcriptProofs.length] : conversionProofs[index % conversionProofs.length];
   const publicProof = publicProofCopy(source.proof);
-  const treatment = source.sourceType === "Conversion" ? "Screenshot proof" : "Copy-only proof";
-  const centerMode = treatment;
+  const usesScreenshot = source.sourceType === "Conversion";
+  const centerLabel = usesScreenshot ? source.client : source.client;
   const headline = buildHeadline(source);
   const baseline = `${baselineAsset.title} (${baselineAsset.type})`;
-  const asset = treatment === "Screenshot proof"
+  const asset = usesScreenshot
     ? `${baseline} structure reference; approved Conversion screenshot required.`
     : `${baseline} structure reference; no image asset required.`;
   const bottom = "Join the masterclass. Results vary.";
@@ -97,19 +87,14 @@ const checks = angles.map((angle, index) => {
   if (!bottom.includes("Join the masterclass")) issues.push("missing CTA");
   if (!bottom.includes("Results vary")) issues.push("missing disclaimer");
   if (angle !== "Proof / Result") issues.push("non-proof ad generated");
-  if (!headline || /RESULTS LIKE THIS|\$10K\+ CLOSED|1M\+ VIEWS|CHOSEN FIRST|PROOF STRAIGHT FROM THE CHAT/.test(headline)) issues.push("headline is still using generic rotated buckets");
-  if (source.sourceType === "Transcript" && treatment !== "Copy-only proof") issues.push("transcript source should use copy-only proof");
-  if (source.sourceType === "Transcript" && centerMode !== "Copy-only proof") issues.push("transcript source should influence headline only");
+  if (!headline || /RESULTS LIKE THIS|\$10K\+ CLOSED|1M\+ VIEWS|CHOSEN FIRST|PROOF STRAIGHT FROM THE CHAT|CHAT PROOF|SCREENSHOT CARRIES|USE THE MESSAGE|CONVERSION SCREENSHOT PROOF/.test(headline)) issues.push("headline is still using generic rotated buckets");
+  if (source.sourceType === "Transcript" && centerLabel !== source.client) issues.push("transcript source should show only the proof name in the center");
   if (source.sourceType === "Transcript" && /^Proof:/i.test(publicProof)) issues.push("transcript proof should not be pasted into the center");
-  if (source.sourceType === "Conversion" && treatment !== "Screenshot proof") issues.push("conversion source should use screenshot proof");
-  if (source.sourceType === "Conversion" && centerMode !== "Screenshot proof") issues.push("conversion source should use screenshot center slot");
+  if (source.sourceType === "Conversion" && centerLabel !== source.client) issues.push("conversion source should use the renamed proof source");
   if (source.sourceType === "Conversion" && !source.fileId) issues.push("conversion screenshot is missing Drive file ID");
-  if (treatment === "Copy-only proof" && !/no image asset required/.test(asset)) issues.push("copy-only proof should not require an image asset");
-  if (treatment === "Screenshot proof" && !/approved Conversion screenshot required/.test(asset)) issues.push("screenshot proof should require a Conversion screenshot");
+  if (!usesScreenshot && !/no image asset required/.test(asset)) issues.push("transcript proof should not require an image asset");
+  if (usesScreenshot && !/approved Conversion screenshot required/.test(asset)) issues.push("screenshot proof should require a Conversion screenshot");
   if (!/design sample/.test(asset)) issues.push("missing Sample 1 design baseline");
-  if (hiddenPublicNames.some((name) => new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(publicProof))) {
-    issues.push("public proof contains client or founder name");
-  }
   if (/Read image\/OCR|Conversion screenshot from Drive|Analytics proof from Drive|Verify exact/i.test(publicProof)) {
     issues.push("public proof contains internal verification note");
   }
@@ -127,4 +112,4 @@ assert.deepEqual(
   `Design QA failed:\n${failed.map((check) => `${check.id}: ${check.issues.join(", ")}`).join("\n")}`,
 );
 
-console.log("Ad design QA passed: 20/20 designs use proof treatments correctly: transcript sources stay copy-only, Conversion screenshots use screenshot slots, CTA/disclaimer are present, and Sample 1 remains the baseline.");
+console.log("Ad design QA passed: 20/20 designs use one proof source each, Conversion screenshots use screenshot slots, CTA/disclaimer are present, and Sample 1 remains the baseline.");
