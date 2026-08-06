@@ -89,6 +89,7 @@ const radicalEdgeVoice =
   "Sharp founder/operator copy. Concrete pain. No hype. No generic marketing language.";
 
 const offer = "One-day Radical Edge masterclass";
+const editableCanvaDesignUrl = "https://www.canva.com/d/urqxhQ5Rp4ZgXhC";
 const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 const metadataDoc = proofDatabase.referenceLinks.find((link) => link.label === "Conversion proof metadata");
 
@@ -144,10 +145,6 @@ function proofSourceDisplayText(source: ProofSource) {
 
 function proofSourceTitle(source: ProofSource) {
   return source.client;
-}
-
-function proofSourceDomId(source: ProofSource) {
-  return `proof-${source.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
 }
 
 function publicProofName(source: ProofSource) {
@@ -489,7 +486,7 @@ export default function Home() {
     [audience, mainPromise, selectedProofs, batchName, variantSeed],
   );
 
-  const proofCardsUrl = useMemo(() => {
+  const renderedPreviewUrl = useMemo(() => {
     const selectedIndexes = proofSources
       .map((source, index) => selectedProofLabels.includes(source.label) ? index : -1)
       .filter((index) => index >= 0);
@@ -500,14 +497,14 @@ export default function Home() {
       seed: String(variantSeed),
       proofs: selectedIndexes.join(","),
     });
-    return `./proof-cards/?${params.toString()}`;
+    return `/canva-preview/?${params.toString()}`;
   }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
 
   function toggleProof(label: string) {
     setSelectedProofLabels((current) => current.includes(label) ? current.filter((item) => item !== label) : [...current, label]);
   }
 
-  function generateProofCards() {
+  function generateProofPreviews() {
     setVariantSeed((current) => current + 1);
   }
 
@@ -595,14 +592,8 @@ export default function Home() {
           ) : null}
           <div className="testimonial-checklist">
             {proofSources.map((source) => (
-              <label className="check-row proof-row" htmlFor={proofSourceDomId(source)} key={source.label}>
-                <input
-                  id={proofSourceDomId(source)}
-                  data-proof-source={source.label}
-                  type="checkbox"
-                  checked={selectedProofLabels.includes(source.label)}
-                  onChange={() => toggleProof(source.label)}
-                />
+              <label className="check-row proof-row" key={source.label}>
+                <input type="checkbox" checked={selectedProofLabels.includes(source.label)} onChange={() => toggleProof(source.label)} />
                 <span><b>{proofSourceTitle(source)}</b>{proofSourceDisplayText(source) ? <small>{proofSourceDisplayText(source)}</small> : null}</span>
               </label>
             ))}
@@ -682,10 +673,11 @@ export default function Home() {
         </aside>
 
         <section className="design-panel">
-          <div className="section-heading light"><span>02</span><h2>Proof card set</h2><small>{designs.length} designs</small></div>
+          <div className="section-heading light"><span>02</span><h2>Proof preview set</h2><small>{designs.length} designs</small></div>
           <div className="actions-bar">
-            <button className="generate" onClick={generateProofCards}>Generate proof cards <span>→</span></button>
-            <a className="secondary-action link-action" href={proofCardsUrl} target="_blank" rel="noreferrer">Open generated proof cards</a>
+            <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
+            <a className="secondary-action link-action" href={editableCanvaDesignUrl} target="_blank" rel="noreferrer">Open editable Canva design</a>
+            <a className="secondary-action link-action" href={renderedPreviewUrl} target="_blank" rel="noreferrer">Open rendered proof cards</a>
           </div>
 
           <div className="design-grid">

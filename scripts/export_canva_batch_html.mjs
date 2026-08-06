@@ -20,9 +20,7 @@ const testimonialSources = proofDatabase.clients
 
 const conversionSources = proofDatabase.conversionFiles.map((file) => ({
   client: file.title,
-  clientLabel: file.clientLabel,
   proof: file.summary ?? `${file.title} (${file.type})`,
-  publicClaim: file.publicClaim,
   extractedText: file.extractedText,
   proofMeaning: file.proofMeaning,
   adHeader: file.adHeader,
@@ -70,23 +68,6 @@ function publicProofCopy(text, maxLength = 120) {
   const sliced = usable.slice(0, maxLength - 1);
   const lastSpace = sliced.lastIndexOf(" ");
   return `${sliced.slice(0, lastSpace > 60 ? lastSpace : maxLength - 1).trimEnd()}...`;
-}
-
-function publicProofName(source) {
-  const privateNames = [...hiddenPublicNames, source.clientLabel].filter(Boolean);
-  const withoutNames = privateNames.reduce((current, name) => {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return current.replace(new RegExp(`\\b${escaped}\\b`, "gi"), "");
-  }, source.client)
-    .replace(/_/g, " ")
-    .replace(/\bcopy of\b/gi, "")
-    .replace(/\bscreenshot\b/gi, "")
-    .replace(/\bproof\b/gi, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  const fallback = source.sourceType === "Conversion" ? source.publicClaim || source.adHeader : source.proof;
-  return publicProofCopy(withoutNames || fallback || "Verified proof source", 52);
 }
 
 function proofSnippet(proof) {
@@ -176,31 +157,18 @@ function buildHeadline(source) {
   };
 }
 
-function inferProofStrategy(source) {
-  const combined = [
-    source.adHeader,
-    source.publicClaim,
-    source.proofMeaning,
-    source.proof,
-    source.client,
-  ].filter(Boolean).join(" ").toLowerCase();
-
-  if (/viewing|listing viewing/i.test(combined)) return "The prospect came in with context.";
-  if (/referral/i.test(combined)) return "The referral did not come from a cold pitch.";
-  if (/enquiry|warm lead|lead was warm|start from cold/i.test(combined)) return "The call did not start from zero trust.";
-  if (/call made sales|super insightful|sales advice|sales training/i.test(combined)) return "The advice worked because it had context.";
-  if (/\$|closed|revenue|bootcamp/i.test(combined)) return "The sale was not the first touchpoint.";
-  if (/views|followers|organic views|monthly views/i.test(combined)) return "Reach only matters when buyers remember you.";
-  if (/chosen|competitors|established/i.test(combined)) return "The decision started before the call.";
-  return "The content gave the buyer a reason to come closer.";
+function bottomClaim(proof) {
+  if (/\$|closed|revenue/i.test(proof)) return "Turn proof into demand";
+  if (/views|followers/i.test(proof)) return "Make attention convert";
+  return "Get prospects that come to you";
 }
 
 function proofBlock(source) {
   if (source.sourceType === "Conversion" && /proof screenshot/i.test(source.fileType ?? "")) {
-    return `<div class="proof conversion-shot"><strong>${escapeHtml(publicProofName(source))}</strong></div>`;
+    return `<div class="proof conversion-shot"><strong>${escapeHtml(source.client)}</strong></div>`;
   }
 
-  return `<div class="proof transcript-signal"><strong>${escapeHtml(publicProofName(source))}</strong></div>`;
+  return `<div class="proof transcript-signal"><strong>${escapeHtml(source.client)}</strong></div>`;
 }
 
 function headlineSizeClass(headline) {
@@ -215,11 +183,12 @@ const styles = `*{box-sizing:border-box}body{margin:0;background:#eee;font-famil
 const cards = Array.from({ length: 20 }, (_, index) => {
   const id = `RE-${String(index + 1).padStart(2, "0")}`;
   const source = proofSources[index % proofSources.length];
+  const proof = publicProofCopy(source?.proof ?? "");
   const headline = buildHeadline(source);
-  const claim = inferProofStrategy(source);
+  const claim = bottomClaim(proof);
   const layout = proofLayouts[index % proofLayouts.length];
 
-  return `<article class="card" data-document-role="page" data-label="${id}"><div class="top"><span>${id}</span><b>${escapeHtml(layout)}</b></div><div class="${headlineSizeClass(headline)}"><span>${escapeHtml(headline.highlight)}</span><b>${escapeHtml(headline.lineOne)}</b><em>${escapeHtml(headline.lineTwo)}</em></div>${proofBlock(source, id)}<div class="bottom"><p>${escapeHtml(claim)}</p><i></i><strong>Make your content do more work before the sales call.</strong></div><footer><b>RADICAL EDGE</b><span>Join the masterclass &gt;</span></footer></article>`;
+  return `<article class="card" data-document-role="page" data-label="${id}"><div class="top"><span>${id}</span><b>${escapeHtml(layout)}</b></div><div class="${headlineSizeClass(headline)}"><span>${escapeHtml(headline.highlight)}</span><b>${escapeHtml(headline.lineOne)}</b><em>${escapeHtml(headline.lineTwo)}</em></div>${proofBlock(source, id)}<div class="bottom"><p>${escapeHtml(claim)} <span>already convinced</span></p><i></i><strong>Build a personal brand that attracts high-ticket clients without outsourcing your voice.</strong></div><footer><b>RADICAL EDGE</b><span>Join the masterclass &gt;</span></footer></article>`;
 });
 
 await mkdir(dirname(outFile), { recursive: true });
