@@ -20,7 +20,7 @@ type ProofSource = {
 
 type ProofTreatment = "Copy-only proof" | "Screenshot proof";
 
-type PreviewAd = {
+type ProofCardAd = {
   id: string;
   layout: string;
   angle: string;
@@ -288,7 +288,7 @@ function parseIndexes(value: string | null) {
   return parsed.length ? parsed : usableIndexes;
 }
 
-function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
+function buildAds(selectedProofIndexes: number[], seed: number): ProofCardAd[] {
   const selectedProofs = selectedProofIndexes.map((index) => proofSources[index]).filter(Boolean);
 
   return Array.from({ length: 20 }, (_, index) => {
@@ -313,7 +313,7 @@ function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
   });
 }
 
-function CanvaPreviewContent() {
+function ProofCardsContent() {
   const searchParams = useSearchParams();
   const params = {
     audience: searchParams.get("audience") || "Founders",
@@ -326,8 +326,8 @@ function CanvaPreviewContent() {
   const ads = useMemo(() => buildAds(params.proofIndexes, params.seed), [params.proofIndexes, params.seed]);
 
   return (
-    <main className="rendered-preview-page">
-      <header className="rendered-preview-header">
+    <main className="rendered-proof-card-page">
+      <header className="rendered-proof-card-header">
         <div>
           <span>RADICAL EDGE</span>
           <h1>{params.batch}</h1>
@@ -335,7 +335,7 @@ function CanvaPreviewContent() {
         <p>{params.audience} / {offer}</p>
       </header>
 
-      <section className="rendered-preview-grid" aria-label="Rendered Canva-ready proof cards">
+      <section className="rendered-proof-card-grid" aria-label="Generated proof cards">
         {ads.map((ad) => {
           return (
             <article className="rendered-card" data-document-role="page" data-label={ad.id} key={ad.id}>
@@ -364,10 +364,10 @@ function CanvaPreviewContent() {
   );
 }
 
-export default function CanvaPreviewPage() {
+export default function ProofCardsPage() {
   return (
-    <Suspense fallback={<main className="rendered-preview-page">Loading rendered cards...</main>}>
-      <CanvaPreviewContent />
+    <Suspense fallback={<main className="rendered-proof-card-page">Loading proof cards...</main>}>
+      <ProofCardsContent />
     </Suspense>
   );
 }

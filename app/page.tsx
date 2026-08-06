@@ -489,7 +489,7 @@ export default function Home() {
     [audience, mainPromise, selectedProofs, batchName, variantSeed],
   );
 
-  const renderedPreviewUrl = useMemo(() => {
+  const proofCardsUrl = useMemo(() => {
     const selectedIndexes = proofSources
       .map((source, index) => selectedProofLabels.includes(source.label) ? index : -1)
       .filter((index) => index >= 0);
@@ -500,7 +500,7 @@ export default function Home() {
       seed: String(variantSeed),
       proofs: selectedIndexes.join(","),
     });
-    return `./canva-preview/?${params.toString()}`;
+    return `./proof-cards/?${params.toString()}`;
   }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
 
   function toggleProof(label: string) {
@@ -685,7 +685,7 @@ export default function Home() {
           <div className="section-heading light"><span>02</span><h2>Proof card set</h2><small>{designs.length} designs</small></div>
           <div className="actions-bar">
             <button className="generate" onClick={generateProofCards}>Generate proof cards <span>→</span></button>
-            <a className="secondary-action link-action" href={renderedPreviewUrl} target="_blank" rel="noreferrer">Open generated proof cards</a>
+            <a className="secondary-action link-action" href={proofCardsUrl} target="_blank" rel="noreferrer">Open generated proof cards</a>
           </div>
 
           <div className="design-grid">
