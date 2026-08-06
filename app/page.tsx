@@ -507,7 +507,7 @@ export default function Home() {
     setSelectedProofLabels((current) => current.includes(label) ? current.filter((item) => item !== label) : [...current, label]);
   }
 
-  function generateProofPreviews() {
+  function generateProofCards() {
     setVariantSeed((current) => current + 1);
   }
 
@@ -682,9 +682,9 @@ export default function Home() {
         </aside>
 
         <section className="design-panel">
-          <div className="section-heading light"><span>02</span><h2>Proof preview set</h2><small>{designs.length} designs</small></div>
+          <div className="section-heading light"><span>02</span><h2>Proof card set</h2><small>{designs.length} designs</small></div>
           <div className="actions-bar">
-            <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
+            <button className="generate" onClick={generateProofCards}>Generate proof cards <span>→</span></button>
             <a className="secondary-action link-action" href={renderedPreviewUrl} target="_blank" rel="noreferrer">Open generated proof cards</a>
           </div>
 
