@@ -8,6 +8,7 @@ type ProofTreatment = "Copy-only proof" | "Screenshot proof" | "Narrative proof"
 type ProofSource = {
   label: string;
   client: string;
+  clientLabel?: string;
   proof: string;
   publicClaim?: string;
   extractedText?: string;
@@ -75,6 +76,15 @@ type AdRow = {
   Notes: string;
 };
 
+type ProofStrategy = {
+  publicClientType: string;
+  buyerMoment: string;
+  wrongSolution: string;
+  mechanism: string;
+  bottomLine: string;
+  metaAngle: string;
+};
+
 const radicalEdgeVoice =
   "Sharp founder/operator copy. Concrete pain. No hype. No generic marketing language.";
 
@@ -97,6 +107,7 @@ const testimonialSources: ProofSource[] = proofDatabase.clients
 const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file) => ({
   label: file.proofId ?? file.title,
   client: file.title,
+  clientLabel: file.clientLabel,
   proof: file.summary ?? file.title,
   publicClaim: file.publicClaim,
   extractedText: file.extractedText,
@@ -134,6 +145,23 @@ function proofSourceDisplayText(source: ProofSource) {
 
 function proofSourceTitle(source: ProofSource) {
   return source.client;
+}
+
+function publicProofName(source: ProofSource) {
+  const privateNames = [...hiddenPublicNames, source.clientLabel].filter(Boolean) as string[];
+  const withoutNames = privateNames.reduce((current, name) => {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return current.replace(new RegExp(`\\b${escaped}\\b`, "gi"), "");
+  }, source.client)
+    .replace(/_/g, " ")
+    .replace(/\bcopy of\b/gi, "")
+    .replace(/\bscreenshot\b/gi, "")
+    .replace(/\bproof\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const fallback = source.sourceType === "Conversion" ? source.publicClaim || source.adHeader : source.proof;
+  return publicProofCopy(withoutNames || fallback || "Verified proof source", 52);
 }
 
 function anonymiseProofText(text: string) {
@@ -249,15 +277,108 @@ function proofSnippet(proof: string) {
     .slice(0, 118);
 }
 
+function inferProofStrategy(source: ProofSource): ProofStrategy {
+  const combined = [
+    source.adHeader,
+    source.publicClaim,
+    source.proofMeaning,
+    source.proof,
+    source.client,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  if (/viewing|listing viewing/i.test(combined)) {
+    return {
+      publicClientType: "agent / adviser",
+      buyerMoment: "A buyer action came from content.",
+      wrongSolution: "More cold follow-up",
+      mechanism: "Content did the trust work before the viewing.",
+      bottomLine: "The prospect came in with context.",
+      metaAngle: "Content created a concrete buyer action, not just attention.",
+    };
+  }
+
+  if (/referral/i.test(combined)) {
+    return {
+      publicClientType: "agent / adviser",
+      buyerMoment: "A referral path opened through visible trust.",
+      wrongSolution: "Waiting for random word of mouth",
+      mechanism: "Authority content made the person easier to refer.",
+      bottomLine: "The referral did not come from a cold pitch.",
+      metaAngle: "Visible authority can make referrals less random.",
+    };
+  }
+
+  if (/enquiry|warm lead|lead was warm|start from cold/i.test(combined)) {
+    return {
+      publicClientType: "founder / expert",
+      buyerMoment: "The lead arrived with context.",
+      wrongSolution: "Starting every call from zero trust",
+      mechanism: "Content answered part of the sales conversation before WhatsApp.",
+      bottomLine: "The call did not start from zero trust.",
+      metaAngle: "The ad tests proof that content can pre-frame the sales call.",
+    };
+  }
+
+  if (/call made sales|super insightful|sales advice|sales training/i.test(combined)) {
+    return {
+      publicClientType: "expert with a personal brand",
+      buyerMoment: "Sales advice landed because the positioning was clear.",
+      wrongSolution: "Using a generic sales script",
+      mechanism: "The sales process was tied to the person's actual market position.",
+      bottomLine: "The advice worked because it had context.",
+      metaAngle: "Generic sales scripts fail when the offer context is unclear.",
+    };
+  }
+
+  if (/\$|closed|revenue|bootcamp/i.test(combined)) {
+    return {
+      publicClientType: "expert / service provider",
+      buyerMoment: "Revenue followed after trust was built before the call.",
+      wrongSolution: "Trying to close cold attention",
+      mechanism: "Organic content created sales context before the buyer conversation.",
+      bottomLine: "The sale was not the first touchpoint.",
+      metaAngle: "The proof tests whether revenue claims work better when tied to pre-call trust.",
+    };
+  }
+
+  if (/views|followers|organic views|monthly views/i.test(combined)) {
+    return {
+      publicClientType: "education / expert business",
+      buyerMoment: "Reach became more useful because the content was focused.",
+      wrongSolution: "Posting volume without a point of view",
+      mechanism: "Clearer hooks and formats gave buyers a reason to remember the brand.",
+      bottomLine: "Reach only matters when buyers remember you.",
+      metaAngle: "The proof tests whether attention with clearer positioning attracts better demand.",
+    };
+  }
+
+  if (/chosen|competitors|established/i.test(combined)) {
+    return {
+      publicClientType: "agent / adviser",
+      buyerMoment: "The buyer had already compared the person before the call.",
+      wrongSolution: "Trying to win purely inside the sales call",
+      mechanism: "Content made the buyer trust the person before comparing options.",
+      bottomLine: "The decision started before the call.",
+      metaAngle: "The proof tests whether comparison-based authority creates more qualified interest.",
+    };
+  }
+
+  return {
+    publicClientType: "founder / expert",
+    buyerMoment: "The content gave the buyer a reason to move closer.",
+    wrongSolution: "Posting without a conversion path",
+    mechanism: "The message connected attention to a real buying conversation.",
+    bottomLine: "The content gave the buyer a reason to come closer.",
+    metaAngle: "The proof tests whether concrete buyer behaviour beats generic authority claims.",
+  };
+}
+
 function buildProofLines(design: AdRow) {
   return [design["Proof Name"]];
 }
 
 function bottomClaim(design: AdRow) {
-  if (/\$|closed|revenue/i.test(design["Middle Text"])) return "Revenue is easier when trust exists first.";
-  if (/views|followers/i.test(design["Middle Text"])) return "Views only matter when they move buyers.";
-  if (/viewing|referral|enquiry|lead|call/i.test(design["Middle Text"])) return "The sales conversation started before the call.";
-  return "Good content gives buyers a reason to come closer.";
+  return design["Bottom Text"];
 }
 
 function buildRows({
@@ -288,16 +409,17 @@ function buildRows({
     const sourceType = proofSource?.sourceType ?? "Transcript";
     const proofTreatment = proofSource?.treatment ?? "Copy-only proof";
     const proofLabel = proofSource?.client ?? "Unassigned";
-    const proofName = proofSourceTitle(proofSource);
+    const proofName = publicProofName(proofSource);
+    const strategy = inferProofStrategy(proofSource);
     const fittedProofText = publicProofCopy(proofSource?.publicClaim || proofText, 120);
     const headline = buildProofHeadline(proofSource);
     const middleText = sourceType === "Conversion"
       ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.displayProof || proofSource.client
       : "Private transcript shaped the claim";
     const centerMode = proofTreatment === "Screenshot proof" ? "Screenshot proof" : "Copy-only proof";
-    const bottomText = `${cta}. Results vary.`;
+    const bottomText = strategy.bottomLine;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
-    const visualDirection = `${baselineInstruction} Use the selected proof source as the evidence base. Transcript sources shape the headline/claim. Conversion screenshots go in the center frame. Do not use client photos or founder photos in this Canva draft.`;
+    const visualDirection = `${baselineInstruction} Use the selected proof source as the evidence base. Follow content/proof-ad-reference-library.md: lead with result or buyer moment, then show the business bottleneck and mechanism. Transcript sources shape the headline/claim. Conversion screenshots go in the center frame. Do not use client photos or founder photos in this Canva draft.`;
     const assetNeeded = proofTreatment === "Screenshot proof"
       ? `Manual screenshot paste. ${proofSource.needsBlur || "Blur private details before publishing."}`
       : "No image asset. Use anonymised copy-only proof shaped from the manual proof database.";
@@ -308,14 +430,14 @@ function buildRows({
       "Batch Name": batchName,
       "Target Audience": audience,
       "Angle Type": "Proof / Result",
-      "Proof Client": proofLabel,
+      "Proof Client": proofSource?.clientLabel ?? proofLabel,
       "Proof Name": proofName,
       "Proof Source Type": sourceType,
       "Proof Treatment": proofTreatment,
       "Proof File ID": proofSource?.fileId ?? "",
       "Baseline Design": baselineDesign,
       "Pain / Desire": fittedProofText,
-      "Core Message": mainPromise,
+      "Core Message": strategy.metaAngle,
       Hook: hook,
       Subhook: subhook,
       "Proof / Evidence": middleText,
@@ -331,10 +453,10 @@ function buildRows({
       "Middle Text": middleText,
       "Center Mode": centerMode,
       "Bottom Text": bottomText,
-      "Meta Primary Text": `${subhook}\n\nHere is the proof source we would build the ad around.\n\n${cta}. Results vary.`,
-      "Meta Headline": hook.length > 52 ? hook.slice(0, 49).trimEnd() + "..." : hook,
-      "Meta Description": `${offer} for ${audience}.`,
-      Hypothesis: `If ${audience.toLowerCase()} recognise this pain, this proof should create more qualified masterclass interest.`,
+      "Meta Primary Text": `${strategy.bottomLine}\n\n${strategy.buyerMoment}\n\n${cta}. Results vary.`,
+      "Meta Headline": headline.highlight.length > 52 ? headline.highlight.slice(0, 49).trimEnd() + "..." : headline.highlight,
+      "Meta Description": `${strategy.publicClientType}. ${offer}.`,
+      Hypothesis: `If ${audience.toLowerCase()} recognise ${strategy.wrongSolution.toLowerCase()}, this proof should create more qualified masterclass interest.`,
       Status: !hasUsablePublicProof(proofSource) || /pending|verify|needs/i.test(proofSource?.status ?? "") ? "Verify proof" : "Ready for Canva",
       Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofName}. ${proofSource.status}`,
     };
@@ -343,7 +465,7 @@ function buildRows({
 
 export default function Home() {
   const [audience, setAudience] = useState("Founders");
-  const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
+  const [mainPromise, setMainPromise] = useState("Make your content do more work before the sales call.");
   const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(conversionSources.filter(hasUsablePublicProof).map((source) => source.label));
   const [batchName, setBatchName] = useState("Masterclass Batch 01");
   const [variantSeed, setVariantSeed] = useState(0);
@@ -443,6 +565,12 @@ export default function Home() {
           <div className="fixed-offer">
             <span>Offer</span>
             <b>{offer}</b>
+          </div>
+
+          <div className="strategy-card">
+            <span>Reference loaded</span>
+            <b>proof-ad-reference-library.md</b>
+            <p>Lead with the result or buyer moment. Keep names internal. Show the bottleneck, mechanism and proof source.</p>
           </div>
 
           <label htmlFor="audience">Audience</label>
@@ -569,7 +697,7 @@ export default function Home() {
                   <div className="sample-bottom">
                     <p>{bottomClaim(design)}</p>
                     <i />
-                    <strong>Learn how this happened inside the one-day masterclass</strong>
+                    <strong>{mainPromise}</strong>
                   </div>
                 </div>
               </article>

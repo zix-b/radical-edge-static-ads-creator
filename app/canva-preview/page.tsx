@@ -6,6 +6,7 @@ import proofDatabase from "../../content/proof-library.json";
 
 type ProofSource = {
   client: string;
+  clientLabel?: string;
   proof: string;
   publicClaim?: string;
   extractedText?: string;
@@ -33,7 +34,13 @@ type PreviewAd = {
     lineOne: string;
     lineTwo: string;
   };
+  bottomLine: string;
   cta: string;
+};
+
+type ProofStrategy = {
+  buyerMoment: string;
+  bottomLine: string;
 };
 
 const offer = "One-day Radical Edge masterclass";
@@ -55,6 +62,7 @@ const testimonialSources: ProofSource[] = proofDatabase.clients
 
 const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file) => ({
   client: file.title,
+  clientLabel: file.clientLabel,
   proof: file.summary ?? file.title,
   publicClaim: file.publicClaim,
   extractedText: file.extractedText,
@@ -97,6 +105,23 @@ function publicProofCopy(text: string, maxLength = 120) {
   const sliced = usable.slice(0, maxLength - 1);
   const lastSpace = sliced.lastIndexOf(" ");
   return `${sliced.slice(0, lastSpace > 60 ? lastSpace : maxLength - 1).trimEnd()}...`;
+}
+
+function publicProofName(source: ProofSource) {
+  const privateNames = [...hiddenPublicNames, source.clientLabel].filter(Boolean) as string[];
+  const withoutNames = privateNames.reduce((current, name) => {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return current.replace(new RegExp(`\\b${escaped}\\b`, "gi"), "");
+  }, source.client)
+    .replace(/_/g, " ")
+    .replace(/\bcopy of\b/gi, "")
+    .replace(/\bscreenshot\b/gi, "")
+    .replace(/\bproof\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const fallback = source.sourceType === "Conversion" ? source.publicClaim || source.adHeader : source.proof;
+  return publicProofCopy(withoutNames || fallback || "Verified proof source", 52);
 }
 
 function proofSnippet(proof: string) {
@@ -186,11 +211,68 @@ function buildHeadline(source: ProofSource) {
   };
 }
 
-function bottomClaim(proof: string) {
-  if (/\$|closed|revenue/i.test(proof)) return "Revenue is easier when trust exists first.";
-  if (/views|followers/i.test(proof)) return "Views only matter when they move buyers.";
-  if (/viewing|referral|enquiry|lead|call/i.test(proof)) return "The sales conversation started before the call.";
-  return "Good content gives buyers a reason to come closer.";
+function inferProofStrategy(source: ProofSource): ProofStrategy {
+  const combined = [
+    source.adHeader,
+    source.publicClaim,
+    source.proofMeaning,
+    source.proof,
+    source.client,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  if (/viewing|listing viewing/i.test(combined)) {
+    return {
+      buyerMoment: "A buyer action came from content.",
+      bottomLine: "The prospect came in with context.",
+    };
+  }
+
+  if (/referral/i.test(combined)) {
+    return {
+      buyerMoment: "A referral path opened through visible trust.",
+      bottomLine: "The referral did not come from a cold pitch.",
+    };
+  }
+
+  if (/enquiry|warm lead|lead was warm|start from cold/i.test(combined)) {
+    return {
+      buyerMoment: "The lead arrived with context.",
+      bottomLine: "The call did not start from zero trust.",
+    };
+  }
+
+  if (/call made sales|super insightful|sales advice|sales training/i.test(combined)) {
+    return {
+      buyerMoment: "Sales advice landed because the positioning was clear.",
+      bottomLine: "The advice worked because it had context.",
+    };
+  }
+
+  if (/\$|closed|revenue|bootcamp/i.test(combined)) {
+    return {
+      buyerMoment: "Revenue followed after trust was built before the call.",
+      bottomLine: "The sale was not the first touchpoint.",
+    };
+  }
+
+  if (/views|followers|organic views|monthly views/i.test(combined)) {
+    return {
+      buyerMoment: "Reach became more useful because the content was focused.",
+      bottomLine: "Reach only matters when buyers remember you.",
+    };
+  }
+
+  if (/chosen|competitors|established/i.test(combined)) {
+    return {
+      buyerMoment: "The buyer had already compared the person before the call.",
+      bottomLine: "The decision started before the call.",
+    };
+  }
+
+  return {
+    buyerMoment: "The content gave the buyer a reason to move closer.",
+    bottomLine: "The content gave the buyer a reason to come closer.",
+  };
 }
 
 function parseIndexes(value: string | null) {
@@ -212,19 +294,21 @@ function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
   return Array.from({ length: 20 }, (_, index) => {
     const variantIndex = index + seed;
     const proofSource = selectedProofs[variantIndex % selectedProofs.length] ?? proofSources[0];
+    const strategy = inferProofStrategy(proofSource);
     return {
       id: `RE-${String(index + 1).padStart(2, "0")}`,
       layout: proofLayouts[variantIndex % proofLayouts.length],
       angle: "Proof / Result",
-      proofName: proofSource.client,
-      proof: proofSource.sourceType === "Conversion"
-        ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.proof || proofSource.client
-        : "Private transcript shaped the claim",
+      proofName: publicProofName(proofSource),
       sourceType: proofSource.sourceType,
       treatment: proofSource.sourceType === "Conversion" && /screenshot/i.test(proofSource.fileType ?? "") ? "Screenshot proof" : "Copy-only proof",
       fileId: proofSource.fileId ?? "",
       headline: buildHeadline(proofSource),
+      proof: proofSource.sourceType === "Conversion"
+        ? proofSource.publicClaim || proofSource.proofMeaning || strategy.buyerMoment
+        : "Private transcript shaped the claim",
       cta: "Join the masterclass",
+      bottomLine: strategy.bottomLine,
     };
   });
 }
@@ -233,7 +317,7 @@ function CanvaPreviewContent() {
   const searchParams = useSearchParams();
   const params = {
     audience: searchParams.get("audience") || "Founders",
-    promise: searchParams.get("promise") || "Build a personal brand that attracts high-ticket clients without outsourcing your voice.",
+    promise: searchParams.get("promise") || "Make your content do more work before the sales call.",
     batch: searchParams.get("batch") || "Masterclass Batch 01",
     seed: Number(searchParams.get("seed") || 0),
     proofIndexes: parseIndexes(searchParams.get("proofs")),
@@ -265,7 +349,7 @@ function CanvaPreviewContent() {
                 <strong>{ad.proofName}</strong>
               </div>
               <div className="rendered-bottom">
-                <p>{bottomClaim(ad.proof)}</p>
+                <p>{ad.bottomLine}</p>
                 <i />
                 <strong>{params.promise}</strong>
               </div>
