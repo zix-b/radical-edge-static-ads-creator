@@ -500,7 +500,7 @@ export default function Home() {
       seed: String(variantSeed),
       proofs: selectedIndexes.join(","),
     });
-    return `/canva-preview/?${params.toString()}`;
+    return `./canva-preview/?${params.toString()}`;
   }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
 
   function toggleProof(label: string) {
