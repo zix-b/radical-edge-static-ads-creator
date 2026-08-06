@@ -91,7 +91,7 @@ function publicProofCopy(text: string, maxLength = 120) {
     .replace(/\s+/g, " ")
     .trim();
 
-  const usable = cleaned || "Approved proof goes here after the source is verified.";
+  const usable = cleaned || "Use the verified proof source here.";
   if (usable.length <= maxLength) return usable;
 
   const sliced = usable.slice(0, maxLength - 1);
@@ -126,70 +126,71 @@ function buildHeadline(source: ProofSource) {
   if (/\$30k|\$10k|closed/i.test(proofText)) {
     return {
       highlight: "$30K+ FROM ORGANIC LEADS",
-      lineOne: "including a fast $10K sales window",
-      lineTwo: "from demand built before the call",
+      lineOne: "$10K came in fast",
+      lineTwo: "after the trust was built",
     };
   }
 
   if (/1M views|1,000 followers|9 videos|5 hours/i.test(proofText)) {
     return {
       highlight: "1M VIEWS FROM 9 VIDEOS",
-      lineOne: "and 1,000 followers from focused content",
-      lineTwo: "not endless posting",
+      lineOne: "1,000 followers followed",
+      lineTwo: "from a focused shoot",
     };
   }
 
   if (/Chosen over more established competitors/i.test(proofText)) {
     return {
       highlight: "CHOSEN OVER BIGGER COMPETITORS",
-      lineOne: "before the sales call started",
-      lineTwo: "because trust was built upfront",
+      lineOne: "because the content did the trust work",
+      lineTwo: "",
     };
   }
 
   if (/\$50k|bootcamp/i.test(proofText)) {
     return {
       highlight: "$50K+ BOOTCAMP REVENUE",
-      lineOne: "from stronger authority positioning",
-      lineTwo: "not louder promotion",
+      lineOne: "from clearer authority",
+      lineTwo: "not louder posting",
     };
   }
 
   if (/attractive character|content topics|video editing|attention|leads/i.test(proofText)) {
     return {
       highlight: "CLEARER CHARACTER",
-      lineOne: "clearer content, stronger attention",
-      lineTwo: "so the right leads know why you matter",
+      lineOne: "clearer topics",
+      lineTwo: "better lead quality",
     };
   }
 
   if (/1M\+ monthly views|parent\/student trust/i.test(proofText)) {
     return {
       highlight: "1M+ MONTHLY VIEWS",
-      lineOne: "with stronger trust before enquiry",
-      lineTwo: "from authority content",
+      lineOne: "with more trust before enquiry",
+      lineTwo: "",
     };
   }
 
   if (/combined TikTok\/Instagram|2,500 followers|enquiries/i.test(proofText)) {
     return {
       highlight: "NEARLY 1M COMBINED VIEWS",
-      lineOne: "plus stronger recognition and enquiries",
-      lineTwo: "from consistent authority",
+      lineOne: "and more enquiries",
+      lineTwo: "from clearer positioning",
     };
   }
 
   return {
-    highlight: "PROOF FROM AUTHORITY CONTENT",
-    lineOne: "when the market understands why you matter",
-    lineTwo: "not cold chasing",
+    highlight: "CONTENT THAT CREATES CONTEXT",
+    lineOne: "before the sales call",
+    lineTwo: "",
   };
 }
 
 function bottomClaim(proof: string) {
-  if (/\$|closed|revenue/i.test(proof)) return "Turn proof into demand";
-  if (/views|followers/i.test(proof)) return "Make attention convert";
-  return "Get prospects that come to you";
+  if (/\$|closed|revenue/i.test(proof)) return "Revenue is easier when trust exists first.";
+  if (/views|followers/i.test(proof)) return "Views only matter when they move buyers.";
+  if (/viewing|referral|enquiry|lead|call/i.test(proof)) return "The sales conversation started before the call.";
+  return "Good content gives buyers a reason to come closer.";
 }
 
 function parseIndexes(value: string | null) {
@@ -218,7 +219,7 @@ function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
       proofName: proofSource.client,
       proof: proofSource.sourceType === "Conversion"
         ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.proof || proofSource.client
-        : "Transcript signal: headline only",
+        : "Private transcript shaped the claim",
       sourceType: proofSource.sourceType,
       treatment: proofSource.sourceType === "Conversion" && /screenshot/i.test(proofSource.fileType ?? "") ? "Screenshot proof" : "Copy-only proof",
       fileId: proofSource.fileId ?? "",
@@ -255,10 +256,6 @@ function CanvaPreviewContent() {
           return (
             <article className="rendered-card" data-document-role="page" data-label={ad.id} key={ad.id}>
               <div className="rendered-noise" />
-              <div className="rendered-topline">
-                <span>{ad.id}</span>
-                <b>{ad.layout}</b>
-              </div>
               <h2>
                 <span>{ad.headline.highlight}</span>
                 {ad.headline.lineOne}
@@ -268,12 +265,11 @@ function CanvaPreviewContent() {
                 <strong>{ad.proofName}</strong>
               </div>
               <div className="rendered-bottom">
-                <p>{bottomClaim(ad.proof)} <span>already convinced</span></p>
+                <p>{bottomClaim(ad.proof)}</p>
                 <i />
                 <strong>{params.promise}</strong>
               </div>
               <footer>
-                <b>RADICAL EDGE</b>
                 <span>{ad.cta} &gt;</span>
               </footer>
             </article>

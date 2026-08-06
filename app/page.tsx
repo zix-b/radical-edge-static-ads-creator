@@ -76,7 +76,7 @@ type AdRow = {
 };
 
 const radicalEdgeVoice =
-  "Sharp, direct, founder-led, high-agency, strategic, not hypey, not guru-ish.";
+  "Sharp founder/operator copy. Concrete pain. No hype. No generic marketing language.";
 
 const offer = "One-day Radical Edge masterclass";
 const editableCanvaDesignUrl = "https://www.canva.com/d/urqxhQ5Rp4ZgXhC";
@@ -154,7 +154,7 @@ function publicProofCopy(text: string, maxLength = 120) {
     .replace(/\s+/g, " ")
     .trim();
 
-  const usable = cleaned || "Approved proof goes here after the source is verified.";
+  const usable = cleaned || "Use the verified proof source here.";
   if (usable.length <= maxLength) return usable;
 
   const sliced = usable.slice(0, maxLength - 1);
@@ -180,63 +180,63 @@ function buildProofHeadline(source: ProofSource) {
   if (/\$30k|\$10k|closed/i.test(proofText)) {
     return {
       highlight: "$30K+ FROM ORGANIC LEADS",
-      lineOne: "including a fast $10K sales window",
-      lineTwo: "from demand built before the call",
+      lineOne: "$10K came in fast",
+      lineTwo: "after the trust was built",
     };
   }
 
   if (/1M views|1,000 followers|9 videos|5 hours/i.test(proofText)) {
     return {
       highlight: "1M VIEWS FROM 9 VIDEOS",
-      lineOne: "and 1,000 followers from focused content",
-      lineTwo: "not endless posting",
+      lineOne: "1,000 followers followed",
+      lineTwo: "from a focused shoot",
     };
   }
 
   if (/Chosen over more established competitors/i.test(proofText)) {
     return {
       highlight: "CHOSEN OVER BIGGER COMPETITORS",
-      lineOne: "before the sales call started",
-      lineTwo: "because trust was built upfront",
+      lineOne: "because the content did the trust work",
+      lineTwo: "",
     };
   }
 
   if (/\$50k|bootcamp/i.test(proofText)) {
     return {
       highlight: "$50K+ BOOTCAMP REVENUE",
-      lineOne: "from stronger authority positioning",
-      lineTwo: "not louder promotion",
+      lineOne: "from clearer authority",
+      lineTwo: "not louder posting",
     };
   }
 
   if (/attractive character|content topics|video editing|attention|leads/i.test(proofText)) {
     return {
       highlight: "CLEARER CHARACTER",
-      lineOne: "clearer content, stronger attention",
-      lineTwo: "so the right leads know why you matter",
+      lineOne: "clearer topics",
+      lineTwo: "better lead quality",
     };
   }
 
   if (/1M\+ monthly views|parent\/student trust/i.test(proofText)) {
     return {
       highlight: "1M+ MONTHLY VIEWS",
-      lineOne: "with stronger trust before enquiry",
-      lineTwo: "from authority content",
+      lineOne: "with more trust before enquiry",
+      lineTwo: "",
     };
   }
 
   if (/combined TikTok\/Instagram|2,500 followers|enquiries/i.test(proofText)) {
     return {
       highlight: "NEARLY 1M COMBINED VIEWS",
-      lineOne: "plus stronger recognition and enquiries",
-      lineTwo: "from consistent authority",
+      lineOne: "and more enquiries",
+      lineTwo: "from clearer positioning",
     };
   }
 
   return {
-    highlight: "PROOF FROM AUTHORITY CONTENT",
-    lineOne: "when the market understands why you matter",
-    lineTwo: "not cold chasing",
+    highlight: "CONTENT THAT CREATES CONTEXT",
+    lineOne: "before the sales call",
+    lineTwo: "",
   };
 }
 
@@ -254,9 +254,10 @@ function buildProofLines(design: AdRow) {
 }
 
 function bottomClaim(design: AdRow) {
-  if (/\$|closed|revenue/i.test(design["Middle Text"])) return "Turn proof into demand";
-  if (/views|followers/i.test(design["Middle Text"])) return "Make attention convert";
-  return "Get prospects that come to you";
+  if (/\$|closed|revenue/i.test(design["Middle Text"])) return "Revenue is easier when trust exists first.";
+  if (/views|followers/i.test(design["Middle Text"])) return "Views only matter when they move buyers.";
+  if (/viewing|referral|enquiry|lead|call/i.test(design["Middle Text"])) return "The sales conversation started before the call.";
+  return "Good content gives buyers a reason to come closer.";
 }
 
 function buildRows({
@@ -280,8 +281,8 @@ function buildRows({
     const layout = proofLayouts[variantIndex % proofLayouts.length];
     const id = `RE-${String(index + 1).padStart(2, "0")}`;
     const proofText = proofSource?.proof ?? "Select a proof source.";
-    const hook = `Proof ad for ${audience.toLowerCase()}`;
-    const subhook = `Build a personal brand that attracts high-ticket clients without outsourcing your voice.`;
+    const hook = `Proof for ${audience.toLowerCase()}`;
+    const subhook = `Your content should make the sales call easier, not create more cold follow-up.`;
     const cta = "Join the masterclass";
     const topText = hook;
     const sourceType = proofSource?.sourceType ?? "Transcript";
@@ -292,7 +293,7 @@ function buildRows({
     const headline = buildProofHeadline(proofSource);
     const middleText = sourceType === "Conversion"
       ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.displayProof || proofSource.client
-      : "Transcript signal: headline only";
+      : "Private transcript shaped the claim";
     const centerMode = proofTreatment === "Screenshot proof" ? "Screenshot proof" : "Copy-only proof";
     const bottomText = `${cta}. Results vary.`;
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
@@ -330,10 +331,10 @@ function buildRows({
       "Middle Text": middleText,
       "Center Mode": centerMode,
       "Bottom Text": bottomText,
-      "Meta Primary Text": `${hook}\n\n${subhook}\n\n${mainPromise}\n\n${cta}. Example only. Results vary.`,
+      "Meta Primary Text": `${subhook}\n\nHere is the proof source we would build the ad around.\n\n${cta}. Results vary.`,
       "Meta Headline": hook.length > 52 ? hook.slice(0, 49).trimEnd() + "..." : hook,
       "Meta Description": `${offer} for ${audience}.`,
-      Hypothesis: `If ${audience.toLowerCase()} trust this proof source, then this creative should improve qualified attention for the masterclass.`,
+      Hypothesis: `If ${audience.toLowerCase()} recognise this pain, this proof should create more qualified masterclass interest.`,
       Status: !hasUsablePublicProof(proofSource) || /pending|verify|needs/i.test(proofSource?.status ?? "") ? "Verify proof" : "Ready for Canva",
       Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofName}. ${proofSource.status}`,
     };
@@ -555,13 +556,8 @@ export default function Home() {
             {designs.map((design, index) => {
               return (
               <article className={`design-card design-${(index % 5) + 1}`} key={design["Ad ID"]}>
-                <div className="design-meta">
-                  <span>{design["Ad ID"]}</span>
-                  <b>{design["Canva Layout Type"]}</b>
-                </div>
                 <div className="mock-static-ad">
                   <div className="sample-noise" />
-                  <small>{design["Angle Type"]}</small>
                   <h3>
                     <span>{design["Headline Highlight"]}</span>
                     {design["Headline Line One"]}
@@ -571,7 +567,7 @@ export default function Home() {
                     {buildProofLines(design).map((line) => <span className="proof-line" key={line}>{line}</span>)}
                   </div>
                   <div className="sample-bottom">
-                    <p>{bottomClaim(design)} <span>already convinced</span></p>
+                    <p>{bottomClaim(design)}</p>
                     <i />
                     <strong>Learn how this happened inside the one-day masterclass</strong>
                   </div>
