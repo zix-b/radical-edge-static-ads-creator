@@ -76,6 +76,7 @@ assert.ok(proofDatabase.conversionFiles.every((file) => file.adHeader && file.pr
 assert.ok(baselineAsset, "A design sample baseline is required.");
 
 const canvaImportSource = readFileSync(new URL("./export_canva_batch_html.mjs", import.meta.url), "utf8");
+const appPageSource = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 assert.ok(canvaImportSource.includes("mock-static-ad"), "Canva import must use the same static ad card structure as the website preview.");
 assert.ok(canvaImportSource.includes("sample-noise-img"), "Canva import must use a real image layer for the background.");
 assert.ok(canvaImportSource.includes("proof-slot"), "Canva import must use the same proof slot structure as the website preview.");
@@ -83,6 +84,8 @@ assert.ok(canvaImportSource.includes("sample-bottom"), "Canva import must use th
 assert.ok(!canvaImportSource.includes("class=\"card\""), "Canva import must not use the old separate card renderer.");
 assert.ok(!canvaImportSource.includes("class=\"headline"), "Canva import must not use the old separate headline renderer.");
 assert.ok(!canvaImportSource.includes("class=\"proof "), "Canva import must not use the old separate proof renderer.");
+assert.ok(!/https:\/\/www\.canva\.com\/d\//.test(appPageSource), "App page must not hardcode a Canva design URL.");
+assert.ok(appPageSource.includes("Open generated proof cards"), "App page must open the generated proof-card URL.");
 
 const checks = angles.map((angle, index) => {
   const id = `RE-${String(index + 1).padStart(2, "0")}`;
