@@ -147,7 +147,7 @@ function proofSourceTitle(source: ProofSource) {
 }
 
 function driveImageUrl(fileId: string) {
-  return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1200`;
+  return `https://drive.google.com/uc?export=view&id=${encodeURIComponent(fileId)}`;
 }
 
 function publicProofName(source: ProofSource) {
