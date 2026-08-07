@@ -229,18 +229,23 @@ function buildAds(selectedProofIndexes: number[], seed: number): PreviewAd[] {
   });
 }
 
-function CanvaPreviewContent() {
-  const searchParams = useSearchParams();
-  const params = {
-    audience: searchParams.get("audience") || "Founders",
-    promise: searchParams.get("promise") || "Build a personal brand that attracts high-ticket clients without outsourcing your voice.",
-    batch: searchParams.get("batch") || "Masterclass Batch 01",
-    seed: Number(searchParams.get("seed") || 0),
-    proofIndexes: parseIndexes(searchParams.get("proofs")),
-  };
+type PreviewParams = {
+  audience: string;
+  promise: string;
+  batch: string;
+  seed: number;
+  proofIndexes: number[];
+};
 
-  const ads = useMemo(() => buildAds(params.proofIndexes, params.seed), [params.proofIndexes, params.seed]);
+const defaultPreviewParams: PreviewParams = {
+  audience: "Founders",
+  promise: "Build a personal brand that attracts high-ticket clients without outsourcing your voice.",
+  batch: "Masterclass Batch 01",
+  seed: 0,
+  proofIndexes: parseIndexes(null),
+};
 
+function RenderedCards({ params, ads }: { params: PreviewParams; ads: PreviewAd[] }) {
   return (
     <main className="rendered-preview-page">
       <header className="rendered-preview-header">
@@ -255,6 +260,7 @@ function CanvaPreviewContent() {
         {ads.map((ad) => {
           return (
             <article className="rendered-card" data-document-role="page" data-label={ad.id} key={ad.id}>
+              <img className="rendered-noise-img" src="../radical-edge-ad-background.png" alt="" />
               <div className="rendered-noise" />
               <h2>
                 <span>{ad.headline.highlight}</span>
@@ -280,9 +286,28 @@ function CanvaPreviewContent() {
   );
 }
 
+function StaticCanvaFallback() {
+  return <RenderedCards params={defaultPreviewParams} ads={buildAds(defaultPreviewParams.proofIndexes, defaultPreviewParams.seed)} />;
+}
+
+function CanvaPreviewContent() {
+  const searchParams = useSearchParams();
+  const params = {
+    audience: searchParams.get("audience") || "Founders",
+    promise: searchParams.get("promise") || "Build a personal brand that attracts high-ticket clients without outsourcing your voice.",
+    batch: searchParams.get("batch") || "Masterclass Batch 01",
+    seed: Number(searchParams.get("seed") || 0),
+    proofIndexes: parseIndexes(searchParams.get("proofs")),
+  };
+
+  const ads = useMemo(() => buildAds(params.proofIndexes, params.seed), [params.proofIndexes, params.seed]);
+
+  return <RenderedCards params={params} ads={ads} />;
+}
+
 export default function CanvaPreviewPage() {
   return (
-    <Suspense fallback={<main className="rendered-preview-page">Loading rendered cards...</main>}>
+    <Suspense fallback={<StaticCanvaFallback />}>
       <CanvaPreviewContent />
     </Suspense>
   );
