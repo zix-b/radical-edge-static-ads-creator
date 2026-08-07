@@ -500,10 +500,7 @@ export default function Home() {
       seed: String(variantSeed),
       proofs: selectedIndexes.join(","),
     });
-    const liveBasePath = typeof window !== "undefined" && window.location.pathname.startsWith("/radical-edge-static-ads-creator")
-      ? "/radical-edge-static-ads-creator"
-      : "";
-    return `${liveBasePath}/canva-preview/?${params.toString()}`;
+    return `./canva-preview/?${params.toString()}`;
   }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
 
   function toggleProof(label: string) {
