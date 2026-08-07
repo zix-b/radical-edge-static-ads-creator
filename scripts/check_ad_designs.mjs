@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import proofDatabase from "../content/proof-library.json" with { type: "json" };
 
 const angles = Array(20).fill("Proof / Result");
@@ -73,6 +74,16 @@ assert.ok(conversionProofs.length > 0, "At least one Conversion proof source is 
 assert.ok(proofDatabase.conversionFiles.every((file) => file.summary && file.status), "Every Conversion proof source needs a summary and verification status.");
 assert.ok(proofDatabase.conversionFiles.every((file) => file.adHeader && file.proofMeaning), "Every Conversion proof source needs extracted proof meaning and an ad header.");
 assert.ok(baselineAsset, "A design sample baseline is required.");
+
+const homePageSource = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const canvaPreviewSource = readFileSync(new URL("../app/canva-preview/page.tsx", import.meta.url), "utf8");
+
+assert.ok(homePageSource.includes("mock-static-ad"), "Homepage preview must render the static ad card.");
+assert.ok(homePageSource.includes("proof-slot"), "Homepage preview must render the proof slot.");
+assert.ok(canvaPreviewSource.includes("mock-static-ad rendered-static-ad"), "Canva preview must reuse the homepage static ad card markup.");
+assert.ok(canvaPreviewSource.includes("proof-slot"), "Canva preview must reuse the homepage proof slot markup.");
+assert.ok(!canvaPreviewSource.includes("rendered-proof"), "Canva preview should not use the old separate proof renderer.");
+assert.ok(!canvaPreviewSource.includes("rendered-bottom"), "Canva preview should not use the old separate bottom renderer.");
 
 const checks = angles.map((angle, index) => {
   const id = `RE-${String(index + 1).padStart(2, "0")}`;

@@ -336,26 +336,25 @@ function CanvaPreviewContent() {
       </header>
 
       <section className="rendered-preview-grid" aria-label="Rendered Canva-ready proof cards">
-        {ads.map((ad) => {
+        {ads.map((ad, index) => {
           return (
-            <article className="rendered-card" data-document-role="page" data-label={ad.id} key={ad.id}>
-              <div className="rendered-noise" />
-              <h2>
-                <span>{ad.headline.highlight}</span>
-                {ad.headline.lineOne}
-                <em>{ad.headline.lineTwo}</em>
-              </h2>
-              <div className={`rendered-proof ${ad.treatment === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
-                <strong>{ad.proofName}</strong>
+            <article className={`rendered-card rendered-design-card design-${(index % 5) + 1}`} data-document-role="page" data-label={ad.id} key={ad.id}>
+              <div className="mock-static-ad rendered-static-ad">
+                <div className="sample-noise" />
+                <h3>
+                  <span>{ad.headline.highlight}</span>
+                  {ad.headline.lineOne}
+                  <em>{ad.headline.lineTwo}</em>
+                </h3>
+                <div className={`proof-slot ${ad.treatment === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
+                  <span className="proof-line">{ad.proofName}</span>
+                </div>
+                <div className="sample-bottom">
+                  <p>{ad.bottomLine}</p>
+                  <i />
+                  <strong>{params.promise}</strong>
+                </div>
               </div>
-              <div className="rendered-bottom">
-                <p>{ad.bottomLine}</p>
-                <i />
-                <strong>{params.promise}</strong>
-              </div>
-              <footer>
-                <span>{ad.cta} &gt;</span>
-              </footer>
             </article>
           );
         })}
