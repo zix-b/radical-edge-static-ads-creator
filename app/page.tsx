@@ -146,6 +146,10 @@ function proofSourceTitle(source: ProofSource) {
   return source.client;
 }
 
+function driveImageUrl(fileId: string) {
+  return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1200`;
+}
+
 function publicProofName(source: ProofSource) {
   const privateNames = [...hiddenPublicNames, source.clientLabel].filter(Boolean) as string[];
   const withoutNames = privateNames.reduce((current, name) => {
@@ -690,6 +694,9 @@ export default function Home() {
                     <em>{design["Headline Line Two"]}</em>
                   </h3>
                   <div className={`proof-slot ${design["Center Mode"] === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
+                    {design["Center Mode"] === "Screenshot proof" && design["Proof File ID"] ? (
+                      <img src={driveImageUrl(design["Proof File ID"])} alt={`${design["Proof Name"]} proof screenshot`} />
+                    ) : null}
                     {buildProofLines(design).map((line) => <span className="proof-line" key={line}>{line}</span>)}
                   </div>
                   <div className="sample-bottom">

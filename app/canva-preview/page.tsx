@@ -124,6 +124,10 @@ function publicProofName(source: ProofSource) {
   return publicProofCopy(withoutNames || fallback || "Verified proof source", 52);
 }
 
+function driveImageUrl(fileId: string) {
+  return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1200`;
+}
+
 function proofSnippet(proof: string) {
   return publicProofCopy(proof, 118)
     .replace(/^Transcript:\s*/i, "")
@@ -347,6 +351,9 @@ function CanvaPreviewContent() {
                   <em>{ad.headline.lineTwo}</em>
                 </h3>
                 <div className={`proof-slot ${ad.treatment === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
+                  {ad.treatment === "Screenshot proof" && ad.fileId ? (
+                    <img src={driveImageUrl(ad.fileId)} alt={`${ad.proofName} proof screenshot`} />
+                  ) : null}
                   <span className="proof-line">{ad.proofName}</span>
                 </div>
                 <div className="sample-bottom">

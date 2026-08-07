@@ -86,8 +86,8 @@ select:focus, textarea:focus, input:focus { box-shadow:0 0 0 3px var(--acid); }
 .mock-static-ad h3 em { display:block; color:#b8ff62; font-style:normal; }
 .proof-slot { position:relative; z-index:3; align-self:center; width:82%; min-height:104px; margin:8px auto 12px; border:2px solid rgba(255,255,255,.9); border-radius:10px; background:rgba(8,8,8,.74); display:grid; align-content:center; gap:6px; padding:12px 13px; box-shadow:0 16px 28px rgba(0,0,0,.38); }
 .proof-slot img { position:absolute; inset:7px; width:calc(100% - 14px); height:calc(100% - 14px); object-fit:contain; border-radius:7px; background:#050505; }
-.proof-slot.conversion-shot .proof-line { position:relative; background:rgba(0,0,0,.72); }
-.proof-slot.conversion-shot .proof-line { color:#b8ff62; text-align:center; font-size:12px; white-space:normal; text-transform:uppercase; letter-spacing:.08em; }
+.proof-slot.conversion-shot { overflow:hidden; }
+.proof-slot.conversion-shot .proof-line { position:relative; align-self:end; background:rgba(0,0,0,.72); color:#b8ff62; text-align:center; font-size:10px; white-space:normal; text-transform:uppercase; letter-spacing:.08em; }
 .proof-slot.transcript-signal { border-style:dashed; background:rgba(18,18,18,.84); align-content:center; }
 .proof-line { display:block; width:100%; border-radius:5px; background:rgba(255,255,255,.11); color:#f6f6f6; padding:5px 6px; font-size:8px; line-height:1.16; font-weight:900; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .proof-line:nth-child(2) { color:#b8ff62; }
@@ -115,6 +115,7 @@ select:focus, textarea:focus, input:focus { box-shadow:0 0 0 3px var(--acid); }
 .rendered-static-ad .proof-line,
 .rendered-static-ad .proof-slot.transcript-signal .proof-line,
 .rendered-static-ad .proof-slot.conversion-shot .proof-line { border-radius:12px; padding:17px 20px; font-size:28px; line-height:1.08; }
+.rendered-static-ad .proof-slot.conversion-shot .proof-line { font-size:20px; padding:12px 16px; }
 .rendered-static-ad .sample-bottom { max-width:82%; padding:0 0 4px 8px; }
 .rendered-static-ad .sample-bottom p { font-size:58px; margin-bottom:28px; }
 .rendered-static-ad .sample-bottom i { height:5px; margin-bottom:28px; }
