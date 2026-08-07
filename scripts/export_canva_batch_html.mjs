@@ -4,6 +4,7 @@ import proofDatabase from "../content/proof-library.json" with { type: "json" };
 
 const outFile = resolve("tmp/radical-edge-proof-ads-canva.html");
 const proofLayouts = ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"];
+const backgroundUrl = "https://zix-b.github.io/radical-edge-static-ads-creator/radical-edge-ad-background.png";
 const hiddenPublicNames = [
   ...proofDatabase.clients.filter((client) => client.name !== "Custom proof").map((client) => client.name),
   "Kev",
@@ -62,7 +63,7 @@ function publicProofCopy(text, maxLength = 120) {
     .replace(/\s+/g, " ")
     .trim();
 
-  const usable = cleaned || "Approved proof goes here after the source is verified.";
+  const usable = cleaned || "Use the verified proof source here.";
   if (usable.length <= maxLength) return usable;
 
   const sliced = usable.slice(0, maxLength - 1);
@@ -83,8 +84,8 @@ function conversionHeadlineLabel(source) {
   return (source.adHeader || source.proofMeaning || source.client).toUpperCase();
 }
 
-function buildHeadline(source) {
-  const proof = proofSnippet(source.proof);
+function buildProofHeadline(source) {
+  const proofText = proofSnippet(source.proof);
 
   if (source.sourceType === "Conversion") {
     return {
@@ -94,101 +95,96 @@ function buildHeadline(source) {
     };
   }
 
-  if (/\$30k|\$10k|closed/i.test(proof)) {
+  if (/\$30k|\$10k|closed/i.test(proofText)) {
     return {
       highlight: "$30K+ FROM ORGANIC LEADS",
-      lineOne: "including a fast $10K sales window",
-      lineTwo: "from demand built before the call",
+      lineOne: "$10K came in fast",
+      lineTwo: "after the trust was built",
     };
   }
 
-  if (/1M views|1,000 followers|9 videos|5 hours/i.test(proof)) {
+  if (/1M views|1,000 followers|9 videos|5 hours/i.test(proofText)) {
     return {
       highlight: "1M VIEWS FROM 9 VIDEOS",
-      lineOne: "and 1,000 followers from focused content",
-      lineTwo: "not endless posting",
+      lineOne: "1,000 followers followed",
+      lineTwo: "from a focused shoot",
     };
   }
 
-  if (/Chosen over more established competitors/i.test(proof)) {
+  if (/Chosen over more established competitors/i.test(proofText)) {
     return {
       highlight: "CHOSEN OVER BIGGER COMPETITORS",
-      lineOne: "before the sales call started",
-      lineTwo: "because trust was built upfront",
+      lineOne: "because the content did the trust work",
+      lineTwo: "",
     };
   }
 
-  if (/\$50k|bootcamp/i.test(proof)) {
+  if (/\$50k|bootcamp/i.test(proofText)) {
     return {
       highlight: "$50K+ BOOTCAMP REVENUE",
-      lineOne: "from stronger authority positioning",
-      lineTwo: "not louder promotion",
+      lineOne: "from clearer authority",
+      lineTwo: "not louder posting",
     };
   }
 
-  if (/attractive character|content topics|video editing|attention|leads/i.test(proof)) {
+  if (/attractive character|content topics|video editing|attention|leads/i.test(proofText)) {
     return {
       highlight: "CLEARER CHARACTER",
-      lineOne: "clearer content, stronger attention",
-      lineTwo: "so the right leads know why you matter",
+      lineOne: "clearer topics",
+      lineTwo: "better lead quality",
     };
   }
 
-  if (/1M\+ monthly views|parent\/student trust/i.test(proof)) {
+  if (/1M\+ monthly views|parent\/student trust/i.test(proofText)) {
     return {
       highlight: "1M+ MONTHLY VIEWS",
-      lineOne: "with stronger trust before enquiry",
-      lineTwo: "from authority content",
+      lineOne: "with more trust before enquiry",
+      lineTwo: "",
     };
   }
 
-  if (/combined TikTok\/Instagram|2,500 followers|enquiries/i.test(proof)) {
+  if (/combined TikTok\/Instagram|2,500 followers|enquiries/i.test(proofText)) {
     return {
       highlight: "NEARLY 1M COMBINED VIEWS",
-      lineOne: "plus stronger recognition and enquiries",
-      lineTwo: "from consistent authority",
+      lineOne: "and more enquiries",
+      lineTwo: "from clearer positioning",
     };
   }
 
   return {
-    highlight: "PROOF FROM AUTHORITY CONTENT",
-    lineOne: "when the market understands why you matter",
-    lineTwo: "not cold chasing",
+    highlight: "CONTENT THAT CREATES CONTEXT",
+    lineOne: "before the sales call",
+    lineTwo: "",
   };
 }
 
-function bottomClaim(proof) {
-  if (/\$|closed|revenue/i.test(proof)) return "Turn proof into demand";
-  if (/views|followers/i.test(proof)) return "Make attention convert";
-  return "Get prospects that come to you";
+function bottomClaim(middleText) {
+  if (/\$|closed|revenue/i.test(middleText)) return "Revenue is easier when trust exists first.";
+  if (/views|followers/i.test(middleText)) return "Views only matter when they move buyers.";
+  if (/viewing|referral|enquiry|lead|call/i.test(middleText)) return "The sales conversation started before the call.";
+  return "Good content gives buyers a reason to come closer.";
 }
 
 function proofBlock(source) {
-  if (source.sourceType === "Conversion" && /proof screenshot/i.test(source.fileType ?? "")) {
-    return `<div class="proof conversion-shot"><strong>${escapeHtml(source.client)}</strong></div>`;
+  if (source.sourceType === "Conversion" && /screenshot/i.test(source.fileType ?? "")) {
+    return `<div class="proof-slot conversion-shot"><span class="proof-line">${escapeHtml(source.client)}</span></div>`;
   }
 
-  return `<div class="proof transcript-signal"><strong>${escapeHtml(source.client)}</strong></div>`;
+  return `<div class="proof-slot transcript-signal"><span class="proof-line">${escapeHtml(source.client)}</span></div>`;
 }
 
-function headlineSizeClass(headline) {
-  const length = `${headline.highlight} ${headline.lineOne} ${headline.lineTwo}`.length;
-  if (length > 105) return "headline compact";
-  if (length > 82) return "headline tight";
-  return "headline";
-}
-
-const styles = `*{box-sizing:border-box}body{margin:0;background:#eee;font-family:Arial,Helvetica,sans-serif}.wrap{display:grid;gap:30px;padding:30px;justify-content:center}.card{width:1080px;height:1350px;position:relative;overflow:hidden;background:#111;color:white;page-break-after:always;break-after:page}.top{position:absolute;left:86px;right:86px;top:74px;display:flex;justify-content:space-between;color:#d8d4ca;font-size:22px;text-transform:uppercase;letter-spacing:.16em;font-weight:1000}.top b{color:#e7ff43;text-align:right}.headline{position:absolute;left:118px;right:118px;top:185px;height:395px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;text-transform:uppercase;font-weight:1000;overflow:hidden}.headline span,.headline b,.headline em{display:block;font-style:normal;letter-spacing:0;line-height:.92}.headline span{color:#b8ff62;font-size:72px}.headline b{color:#fff;font-size:62px}.headline em{color:#b8ff62;font-size:58px}.headline.tight span{font-size:64px}.headline.tight b{font-size:54px}.headline.tight em{font-size:50px}.headline.compact span{font-size:56px}.headline.compact b{font-size:47px}.headline.compact em{font-size:43px}.proof{position:absolute;left:206px;right:206px;top:620px;height:245px;border:5px solid rgba(255,255,255,.92);border-radius:26px;background:#202020;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:28px 34px;box-shadow:0 34px 68px rgba(0,0,0,.38);overflow:hidden}.proof strong{display:block;color:#b8ff62;font-size:33px;line-height:1.05;font-weight:1000;text-align:center;text-transform:uppercase}.bottom{position:absolute;left:86px;right:86px;top:925px;height:210px;padding-left:8px}.bottom p{font-size:54px;line-height:.98;font-weight:1000;margin:0 0 24px;max-width:720px}.bottom p span{display:block;color:#b8ff62}.bottom i{display:block;width:230px;height:5px;background:white;margin:0 0 24px}.bottom strong{display:block;font-size:28px;line-height:1.08;font-weight:1000;max-width:660px}footer{position:absolute;left:86px;right:86px;bottom:68px;display:flex;align-items:end;justify-content:space-between;gap:28px}footer b{font-size:30px;font-weight:1000}footer span{background:#e7ff43;color:#111;padding:24px 34px;font-size:26px;font-weight:1000}`;
+const styles = `*{box-sizing:border-box}body{margin:0;background:#eee;font-family:Arial,Helvetica,sans-serif}.wrap{display:grid;gap:30px;padding:30px;justify-content:center}.design-card{width:1080px;height:1350px;border:0;background:#171513;padding:0;display:grid;page-break-after:always;break-after:page;overflow:hidden}.mock-static-ad{width:100%;height:100%;background:#151515;color:white;padding:85px 58px 58px;display:grid;grid-template-rows:minmax(355px,auto) minmax(430px,1fr) auto;border:1px solid #34312d;position:relative;overflow:hidden;isolation:isolate}.sample-noise-img{position:absolute;inset:0;z-index:-3;width:100%;height:100%;object-fit:cover}.sample-noise{position:absolute;inset:0;z-index:-2;background:rgba(0,0,0,.04)}.mock-static-ad h3{position:relative;z-index:2;max-width:100%;font-size:88px;line-height:.98;margin:0 0 31px;letter-spacing:0;font-weight:1000;text-transform:uppercase;text-align:center;text-wrap:balance;overflow-wrap:break-word}.mock-static-ad h3 span{display:block;color:#b8ff62;font-size:1.12em}.mock-static-ad h3 em{display:block;color:#b8ff62;font-style:normal}.proof-slot{position:relative;z-index:3;align-self:center;width:82%;min-height:401px;margin:31px auto 46px;border:8px solid rgba(255,255,255,.9);border-radius:39px;background:rgba(8,8,8,.74);display:grid;align-content:center;gap:23px;padding:46px 50px;box-shadow:0 62px 108px rgba(0,0,0,.38)}.proof-slot.conversion-shot .proof-line{position:relative;background:rgba(0,0,0,.72);color:#b8ff62;text-align:center;font-size:46px;white-space:normal;text-transform:uppercase;letter-spacing:.08em}.proof-slot.transcript-signal{border-style:dashed;background:rgba(18,18,18,.84);align-content:center}.proof-line{display:block;width:100%;border-radius:19px;background:rgba(255,255,255,.11);color:#f6f6f6;padding:19px 23px;font-size:31px;line-height:1.16;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.proof-slot.transcript-signal .proof-line{color:#b8ff62;text-align:center;font-size:46px;white-space:normal;text-transform:uppercase;letter-spacing:.08em}.sample-bottom{position:relative;z-index:3;align-self:end;max-width:82%;padding:0 0 15px 31px}.sample-bottom p{font-size:88px;line-height:.98;font-weight:1000;margin:0 0 35px;text-transform:none}.sample-bottom p span{display:block;color:#b8ff62}.sample-bottom i{display:block;width:38%;height:8px;background:white;margin:0 0 35px}.sample-bottom strong{display:block;font-size:46px;line-height:1.04;font-weight:1000;max-width:72%}.design-2 .proof-slot{margin-left:0;width:72%}.design-3 .mock-static-ad h3{text-align:left;max-width:78%}.design-4 .sample-bottom{max-width:82%}.design-5 .proof-slot{border-color:#b8ff62}`;
 
 const cards = Array.from({ length: 20 }, (_, index) => {
   const id = `RE-${String(index + 1).padStart(2, "0")}`;
   const source = proofSources[index % proofSources.length];
-  const proof = publicProofCopy(source?.proof ?? "");
-  const headline = buildHeadline(source);
-  const claim = bottomClaim(proof);
-  const layout = proofLayouts[index % proofLayouts.length];
+  const middleText = source.sourceType === "Conversion"
+    ? source.publicClaim || source.proofMeaning || source.proof || source.client
+    : "Private transcript shaped the claim";
+  const headline = buildProofHeadline(source);
+  const claim = bottomClaim(middleText);
 
-  return `<article class="card" data-document-role="page" data-label="${id}"><div class="top"><span>${id}</span><b>${escapeHtml(layout)}</b></div><div class="${headlineSizeClass(headline)}"><span>${escapeHtml(headline.highlight)}</span><b>${escapeHtml(headline.lineOne)}</b><em>${escapeHtml(headline.lineTwo)}</em></div>${proofBlock(source, id)}<div class="bottom"><p>${escapeHtml(claim)} <span>already convinced</span></p><i></i><strong>Build a personal brand that attracts high-ticket clients without outsourcing your voice.</strong></div><footer><b>RADICAL EDGE</b><span>Join the masterclass &gt;</span></footer></article>`;
+  return `<article class="design-card design-${(index % 5) + 1}" data-document-role="page" data-label="${id}"><div class="mock-static-ad"><img class="sample-noise-img" src="${backgroundUrl}" alt=""><div class="sample-noise"></div><h3><span>${escapeHtml(headline.highlight)}</span>${escapeHtml(headline.lineOne)}<em>${escapeHtml(headline.lineTwo)}</em></h3>${proofBlock(source)}<div class="sample-bottom"><p>${escapeHtml(claim)}</p><i></i><strong>Learn how this happened inside the one-day masterclass</strong></div></div></article>`;
 });
 
 await mkdir(dirname(outFile), { recursive: true });

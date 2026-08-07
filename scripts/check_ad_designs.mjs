@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import proofDatabase from "../content/proof-library.json" with { type: "json" };
 
 const angles = Array(20).fill("Proof / Result");
@@ -73,6 +74,15 @@ assert.ok(conversionProofs.length > 0, "At least one Conversion proof source is 
 assert.ok(proofDatabase.conversionFiles.every((file) => file.summary && file.status), "Every Conversion proof source needs a summary and verification status.");
 assert.ok(proofDatabase.conversionFiles.every((file) => file.adHeader && file.proofMeaning), "Every Conversion proof source needs extracted proof meaning and an ad header.");
 assert.ok(baselineAsset, "A design sample baseline is required.");
+
+const canvaImportSource = readFileSync(new URL("./export_canva_batch_html.mjs", import.meta.url), "utf8");
+assert.ok(canvaImportSource.includes("mock-static-ad"), "Canva import must use the same static ad card structure as the website preview.");
+assert.ok(canvaImportSource.includes("sample-noise-img"), "Canva import must use a real image layer for the background.");
+assert.ok(canvaImportSource.includes("proof-slot"), "Canva import must use the same proof slot structure as the website preview.");
+assert.ok(canvaImportSource.includes("sample-bottom"), "Canva import must use the same bottom copy structure as the website preview.");
+assert.ok(!canvaImportSource.includes("class=\"card\""), "Canva import must not use the old separate card renderer.");
+assert.ok(!canvaImportSource.includes("class=\"headline"), "Canva import must not use the old separate headline renderer.");
+assert.ok(!canvaImportSource.includes("class=\"proof "), "Canva import must not use the old separate proof renderer.");
 
 const checks = angles.map((angle, index) => {
   const id = `RE-${String(index + 1).padStart(2, "0")}`;
