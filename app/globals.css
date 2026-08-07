@@ -74,7 +74,7 @@ select:focus, textarea:focus, input:focus { box-shadow:0 0 0 3px var(--acid); }
 .design-meta { display:flex; justify-content:space-between; align-items:start; gap:10px; color:#d8d4ca; font-size:10px; text-transform:uppercase; letter-spacing:.1em; font-weight:900; }
 .design-meta b { color:var(--acid); text-align:right; }
 .mock-static-ad { aspect-ratio:4/5; background:#151515; color:white; padding:22px 15px 15px; display:grid; grid-template-rows:minmax(92px,auto) minmax(112px,1fr) auto; border:1px solid #34312d; position:relative; overflow:hidden; isolation:isolate; }
-.sample-noise { position:absolute; inset:0; z-index:-2; background:#151515 url("/radical-edge-ad-background.png") center/cover no-repeat; }
+.sample-noise { position:absolute; inset:0; z-index:-2; background:#151515 url("https://zix-b.github.io/radical-edge-static-ads-creator/radical-edge-ad-background.png") center/cover no-repeat; }
 .sample-noise::after { content:""; position:absolute; inset:0; background:rgba(0,0,0,.04); }
 .mock-static-ad small { align-self:start; width:max-content; max-width:68%; border:1px solid rgba(231,255,67,.52); color:var(--acid); padding:4px 6px; font-size:6px; letter-spacing:.16em; text-transform:uppercase; font-weight:1000; margin-bottom:8px; }
 .mock-static-ad h3 { position:relative; z-index:2; max-width:100%; font-size:clamp(16px,1.85vw,25px); line-height:.98; margin:0 0 8px; letter-spacing:0; font-weight:1000; text-transform:uppercase; text-align:center; text-wrap:balance; overflow-wrap:break-word; }
@@ -105,7 +105,7 @@ select:focus, textarea:focus, input:focus { box-shadow:0 0 0 3px var(--acid); }
 .rendered-preview-grid { display:grid; gap:30px; justify-content:center; }
 .rendered-card { width:1080px; height:1350px; position:relative; overflow:hidden; isolation:isolate; background:#111; color:white; padding:122px 86px 68px; display:grid; grid-template-rows:auto 1fr auto auto; border:1px solid #302d29; box-shadow:0 22px 54px rgba(0,0,0,.18); page-break-after:always; break-after:page; }
 .rendered-noise-img { position:absolute; inset:0; z-index:-3; width:100%; height:100%; object-fit:cover; }
-.rendered-noise { position:absolute; inset:0; z-index:-2; background:#151515 url("/radical-edge-ad-background.png") center/cover no-repeat; }
+.rendered-noise { position:absolute; inset:0; z-index:-2; background:#151515 url("https://zix-b.github.io/radical-edge-static-ads-creator/radical-edge-ad-background.png") center/cover no-repeat; }
 .rendered-noise::after { content:""; position:absolute; inset:0; background:rgba(0,0,0,.04); }
 .rendered-topline { display:flex; justify-content:space-between; align-items:start; color:#d8d4ca; font-size:22px; text-transform:uppercase; letter-spacing:.16em; font-weight:1000; }
 .rendered-topline b { color:#e7ff43; text-align:right; }
