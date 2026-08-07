@@ -125,7 +125,6 @@ const proofSources = [...testimonialSources, ...conversionSources];
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
 const baselineDesign = baselineAsset ? `${baselineAsset.title} (${baselineAsset.type})` : "Sample 1 (design sample)";
 const proofLayouts = ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"];
-const currentCanvaDesignUrl = "https://www.canva.com/d/J_Xe7aIYwzlPcaz";
 const hiddenPublicNames = [
   ...proofDatabase.clients.filter((client) => client.name !== "Custom proof").map((client) => client.name),
   "Kev",
@@ -495,8 +494,26 @@ export default function Home() {
     [audience, mainPromise, selectedProofs, batchName, variantSeed],
   );
 
+  const renderedPreviewUrl = useMemo(() => {
+    const selectedIndexes = proofSources
+      .map((source, index) => selectedProofLabels.includes(source.label) ? index : -1)
+      .filter((index) => index >= 0);
+    const params = new URLSearchParams({
+      audience,
+      promise: mainPromise,
+      batch: batchName,
+      seed: String(variantSeed),
+      proofs: selectedIndexes.join(","),
+    });
+    return `${appBasePath()}/canva-preview/?${params.toString()}`;
+  }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
+
   function toggleProof(label: string) {
     setSelectedProofLabels((current) => current.includes(label) ? current.filter((item) => item !== label) : [...current, label]);
+  }
+
+  function generateProofPreviews() {
+    setVariantSeed((current) => current + 1);
   }
 
   async function readProof() {
@@ -664,10 +681,37 @@ export default function Home() {
         </aside>
 
         <section className="design-panel">
-          <div className="section-heading light"><span>02</span><h2>Canva output</h2><small>20-page design</small></div>
-          <div className="canva-output-panel">
-            <p>The batch is in Canva. Use the proof source list on the left to decide what to rebuild next, then create the next Canva import from the selected proof set.</p>
-            <a className="generate canva-link" href={currentCanvaDesignUrl} target="_blank" rel="noreferrer">Open Canva design <span>→</span></a>
+          <div className="section-heading light"><span>02</span><h2>Proof preview set</h2><small>{designs.length} designs</small></div>
+          <div className="actions-bar">
+            <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
+            <a className="secondary-action link-action" href={renderedPreviewUrl} target="_blank" rel="noreferrer">Open generated proof cards</a>
+          </div>
+
+          <div className="design-grid">
+            {designs.map((design, index) => {
+              return (
+              <article className={`design-card design-${(index % 5) + 1}`} key={design["Ad ID"]}>
+                <div className="mock-static-ad">
+                  <div className="sample-noise" />
+                  <h3>
+                    <span>{design["Headline Highlight"]}</span>
+                    {design["Headline Line One"]}
+                    <em>{design["Headline Line Two"]}</em>
+                  </h3>
+                  <div className={`proof-slot ${design["Center Mode"] === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
+                    {design["Center Mode"] === "Screenshot proof" && design["Proof File ID"] ? (
+                      <img src={driveImageUrl(design["Proof File ID"])} alt={`${design["Proof Name"]} proof screenshot`} />
+                    ) : null}
+                    {buildProofLines(design).map((line) => <span className="proof-line" key={line}>{line}</span>)}
+                  </div>
+                  <div className="sample-bottom">
+                    <p>{bottomClaim(design)}</p>
+                    <i />
+                    <strong>{mainPromise}</strong>
+                  </div>
+                </div>
+              </article>
+            );})}
           </div>
         </section>
       </section>

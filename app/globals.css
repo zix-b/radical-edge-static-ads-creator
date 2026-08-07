@@ -73,9 +73,6 @@ select:focus, textarea:focus, input:focus { box-shadow:0 0 0 3px var(--acid); }
 .generate:active { transform:translate(3px,3px); box-shadow:2px 2px 0 #000; }
 .secondary-action { width:100%; min-height:49px; padding:15px 16px; border:1px solid #5d574f; background:transparent; color:white; font-size:12px; font-weight:900; text-align:left; }
 .secondary-action:hover { background:white; color:var(--ink); }
-.canva-output-panel { border:1px solid #3d3934; padding:24px; max-width:620px; display:grid; gap:18px; background:#111; }
-.canva-output-panel p { margin:0; color:#d8d4ca; max-width:520px; }
-.canva-link { max-width:360px; }
 .design-grid { display:grid; grid-template-columns:repeat(2,minmax(280px,1fr)); gap:16px; max-height:900px; overflow:auto; padding-right:6px; }
 .design-card { border:1px solid #3d3a35; background:#171513; padding:12px; display:grid; gap:10px; min-height:390px; }
 .design-meta { display:flex; justify-content:space-between; align-items:start; gap:10px; color:#d8d4ca; font-size:10px; text-transform:uppercase; letter-spacing:.1em; font-weight:900; }
