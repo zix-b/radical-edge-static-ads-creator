@@ -150,6 +150,11 @@ function driveImageUrl(fileId: string) {
   return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(fileId)}&export=view`;
 }
 
+function appBasePath() {
+  if (typeof window === "undefined") return "";
+  return window.location.hostname.endsWith("github.io") ? "/radical-edge-static-ads-creator" : "";
+}
+
 function publicProofName(source: ProofSource) {
   const privateNames = [...hiddenPublicNames, source.clientLabel].filter(Boolean) as string[];
   const withoutNames = privateNames.reduce((current, name) => {
@@ -500,7 +505,7 @@ export default function Home() {
       seed: String(variantSeed),
       proofs: selectedIndexes.join(","),
     });
-    return `./canva-preview/?${params.toString()}`;
+    return `${appBasePath()}/canva-preview/?${params.toString()}`;
   }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
 
   function toggleProof(label: string) {

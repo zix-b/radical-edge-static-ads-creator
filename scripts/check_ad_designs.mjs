@@ -83,7 +83,9 @@ assert.ok(homePageSource.includes("proof-slot"), "Homepage preview must render t
 assert.ok(homePageSource.includes("driveImageUrl"), "Homepage preview must build public Drive image URLs for conversion screenshots.");
 assert.ok(homePageSource.includes("drive.usercontent.google.com/download"), "Homepage preview must use the direct public Drive image endpoint.");
 assert.ok(homePageSource.includes("<img src={driveImageUrl(design[\"Proof File ID\"])}"), "Homepage preview must place conversion screenshots inside the proof slot.");
-assert.ok(homePageSource.includes("return `./canva-preview/?${params.toString()}`"), "Generated proof-card link must be relative so it works on localhost and GitHub Pages.");
+assert.ok(homePageSource.includes("function appBasePath()"), "Homepage must build deployment-stable generated proof-card links.");
+assert.ok(homePageSource.includes("window.location.hostname.endsWith(\"github.io\") ? \"/radical-edge-static-ads-creator\" : \"\""), "Generated proof-card link must use the GitHub Pages base path on live and root path locally.");
+assert.ok(homePageSource.includes("return `${appBasePath()}/canva-preview/?${params.toString()}`"), "Generated proof-card link must point to the correct canva-preview route.");
 assert.ok(!homePageSource.includes("canva.com/d/"), "Homepage must not link to a stale hardcoded Canva design.");
 assert.ok(!homePageSource.includes("Open editable Canva design"), "Homepage must not expose the stale editable Canva design button.");
 assert.ok(canvaPreviewSource.includes("mock-static-ad rendered-static-ad"), "Canva preview must reuse the homepage static ad card markup.");
