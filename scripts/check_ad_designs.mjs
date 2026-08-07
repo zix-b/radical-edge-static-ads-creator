@@ -80,6 +80,8 @@ const canvaPreviewSource = readFileSync(new URL("../app/canva-preview/page.tsx",
 
 assert.ok(homePageSource.includes("mock-static-ad"), "Homepage preview must render the static ad card.");
 assert.ok(homePageSource.includes("proof-slot"), "Homepage preview must render the proof slot.");
+assert.ok(!homePageSource.includes("canva.com/d/"), "Homepage must not link to a stale hardcoded Canva design.");
+assert.ok(!homePageSource.includes("Open editable Canva design"), "Homepage must not expose the stale editable Canva design button.");
 assert.ok(canvaPreviewSource.includes("mock-static-ad rendered-static-ad"), "Canva preview must reuse the homepage static ad card markup.");
 assert.ok(canvaPreviewSource.includes("proof-slot"), "Canva preview must reuse the homepage proof slot markup.");
 assert.ok(!canvaPreviewSource.includes("rendered-proof"), "Canva preview should not use the old separate proof renderer.");
