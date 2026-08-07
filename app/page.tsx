@@ -135,11 +135,6 @@ function proofSourceTitle(source: ProofSource) {
   return source.client;
 }
 
-function appBasePath() {
-  if (typeof window === "undefined") return "";
-  return window.location.hostname.endsWith("github.io") ? "/radical-edge-static-ads-creator" : "";
-}
-
 function anonymiseProofText(text: string) {
   return hiddenPublicNames.reduce((current, name) => {
     const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -379,7 +374,7 @@ export default function Home() {
       seed: String(variantSeed),
       proofs: selectedIndexes.join(","),
     });
-    return `${appBasePath()}/canva-preview/?${params.toString()}`;
+    return `canva-preview/?${params.toString()}`;
   }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
 
   function toggleProof(label: string) {
