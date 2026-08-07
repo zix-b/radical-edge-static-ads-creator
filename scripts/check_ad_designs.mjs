@@ -81,14 +81,15 @@ const canvaPreviewSource = readFileSync(new URL("../app/canva-preview/page.tsx",
 assert.ok(homePageSource.includes("mock-static-ad"), "Homepage preview must render the static ad card.");
 assert.ok(homePageSource.includes("proof-slot"), "Homepage preview must render the proof slot.");
 assert.ok(homePageSource.includes("driveImageUrl"), "Homepage preview must build public Drive image URLs for conversion screenshots.");
-assert.ok(homePageSource.includes("drive.google.com/uc?export=view"), "Homepage preview must use the reliable public Drive image endpoint.");
+assert.ok(homePageSource.includes("drive.usercontent.google.com/download"), "Homepage preview must use the direct public Drive image endpoint.");
 assert.ok(homePageSource.includes("<img src={driveImageUrl(design[\"Proof File ID\"])}"), "Homepage preview must place conversion screenshots inside the proof slot.");
+assert.ok(homePageSource.includes("window.location.pathname.startsWith(\"/radical-edge-static-ads-creator\")"), "Generated proof-card link must include the GitHub Pages base path when live.");
 assert.ok(!homePageSource.includes("canva.com/d/"), "Homepage must not link to a stale hardcoded Canva design.");
 assert.ok(!homePageSource.includes("Open editable Canva design"), "Homepage must not expose the stale editable Canva design button.");
 assert.ok(canvaPreviewSource.includes("mock-static-ad rendered-static-ad"), "Canva preview must reuse the homepage static ad card markup.");
 assert.ok(canvaPreviewSource.includes("proof-slot"), "Canva preview must reuse the homepage proof slot markup.");
 assert.ok(canvaPreviewSource.includes("driveImageUrl"), "Canva preview must build public Drive image URLs for conversion screenshots.");
-assert.ok(canvaPreviewSource.includes("drive.google.com/uc?export=view"), "Canva preview must use the reliable public Drive image endpoint.");
+assert.ok(canvaPreviewSource.includes("drive.usercontent.google.com/download"), "Canva preview must use the direct public Drive image endpoint.");
 assert.ok(canvaPreviewSource.includes("<img src={driveImageUrl(ad.fileId)}"), "Canva preview must place conversion screenshots inside the proof slot.");
 assert.ok(!canvaPreviewSource.includes("rendered-proof"), "Canva preview should not use the old separate proof renderer.");
 assert.ok(!canvaPreviewSource.includes("rendered-bottom"), "Canva preview should not use the old separate bottom renderer.");

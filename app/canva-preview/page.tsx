@@ -125,7 +125,7 @@ function publicProofName(source: ProofSource) {
 }
 
 function driveImageUrl(fileId: string) {
-  return `https://drive.google.com/uc?export=view&id=${encodeURIComponent(fileId)}`;
+  return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(fileId)}&export=view`;
 }
 
 function proofSnippet(proof: string) {
