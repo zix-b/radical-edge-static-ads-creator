@@ -89,6 +89,9 @@ assert.ok(!canvaImportSource.includes("class=\"headline"), "Canva import must no
 assert.ok(!canvaImportSource.includes("class=\"proof "), "Canva import must not use the old separate proof renderer.");
 assert.ok(!/https:\/\/www\.canva\.com\/d\//.test(appPageSource), "App page must not hardcode a Canva design URL.");
 assert.ok(appPageSource.includes("Open generated proof cards"), "App page must open the generated proof-card URL.");
+assert.ok(appPageSource.includes("function appBasePath()"), "App page must build deployment-stable generated proof-card links.");
+assert.ok(appPageSource.includes('window.location.hostname.endsWith("github.io") ? "/radical-edge-static-ads-creator" : ""'), "Generated proof-card links must include the GitHub Pages base path on live.");
+assert.ok(appPageSource.includes("return `${appBasePath()}/canva-preview/?${params.toString()}`"), "Generated proof-card link must not point to root /canva-preview on GitHub Pages.");
 assert.ok(canvaPreviewSource.includes("StaticCanvaFallback"), "Canva preview must render static fallback cards for URL import.");
 assert.ok(canvaPreviewSource.includes("rendered-noise-img"), "Canva preview must use a real image layer for the background.");
 assert.ok(!canvaPreviewSource.includes("Loading rendered cards"), "Canva preview must not export a loading-only shell.");
