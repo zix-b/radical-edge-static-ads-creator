@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import proofDatabase from "../content/proof-library.json";
 
-type AngleType = "Proof / Result";
 type ProofTreatment = "Copy-only proof" | "Screenshot proof" | "Narrative proof";
 type ProofSource = {
   label: string;
@@ -38,48 +37,29 @@ type ExtractedProof = {
   approvedForAds: false;
 };
 
-type AdRow = {
-  "Ad ID": string;
-  "Campaign Name": string;
-  "Batch Name": string;
-  "Target Audience": string;
-  "Angle Type": AngleType;
-  "Proof Client": string;
-  "Proof Name": string;
-  "Proof Source Type": "Transcript" | "Conversion";
-  "Proof Treatment": ProofTreatment;
-  "Proof File ID": string;
-  "Baseline Design": string;
-  "Pain / Desire": string;
-  "Core Message": string;
-  Hook: string;
-  Subhook: string;
-  "Proof / Evidence": string;
-  CTA: string;
-  "Visual Direction": string;
-  "Asset Needed": string;
-  "Asset Used": string;
-  "Canva Layout Type": string;
-  "Top Text": string;
-  "Headline Highlight": string;
-  "Headline Line One": string;
-  "Headline Line Two": string;
-  "Middle Text": string;
-  "Center Mode": "Screenshot proof" | "Copy-only proof";
-  "Bottom Text": string;
-  "Meta Primary Text": string;
-  "Meta Headline": string;
-  "Meta Description": string;
-  Hypothesis: string;
-  Status: string;
-  Notes: string;
+type ProofInventory = {
+  id: string;
+  client: string;
+  role: string;
+  sourceType: "Transcript" | "Conversion";
+  treatment: ProofTreatment;
+  startingProblem: string;
+  whatChanged: string;
+  concreteWin: string;
+  softWin: string;
+  whatThisProves: string;
+  bestAngles: string[];
+  risk: string;
+  publicUse: string;
+  canvaNotes: string;
+  rawProof: string;
+  status: string;
 };
 
 const radicalEdgeVoice =
-  "Sharp founder/operator copy. Concrete pain. No hype. No generic marketing language.";
+  "Proof first. Separate hard claims from interpretation. Build ads only after the proof is clean.";
 
 const offer = "One-day Radical Edge masterclass";
-const audiences = ["Founders", "Coaches / consultants", "Financial advisers", "Real estate agents", "Educators / experts", "Service providers"];
 const metadataDoc = proofDatabase.referenceLinks.find((link) => link.label === "Conversion proof metadata");
 
 const testimonialSources: ProofSource[] = proofDatabase.clients
@@ -111,48 +91,12 @@ const conversionSources: ProofSource[] = proofDatabase.conversionFiles.map((file
   treatment: /screenshot/i.test(file.type) ? "Screenshot proof" : "Copy-only proof",
 }));
 const proofSources = [...testimonialSources, ...conversionSources];
-const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
-const baselineDesign = baselineAsset ? `${baselineAsset.title} (${baselineAsset.type})` : "Sample 1 (design sample)";
-const proofLayouts = ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"];
-const proofAngles = [
-  "The sale was not cold",
-  "The buyer was already warm",
-  "Trust came before payment",
-  "Content did the pre-selling",
-  "The call started earlier",
-  "They had context already",
-  "More posting was not the fix",
-  "The proof did the selling",
-  "Demand started before WhatsApp",
-  "The buyer came in closer",
-];
-
-const bottomLines = [
-  "Make your content do more work before the sales call.",
-  "The sales call gets easier when trust is built first.",
-  "Good content gives buyers a reason to move closer.",
-  "The goal is not more content. It is better pre-selling.",
-  "Cold follow-up gets lighter when the buyer already has context.",
-  "The right content makes the offer easier to understand.",
-  "Attention is useful only when it moves someone toward a decision.",
-  "Proof gives the sales conversation a shorter distance to travel.",
-];
+const sourceTypes = ["All", "Transcript", "Conversion"];
 const hiddenPublicNames = [
   ...proofDatabase.clients.filter((client) => client.name !== "Custom proof").map((client) => client.name),
   "Kev",
   "Kevin",
 ];
-
-function hasUsablePublicProof(source: ProofSource) {
-  if (source.sourceType === "Conversion" && source.fileId && /proof screenshot/i.test(source.fileType ?? "")) return true;
-  return !/Read image\/OCR|Conversion screenshot from Drive|Analytics proof from Drive|Transcript pending|Paste the exact/i.test(source.proof);
-}
-
-function proofSourceDisplayText(source: ProofSource) {
-  if (source.sourceType === "Transcript") return "Transcript shapes headline only";
-  if (/pdf/i.test(source.fileType ?? "")) return "Analytics PDF metadata";
-  return source.publicClaim || source.proofMeaning || source.proof;
-}
 
 function proofSourceTitle(source: ProofSource) {
   return source.client;
@@ -184,264 +128,100 @@ function publicProofCopy(text: string, maxLength = 120) {
   return `${sliced.slice(0, lastSpace > 60 ? lastSpace : maxLength - 1).trimEnd()}...`;
 }
 
-function conversionHeadlineLabel(source: ProofSource) {
-  return (source.adHeader || source.proofMeaning || source.client).toUpperCase();
+function strongestClaim(source: ProofSource) {
+  return publicProofCopy(source.publicClaim || source.displayProof || source.proof, 140);
 }
 
-function pickVariant(items: string[], seed: number) {
-  return items[Math.abs(seed) % items.length];
+function proofText(source: ProofSource) {
+  return `${source.proof} ${source.publicClaim ?? ""} ${source.proofMeaning ?? ""} ${source.extractedText ?? ""}`;
 }
 
-function buildProofHeadline(source: ProofSource, seed: number) {
-  const proofText = proofSnippet(source.proof);
-  const angle = pickVariant(proofAngles, seed);
+function clientRole(source: ProofSource) {
+  if (source.sourceType === "Conversion") return source.fileType === "analytics PDF" ? "Analytics proof" : "Conversion screenshot";
+  return proofDatabase.clients.find((client) => client.name === source.client)?.role ?? "Testimonial";
+}
 
-  if (source.sourceType === "Conversion") {
-    const label = conversionHeadlineLabel(source);
-    const useDirectClaim = seed % 3 === 0;
-    return {
-      highlight: useDirectClaim ? label : angle.toUpperCase(),
-      lineOne: useDirectClaim ? pickVariant(proofAngles, seed + 1).toLowerCase() : label.toLowerCase(),
-      lineTwo: "",
-    };
+function startingProblem(source: ProofSource) {
+  const text = proofText(source);
+  if (/views|followers|attention/i.test(text)) return "Had attention signals, but the useful question is whether that attention created trust, enquiries or buying context.";
+  if (/\$|closed|revenue|bootcamp/i.test(text)) return "Needed demand to show up before the call, not rely on cold convincing during the sales conversation.";
+  if (/competitors|chosen/i.test(text)) return "Prospects were comparing options, so the content had to make the person safer and clearer to choose.";
+  if (/enquiry|referral|viewing|lead|call/i.test(text)) return "The sales path depended on whether the buyer had enough context before reaching out.";
+  return "The content needed to do more than fill the feed. It had to create a clearer reason to enquire.";
+}
+
+function changedState(source: ProofSource) {
+  const text = proofText(source);
+  if (/views|followers/i.test(text)) return "The content created stronger visibility and gave the audience clearer reasons to pay attention.";
+  if (/\$|closed|revenue/i.test(text)) return "The proof points to warmer demand and a sales conversation that did not start from zero.";
+  if (/competitors|chosen/i.test(text)) return "The content made the choice easier by building trust before the prospect compared providers.";
+  if (/enquiry|referral|viewing|lead|call/i.test(text)) return "The prospect arrived with more context before the direct sales conversation.";
+  return "The positioning became easier for prospects to understand and act on.";
+}
+
+function softWin(source: ProofSource) {
+  const text = proofText(source);
+  if (/views|followers/i.test(text)) return "More recognition, clearer recall and a stronger reason for the right people to keep watching.";
+  if (/enquiry|referral|viewing|lead/i.test(text)) return "The conversation felt less cold because trust had already started forming.";
+  if (/competitors|chosen/i.test(text)) return "The client was not just another option in the market.";
+  if (/attractive character|topics|editing/i.test(text)) return "The content became less random and easier to believe in.";
+  return "The offer had more context before the sales ask.";
+}
+
+function proofAnglesFor(source: ProofSource) {
+  const text = proofText(source);
+  if (/\$|closed|revenue/i.test(text)) {
+    return ["The sale was not cold", "Trust came before payment", "Content did the pre-selling", "The call had less work to do", "Demand showed up before the pitch"];
   }
-
-  if (/\$30k|\$10k|closed/i.test(proofText)) {
-    const variants = [
-      ["$30K+ FROM ORGANIC LEADS", "$10K came in fast", "after the trust was built"],
-      ["THE SALE WAS NOT COLD", "$10K came from demand", "built before the call"],
-      ["CONTENT DID THE PRE-SELLING", "$30K+ from organic leads", "without cold chasing"],
-      ["TRUST CAME BEFORE PAYMENT", "$10K came in fast", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
+  if (/views|followers/i.test(text)) {
+    return ["Views only matter when they move buyers", "Attention came from sharper content", "The content had a job", "More posting was not the fix", "Recognition came before enquiry"];
   }
-
-  if (/1M views|1,000 followers|9 videos|5 hours/i.test(proofText)) {
-    const variants = [
-      ["1M VIEWS FROM 9 VIDEOS", "1,000 followers followed", "from a focused shoot"],
-      ["ATTENTION CAME FROM FOCUS", "9 videos did the work", ""],
-      ["THE CONTENT HAD A JOB", "1M views from one clear angle", ""],
-      ["MORE POSTING WAS NOT THE FIX", "focused content moved faster", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
+  if (/competitors|chosen/i.test(text)) {
+    return ["Trust beat the bigger name", "The content made him safer to pick", "Authority changed the comparison", "They knew why him", "The buyer had context before choosing"];
   }
-
-  if (/Chosen over more established competitors/i.test(proofText)) {
-    const variants = [
-      ["CHOSEN OVER BIGGER COMPETITORS", "because the content did the trust work", ""],
-      ["TRUST BEAT THE BIGGER NAME", "the buyer had context before choosing", ""],
-      ["THE CONTENT MADE HIM SAFER TO PICK", "before the sales conversation", ""],
-      ["AUTHORITY CHANGED THE COMPARISON", "not louder posting", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
+  if (/enquiry|referral|viewing|lead|call/i.test(text)) {
+    return ["The lead was already warm", "The enquiry came from trust", "The sales conversation started earlier", "The DM was not random", "The referral had context"];
   }
+  return ["The offer became easier to understand", "The brand felt less random", "The proof did the selling", "The buyer came in closer", "Specific content created better conversations"];
+}
 
-  if (/\$50k|bootcamp/i.test(proofText)) {
-    const variants = [
-      ["$50K+ BOOTCAMP REVENUE", "from clearer authority", "not louder posting"],
-      ["THE OFFER HAD MORE CONTEXT", "$50K+ bootcamp revenue", ""],
-      ["CLEARER POSITIONING SOLD BETTER", "not more noise", ""],
-      ["AUTHORITY MADE THE ASK EASIER", "$50K+ from the bootcamp", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
+function publicUseStatus(source: ProofSource) {
+  if (/pending|verify|needs|awaiting/i.test(source.status)) return "Not yet. Use as internal proof until wording, timeframe, consent and attribution are checked.";
+  if (source.treatment === "Screenshot proof") return "Yes, after blur and final approval.";
+  return "Yes, if anonymised and the claim is accurate.";
+}
 
-  if (/attractive character|content topics|video editing|attention|leads/i.test(proofText)) {
-    const variants = [
-      ["CLEARER CHARACTER", "clearer topics", "better lead quality"],
-      ["THE CONTENT GOT EASIER TO TRUST", "because the angle was clearer", ""],
-      ["BETTER TOPICS BROUGHT BETTER LEADS", "not just more attention", ""],
-      ["THE BRAND FELT LESS RANDOM", "the content had a sharper job", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
+function canvaNotes(source: ProofSource) {
+  if (source.treatment === "Screenshot proof") return "Use as screenshot proof. Paste the approved blurred screenshot into the centre frame.";
+  if (/pdf/i.test(source.fileType ?? "")) return "Use as analytics proof. Pull one clean metric and avoid showing internal analysis unless approved.";
+  return "Use as copy-only proof. Let the testimonial shape the headline and do not paste private transcript text into the ad.";
+}
 
-  if (/1M\+ monthly views|parent\/student trust/i.test(proofText)) {
-    const variants = [
-      ["1M+ MONTHLY VIEWS", "with more trust before enquiry", ""],
-      ["THE ENQUIRY CAME WITH CONTEXT", "parents had seen enough first", ""],
-      ["TRUST ARRIVED BEFORE THE DM", "not after the follow-up", ""],
-      ["VIEWS TURNED INTO WARMER ENQUIRIES", "because the content carried the trust", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
-
-  if (/combined TikTok\/Instagram|2,500 followers|enquiries/i.test(proofText)) {
-    const variants = [
-      ["NEARLY 1M COMBINED VIEWS", "and more enquiries", "from clearer positioning"],
-      ["THE ENQUIRIES CAME FROM RECOGNITION", "not random reach", ""],
-      ["2,500 FOLLOWERS FOLLOWED THE SIGNAL", "because the content had a sharper angle", ""],
-      ["MORE PEOPLE KNEW WHAT TO ASK ABOUT", "the content made the offer clearer", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
-
+function buildInventory(source: ProofSource): ProofInventory {
   return {
-    highlight: angle.toUpperCase(),
-    lineOne: "before the sales call",
-    lineTwo: "",
+    id: source.label,
+    client: proofSourceTitle(source),
+    role: clientRole(source),
+    sourceType: source.sourceType,
+    treatment: source.treatment,
+    startingProblem: startingProblem(source),
+    whatChanged: changedState(source),
+    concreteWin: strongestClaim(source),
+    softWin: softWin(source),
+    whatThisProves: source.proofMeaning || changedState(source),
+    bestAngles: proofAnglesFor(source),
+    risk: source.needsBlur || "Verify exact wording, timeframe, consent and attribution before using this in an ad.",
+    publicUse: publicUseStatus(source),
+    canvaNotes: source.visualUse ? `${canvaNotes(source)} ${source.visualUse}` : canvaNotes(source),
+    rawProof: source.extractedText || source.proof,
+    status: source.status,
   };
 }
 
-function proofSnippet(proof: string) {
-  return publicProofCopy(proof, 118)
-    .replace(/^Transcript:\s*/i, "")
-    .replace(/^Conversion:\s*/i, "")
-    .replace(/^Proof:\s*/i, "")
-    .replace(/^[A-Za-z][A-Za-z\s]+:\s*/, "")
-    .slice(0, 118);
-}
-
-function buildProofLines(design: AdRow) {
-  return [design["Proof Name"]];
-}
-
-function bottomClaim(proof: string, seed: number) {
-  const moneyLines = [
-    "Revenue is easier when trust exists first.",
-    "The sale had less distance to travel.",
-    "The offer landed better because the buyer had context.",
-  ];
-  const attentionLines = [
-    "Views only matter when they move buyers.",
-    "Reach is useful when it creates a reason to enquire.",
-    "Attention has to carry the sales conversation somewhere.",
-  ];
-  const conversationLines = [
-    "The sales conversation started before the call.",
-    "The buyer came in with more context.",
-    "The follow-up was not starting from zero.",
-  ];
-
-  if (/\$|closed|revenue/i.test(proof)) return pickVariant(moneyLines, seed);
-  if (/views|followers/i.test(proof)) return pickVariant(attentionLines, seed);
-  if (/viewing|referral|enquiry|lead|call/i.test(proof)) return pickVariant(conversationLines, seed);
-  return pickVariant(bottomLines, seed);
-}
-
-function buildRows({
-  audience,
-  mainPromise,
-  batchName,
-  selectedProofs,
-  baselineDesign,
-  variantSeed,
-}: {
-  audience: string;
-  mainPromise: string;
-  batchName: string;
-  selectedProofs: ProofSource[];
-  baselineDesign: string;
-  variantSeed: number;
-}): AdRow[] {
-  return Array.from({ length: 20 }, (_, index) => {
-    const variantIndex = index + variantSeed;
-    const proofSource = selectedProofs[variantIndex % selectedProofs.length] ?? proofSources[0];
-    const layout = proofLayouts[variantIndex % proofLayouts.length];
-    const id = `RE-${String(index + 1).padStart(2, "0")}`;
-    const proofText = proofSource?.proof ?? "Select a proof source.";
-    const hook = `Proof for ${audience.toLowerCase()}`;
-    const subhook = `Your content should make the sales call easier, not create more cold follow-up.`;
-    const cta = "Join the masterclass";
-    const topText = hook;
-    const sourceType = proofSource?.sourceType ?? "Transcript";
-    const proofTreatment = proofSource?.treatment ?? "Copy-only proof";
-    const proofLabel = proofSource?.client ?? "Unassigned";
-    const proofName = proofSourceTitle(proofSource);
-    const fittedProofText = publicProofCopy(proofSource?.publicClaim || proofText, 120);
-    const ideaSeed = variantSeed * 7 + index * 3;
-    const headline = buildProofHeadline(proofSource, ideaSeed);
-    const middleText = sourceType === "Conversion"
-      ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.displayProof || proofSource.client
-      : "Private transcript shaped the claim";
-    const centerMode = proofTreatment === "Screenshot proof" ? "Screenshot proof" : "Copy-only proof";
-    const bottomText = bottomClaim(middleText, ideaSeed);
-    const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
-    const visualDirection = `${baselineInstruction} Use the selected proof source as the evidence base. Transcript sources shape the headline/claim. Conversion screenshots go in the center frame. Do not use client photos or founder photos in this Canva draft.`;
-    const assetNeeded = proofTreatment === "Screenshot proof"
-      ? `Manual screenshot paste. ${proofSource.needsBlur || "Blur private details before publishing."}`
-      : "No image asset. Use anonymised copy-only proof shaped from the manual proof database.";
-
-    return {
-      "Ad ID": id,
-      "Campaign Name": `Masterclass - ${audience}`,
-      "Batch Name": batchName,
-      "Target Audience": audience,
-      "Angle Type": "Proof / Result",
-      "Proof Client": proofLabel,
-      "Proof Name": proofName,
-      "Proof Source Type": sourceType,
-      "Proof Treatment": proofTreatment,
-      "Proof File ID": proofSource?.fileId ?? "",
-      "Baseline Design": baselineDesign,
-      "Pain / Desire": fittedProofText,
-      "Core Message": mainPromise,
-      Hook: hook,
-      Subhook: subhook,
-      "Proof / Evidence": middleText,
-      CTA: cta,
-      "Visual Direction": proofSource.visualUse ? `${visualDirection} ${proofSource.visualUse}` : visualDirection,
-      "Asset Needed": assetNeeded,
-      "Asset Used": proofTreatment === "Screenshot proof" ? "Conversion screenshot" : "No image asset",
-      "Canva Layout Type": layout,
-      "Top Text": topText,
-      "Headline Highlight": headline.highlight,
-      "Headline Line One": headline.lineOne,
-      "Headline Line Two": headline.lineTwo,
-      "Middle Text": middleText,
-      "Center Mode": centerMode,
-      "Bottom Text": bottomText,
-      "Meta Primary Text": `${bottomText}\n\n${fittedProofText}\n\n${cta}. Results vary.`,
-      "Meta Headline": headline.highlight.length > 52 ? headline.highlight.slice(0, 49).trimEnd() + "..." : headline.highlight,
-      "Meta Description": `${offer} for ${audience}.`,
-      Hypothesis: `If ${audience.toLowerCase()} recognise this pain, this proof should create more qualified masterclass interest.`,
-      Status: !hasUsablePublicProof(proofSource) || /pending|verify|needs/i.test(proofSource?.status ?? "") ? "Verify proof" : "Ready for Canva",
-      Notes: `Canva page direction. Layout: ${layout}. Proof source: ${proofName}. ${proofSource.status}`,
-    };
-  });
-}
-
 export default function Home() {
-  const [audience, setAudience] = useState("Founders");
-  const [mainPromise, setMainPromise] = useState("Build a personal brand that attracts high-ticket clients without outsourcing your voice.");
-  const [selectedProofLabels, setSelectedProofLabels] = useState<string[]>(conversionSources.filter(hasUsablePublicProof).map((source) => source.label));
-  const [batchName, setBatchName] = useState("Masterclass Batch 01");
-  const [variantSeed, setVariantSeed] = useState(0);
+  const [activeSourceId, setActiveSourceId] = useState(proofSources[0]?.label ?? "");
+  const [sourceType, setSourceType] = useState("All");
+  const [search, setSearch] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofSourceName, setProofSourceName] = useState("");
   const [proofNotes, setProofNotes] = useState("");
@@ -449,37 +229,21 @@ export default function Home() {
   const [extractedProof, setExtractedProof] = useState<ExtractedProof | null>(null);
   const [extractError, setExtractError] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const selectedProofs = useMemo(
-    () => proofSources.filter((source) => selectedProofLabels.includes(source.label)),
-    [selectedProofLabels],
+  const inventory = useMemo(() => proofSources.map(buildInventory), []);
+  const filteredInventory = useMemo(
+    () => inventory.filter((item) => {
+      const matchesType = sourceType === "All" || item.sourceType === sourceType;
+      const haystack = `${item.client} ${item.role} ${item.concreteWin} ${item.whatThisProves} ${item.bestAngles.join(" ")}`.toLowerCase();
+      return matchesType && haystack.includes(search.toLowerCase());
+    }),
+    [inventory, search, sourceType],
   );
-
-  const designs = useMemo(
-    () => buildRows({ audience, mainPromise, selectedProofs, batchName, baselineDesign, variantSeed }),
-    [audience, mainPromise, selectedProofs, batchName, variantSeed],
-  );
-
-  const renderedPreviewUrl = useMemo(() => {
-    const selectedIndexes = proofSources
-      .map((source, index) => selectedProofLabels.includes(source.label) ? index : -1)
-      .filter((index) => index >= 0);
-    const params = new URLSearchParams({
-      audience,
-      promise: mainPromise,
-      batch: batchName,
-      seed: String(variantSeed),
-      proofs: selectedIndexes.join(","),
-    });
-    return `canva-preview/?${params.toString()}`;
-  }, [audience, batchName, mainPromise, selectedProofLabels, variantSeed]);
-
-  function toggleProof(label: string) {
-    setSelectedProofLabels((current) => current.includes(label) ? current.filter((item) => item !== label) : [...current, label]);
-  }
-
-  function generateProofPreviews() {
-    setVariantSeed((current) => current + 1 + Math.floor(Math.random() * 4));
-  }
+  const activeInventory = inventory.find((item) => item.id === activeSourceId) ?? filteredInventory[0] ?? inventory[0];
+  const sourceCounts = {
+    all: inventory.length,
+    transcript: inventory.filter((item) => item.sourceType === "Transcript").length,
+    conversion: inventory.filter((item) => item.sourceType === "Conversion").length,
+  };
 
   async function readProof() {
     setExtractError("");
@@ -524,48 +288,61 @@ export default function Home() {
           <span className="brand-mark">R/</span>
           <span>RADICAL EDGE</span>
         </a>
-        <span className="product-label">ADS BATCH CREATOR</span>
+        <span className="product-label">PROOF INVENTORY</span>
       </header>
 
       <section className="hero compact" id="top">
-        <p>Use this to create structured Meta static ad variations fast, then polish the winners manually in Canva.</p>
+        <p>Use this to turn testimonials, screenshots and proof notes into a clean inventory before writing ads.</p>
       </section>
 
-      <section className="batch-studio">
+      <section className="batch-studio inventory-studio">
         <aside className="brief-panel">
-          <div className="section-heading"><span>01</span><h2>Batch brief</h2></div>
+          <div className="section-heading"><span>01</span><h2>Proof sources</h2></div>
 
           <div className="fixed-offer">
             <span>Offer</span>
             <b>{offer}</b>
           </div>
 
-          <label htmlFor="audience">Audience</label>
-          <select id="audience" value={audience} onChange={(event) => setAudience(event.target.value)}>
-            {audiences.map((item) => <option key={item}>{item}</option>)}
+          <div className="inventory-stats">
+            <div><b>{sourceCounts.all}</b><span>Total sources</span></div>
+            <div><b>{sourceCounts.transcript}</b><span>Testimonials</span></div>
+            <div><b>{sourceCounts.conversion}</b><span>Conversion proof</span></div>
+          </div>
+
+          <label htmlFor="source-type">Source type</label>
+          <select id="source-type" value={sourceType} onChange={(event) => setSourceType(event.target.value)}>
+            {sourceTypes.map((type) => <option key={type}>{type}</option>)}
           </select>
 
-          <label htmlFor="batch">Batch name</label>
-          <input id="batch" value={batchName} onChange={(event) => setBatchName(event.target.value)} />
+          <label htmlFor="proof-search">Search proof</label>
+          <input
+            id="proof-search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search client, result, angle or proof meaning"
+          />
 
-          <label htmlFor="promise">Main promise</label>
-          <textarea id="promise" rows={4} value={mainPromise} onChange={(event) => setMainPromise(event.target.value)} />
-
-          <label>Proof sources to use</label>
+          <label>Proof library</label>
           {metadataDoc ? (
             <a className="metadata-link" href={metadataDoc.url} target="_blank" rel="noreferrer">
               Open proof metadata doc
             </a>
           ) : null}
-          <div className="testimonial-checklist">
-            {proofSources.map((source) => (
-              <label className="check-row proof-row" key={source.label}>
-                <input type="checkbox" checked={selectedProofLabels.includes(source.label)} onChange={() => toggleProof(source.label)} />
-                <span><b>{proofSourceTitle(source)}</b>{proofSourceDisplayText(source) ? <small>{proofSourceDisplayText(source)}</small> : null}</span>
-              </label>
+          <div className="proof-source-list">
+            {filteredInventory.map((item) => (
+              <button
+                className={item.id === activeInventory?.id ? "source-card active" : "source-card"}
+                key={item.id}
+                onClick={() => setActiveSourceId(item.id)}
+              >
+                <span>{item.sourceType}</span>
+                <b>{item.client}</b>
+                <small>{item.concreteWin}</small>
+              </button>
             ))}
           </div>
-          <span className="hint">Every generated ad is a proof ad and uses exactly one selected proof source. Keep only the transcripts or Conversion screenshots you want in this batch.</span>
+          <span className="hint">Select one source to see what it proves, what can be public, and what ad angles it can support.</span>
 
           <div className="proof-reader">
             <div className="reader-heading">
@@ -632,43 +409,73 @@ export default function Home() {
           </div>
 
           <div className="baseline-card">
-            <span>Baseline design</span>
-            <b>{baselineDesign}</b>
-            <p>Use this as the structure reference only. The generated ads are proof-first and do not depend on image assets.</p>
+            <span>Build order</span>
+            <b>Inventory first. Ads second.</b>
+            <p>Use this page to clean the proof before turning it into Canva ads.</p>
           </div>
 
         </aside>
 
-        <section className="design-panel">
-          <div className="section-heading light"><span>02</span><h2>Proof preview set</h2><small>{designs.length} designs</small></div>
-          <div className="actions-bar">
-            <button className="generate" onClick={generateProofPreviews}>Generate proof previews <span>→</span></button>
-            <a className="secondary-action link-action" href={renderedPreviewUrl} target="_blank" rel="noreferrer">Open generated proof cards</a>
-          </div>
+        <section className="design-panel inventory-panel">
+          <div className="section-heading light"><span>02</span><h2>Proof inventory</h2><small>{activeInventory?.sourceType}</small></div>
 
-          <div className="design-grid">
-            {designs.map((design, index) => {
-              return (
-              <article className={`design-card design-${(index % 5) + 1}`} key={design["Ad ID"]}>
-                <div className="mock-static-ad">
-                  <div className="sample-noise" />
-                  <h3>
-                    <span>{design["Headline Highlight"]}</span>
-                    {design["Headline Line One"]}
-                    <em>{design["Headline Line Two"]}</em>
-                  </h3>
-                  <div className={`proof-slot ${design["Center Mode"] === "Screenshot proof" ? "conversion-shot" : "transcript-signal"}`}>
-                    {buildProofLines(design).map((line) => <span className="proof-line" key={line}>{line}</span>)}
-                  </div>
-                  <div className="sample-bottom">
-                    <p>{design["Bottom Text"]}</p>
-                    <i />
-                    <strong>Learn how this happened inside the one-day masterclass</strong>
+          {activeInventory ? (
+            <article className="inventory-detail">
+              <div className="inventory-hero-card">
+                <span>{activeInventory.role}</span>
+                <h1>{activeInventory.client}</h1>
+                <p>{activeInventory.concreteWin}</p>
+              </div>
+
+              <div className="inventory-grid">
+                <div className="inventory-box">
+                  <span>Starting problem</span>
+                  <p>{activeInventory.startingProblem}</p>
+                </div>
+                <div className="inventory-box">
+                  <span>What changed</span>
+                  <p>{activeInventory.whatChanged}</p>
+                </div>
+                <div className="inventory-box">
+                  <span>Soft win</span>
+                  <p>{activeInventory.softWin}</p>
+                </div>
+                <div className="inventory-box">
+                  <span>What this proves</span>
+                  <p>{activeInventory.whatThisProves}</p>
+                </div>
+              </div>
+
+              <div className="angle-board">
+                <div className="inventory-box wide">
+                  <span>Best ad angles</span>
+                  <div className="angle-list">
+                    {activeInventory.bestAngles.map((angle) => <b key={angle}>{angle}</b>)}
                   </div>
                 </div>
-              </article>
-            );})}
-          </div>
+                <div className="inventory-box">
+                  <span>Can this be public?</span>
+                  <p>{activeInventory.publicUse}</p>
+                </div>
+                <div className="inventory-box">
+                  <span>Risk / verification</span>
+                  <p>{activeInventory.risk}</p>
+                </div>
+                <div className="inventory-box wide">
+                  <span>Canva notes</span>
+                  <p>{activeInventory.canvaNotes}</p>
+                </div>
+              </div>
+
+              <details className="raw-proof">
+                <summary>Raw proof / source notes</summary>
+                <p>{activeInventory.rawProof}</p>
+                <small>{activeInventory.status}</small>
+              </details>
+            </article>
+          ) : (
+            <div className="empty-state">No proof source selected.</div>
+          )}
         </section>
       </section>
 

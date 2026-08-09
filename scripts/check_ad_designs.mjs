@@ -80,17 +80,17 @@ const appPageSource = readFileSync(new URL("../app/page.tsx", import.meta.url), 
 const canvaPreviewSource = readFileSync(new URL("../app/canva-preview/page.tsx", import.meta.url), "utf8");
 const layoutSource = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
 const globalsSource = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-assert.ok(canvaImportSource.includes("mock-static-ad"), "Canva import must use the same static ad card structure as the website preview.");
-assert.ok(canvaImportSource.includes("sample-noise-img"), "Canva import must use a real image layer for the background.");
-assert.ok(canvaImportSource.includes("proof-slot"), "Canva import must use the same proof slot structure as the website preview.");
-assert.ok(canvaImportSource.includes("sample-bottom"), "Canva import must use the same bottom copy structure as the website preview.");
-assert.ok(!canvaImportSource.includes("class=\"card\""), "Canva import must not use the old separate card renderer.");
-assert.ok(!canvaImportSource.includes("class=\"headline"), "Canva import must not use the old separate headline renderer.");
-assert.ok(!canvaImportSource.includes("class=\"proof "), "Canva import must not use the old separate proof renderer.");
+assert.ok(canvaImportSource.includes("mock-static-ad"), "Legacy Canva export script should stay intact while the main app becomes an inventory tool.");
 assert.ok(!/https:\/\/www\.canva\.com\/d\//.test(appPageSource), "App page must not hardcode a Canva design URL.");
-assert.ok(appPageSource.includes("Open generated proof cards"), "App page must open the generated proof-card URL.");
-assert.ok(appPageSource.includes("return `canva-preview/?${params.toString()}`"), "Generated proof-card link must be relative so GitHub Pages keeps the repo base path.");
-assert.ok(!appPageSource.includes("return `/canva-preview/?${params.toString()}`"), "Generated proof-card link must not point to root /canva-preview on GitHub Pages.");
+assert.ok(appPageSource.includes("Proof inventory"), "App page must be rewritten around proof inventory.");
+assert.ok(appPageSource.includes("Starting problem"), "Inventory must show the starting problem.");
+assert.ok(appPageSource.includes("What changed"), "Inventory must show what changed.");
+assert.ok(appPageSource.includes("What this proves"), "Inventory must show what the proof proves.");
+assert.ok(appPageSource.includes("Best ad angles"), "Inventory must show ad angles for later copywriting.");
+assert.ok(appPageSource.includes("Risk / verification"), "Inventory must show risk and verification notes.");
+assert.ok(appPageSource.includes("Can this be public?"), "Inventory must show public-use status.");
+assert.ok(!appPageSource.includes("Open generated proof cards"), "Main app must not send the user to generated proof-card previews.");
+assert.ok(!appPageSource.includes("Generate proof previews"), "Main app must not behave like an ad preview generator.");
 assert.ok(canvaPreviewSource.includes("StaticCanvaFallback"), "Canva preview must render static fallback cards for URL import.");
 assert.ok(canvaPreviewSource.includes("rendered-noise-img"), "Canva preview must use a real image layer for the background.");
 assert.ok(!canvaPreviewSource.includes("Loading rendered cards"), "Canva preview must not export a loading-only shell.");
@@ -141,4 +141,4 @@ assert.deepEqual(
   `Design QA failed:\n${failed.map((check) => `${check.id}: ${check.issues.join(", ")}`).join("\n")}`,
 );
 
-console.log("Ad design QA passed: 20/20 designs use one proof source each, Conversion screenshots use screenshot slots, CTA/disclaimer are present, and Sample 1 remains the baseline.");
+console.log("Proof inventory QA passed: library sources have claims/status, the main app exposes proof inventory fields, and the legacy Canva preview is no longer the primary workflow.");
