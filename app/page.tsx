@@ -266,6 +266,21 @@ function buildProofHeadline(source: ProofSource, seed: number) {
     };
   }
 
+  if (/S\$5K|S\$9\.5K|two-hour class/i.test(proofText)) {
+    const variants = [
+      ["ABOUT S$9.5K FROM A 2-HOUR CLASS", "after about S$5K net", "from the previous class"],
+      ["THE NEXT CLASS BROUGHT ABOUT S$9.5K", "the previous one netted about S$5K", ""],
+      ["ABOUT S$5K NET. THEN ABOUT S$9.5K.", "from two-hour classes", ""],
+      ["TRUST CAME BEFORE THE CLASS", "about S$9.5K from two hours", ""],
+    ];
+    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
+    return {
+      highlight,
+      lineOne,
+      lineTwo,
+    };
+  }
+
   if (/attractive character|content topics|video editing|attention|leads/i.test(proofText)) {
     const variants = [
       ["CLEARER CHARACTER", "clearer topics", "better lead quality"],

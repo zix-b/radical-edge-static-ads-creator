@@ -323,6 +323,17 @@
       ]
     },
     {
+      "name": "Xuan Kai",
+      "role": "Financial educator",
+      "status": "Approved for public website use",
+      "proofSummary": "About S$5K net from one two-hour class, followed by about S$9.5K from the next.",
+      "suggestedFormat": "Result + proof stack",
+      "tags": [
+        "revenue",
+        "education"
+      ]
+    },
+    {
       "name": "Custom proof",
       "role": "Manual entry",
       "status": "Use when proof is not in the library yet",
