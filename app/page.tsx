@@ -115,37 +115,37 @@ const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "des
 const baselineDesign = baselineAsset ? `${baselineAsset.title} (${baselineAsset.type})` : "Sample 1 (design sample)";
 const proofLayouts = ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"];
 const headlineFrames = [
-  "THE PROOF DID THE SELLING",
-  "TRUST CAME BEFORE THE PITCH",
-  "THE BUYER DIDN'T START COLD",
-  "CONTENT SHORTENED THE SALES CALL",
-  "DEMAND STARTED BEFORE THE DM",
-  "THE AUDIENCE ALREADY HAD CONTEXT",
-  "THE SALE STARTED WITH THE CONTENT",
-  "RECOGNITION CAME BEFORE REVENUE",
-  "THE OFFER LANDED WITH LESS EXPLAINING",
-  "CONTENT MADE THE NEXT STEP EASIER",
-  "THE PROSPECT MOVED CLOSER FIRST",
-  "AUTHORITY CHANGED THE CONVERSATION",
-  "THE FOLLOW-UP DIDN'T START FROM ZERO",
-  "THE CONTENT CARRIED THE TRUST",
-  "BUYING CONTEXT CAME BEFORE THE CALL",
-  "THE RIGHT PEOPLE WERE ALREADY WARM",
-  "PROOF TURNED ATTENTION INTO ACTION",
-  "THE BRAND GAVE BUYERS A REASON",
-  "THE SALES CONVERSATION STARTED EARLY",
-  "CONTENT CREATED THE COMMERCIAL SIGNAL",
+  "A CLIENT REPORTED THIS RESULT",
+  "THE CLIENT LINKED THIS RESULT TO CONTENT",
+  "PROSPECTS SAW THE CONTENT BEFORE THEY CALLED",
+  "THE CLIENT BUILT BUYER TRUST THROUGH CONTENT",
+  "BUYERS ARRIVED WITH MORE CONTEXT",
+  "THE CLIENT GAVE PROSPECTS A REASON TO ENQUIRE",
+  "PROSPECTS UNDERSTOOD THE OFFER BEFORE THE CALL",
+  "THE CLIENT BUILT RECOGNITION AROUND ONE OFFER",
+  "THE CLIENT ANSWERED BUYER QUESTIONS THROUGH CONTENT",
+  "PROSPECTS KNEW WHAT THE CLIENT STOOD FOR",
+  "THE CLIENT SHOWED BUYERS HOW THE WORK GETS DONE",
+  "BUYERS SAW THE CLIENT'S POINT OF VIEW FIRST",
+  "THE CLIENT USED PROOF TO SUPPORT THE CLAIM",
+  "PROSPECTS REACHED OUT AFTER SEEING THE CONTENT",
+  "THE CLIENT MADE THE OFFER EASIER TO ASSESS",
+  "BUYERS ENTERED THE CONVERSATION INFORMED",
+  "THE CLIENT BUILT FAMILIARITY BEFORE FOLLOW-UP",
+  "PROSPECTS CONNECTED THE CLIENT TO THE RESULT",
+  "THE CLIENT GAVE BUYERS EVIDENCE BEFORE THE ASK",
+  "BUYERS RECOGNISED THE OFFER BEFORE THEY ENQUIRED",
 ];
 
 const bottomLines = [
-  "Make your content do more work before the sales call.",
-  "The sales call gets easier when trust is built first.",
-  "Good content gives buyers a reason to move closer.",
-  "The goal is not more content. It is better pre-selling.",
-  "Cold follow-up gets lighter when the buyer already has context.",
-  "The right content makes the offer easier to understand.",
-  "Attention is useful only when it moves someone toward a decision.",
-  "Proof gives the sales conversation a shorter distance to travel.",
+  "Use content to answer buyer questions before the call.",
+  "Show buyers how you think before you ask them to book.",
+  "Give prospects enough context to assess the offer.",
+  "Build recognition around one clear offer.",
+  "Let prospects see your point of view before follow-up.",
+  "Use proof to make the offer easier to assess.",
+  "Turn each post into evidence of how you work.",
+  "Help buyers understand the offer before they enquire.",
 ];
 const hiddenPublicNames = [
   ...proofDatabase.clients.filter((client) => client.name !== "Custom proof").map((client) => client.name),
@@ -276,19 +276,19 @@ function buildProofLines(design: AdRow) {
 
 function bottomClaim(proof: string, seed: number) {
   const moneyLines = [
-    "Revenue is easier when trust exists first.",
-    "The sale had less distance to travel.",
-    "The offer landed better because the buyer had context.",
+    "Pair the result with its timeframe and context.",
+    "Show buyers the work behind the result.",
+    "Let prospects inspect the result before they book.",
   ];
   const attentionLines = [
-    "Views only matter when they move buyers.",
-    "Reach is useful when it creates a reason to enquire.",
-    "Attention has to carry the sales conversation somewhere.",
+    "Connect the reach to the enquiries it produced.",
+    "Show the content format behind the views.",
+    "Give buyers a reason to remember the offer.",
   ];
   const conversationLines = [
-    "The sales conversation started before the call.",
-    "The buyer came in with more context.",
-    "The follow-up was not starting from zero.",
+    "Answer buyer questions before the call.",
+    "Use content to prepare prospects for the conversation.",
+    "Show prospects what to expect before they enquire.",
   ];
 
   if (/\$|closed|revenue/i.test(proof)) return pickVariant(moneyLines, seed);

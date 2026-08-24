@@ -39,26 +39,26 @@ type PreviewAd = {
 const offer = "One-day Radical Edge masterclass";
 const proofLayouts = ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"];
 const headlineFrames = [
-  "THE PROOF DID THE SELLING",
-  "TRUST CAME BEFORE THE PITCH",
-  "THE BUYER DIDN'T START COLD",
-  "CONTENT SHORTENED THE SALES CALL",
-  "DEMAND STARTED BEFORE THE DM",
-  "THE AUDIENCE ALREADY HAD CONTEXT",
-  "THE SALE STARTED WITH THE CONTENT",
-  "RECOGNITION CAME BEFORE REVENUE",
-  "THE OFFER LANDED WITH LESS EXPLAINING",
-  "CONTENT MADE THE NEXT STEP EASIER",
-  "THE PROSPECT MOVED CLOSER FIRST",
-  "AUTHORITY CHANGED THE CONVERSATION",
-  "THE FOLLOW-UP DIDN'T START FROM ZERO",
-  "THE CONTENT CARRIED THE TRUST",
-  "BUYING CONTEXT CAME BEFORE THE CALL",
-  "THE RIGHT PEOPLE WERE ALREADY WARM",
-  "PROOF TURNED ATTENTION INTO ACTION",
-  "THE BRAND GAVE BUYERS A REASON",
-  "THE SALES CONVERSATION STARTED EARLY",
-  "CONTENT CREATED THE COMMERCIAL SIGNAL",
+  "A CLIENT REPORTED THIS RESULT",
+  "THE CLIENT LINKED THIS RESULT TO CONTENT",
+  "PROSPECTS SAW THE CONTENT BEFORE THEY CALLED",
+  "THE CLIENT BUILT BUYER TRUST THROUGH CONTENT",
+  "BUYERS ARRIVED WITH MORE CONTEXT",
+  "THE CLIENT GAVE PROSPECTS A REASON TO ENQUIRE",
+  "PROSPECTS UNDERSTOOD THE OFFER BEFORE THE CALL",
+  "THE CLIENT BUILT RECOGNITION AROUND ONE OFFER",
+  "THE CLIENT ANSWERED BUYER QUESTIONS THROUGH CONTENT",
+  "PROSPECTS KNEW WHAT THE CLIENT STOOD FOR",
+  "THE CLIENT SHOWED BUYERS HOW THE WORK GETS DONE",
+  "BUYERS SAW THE CLIENT'S POINT OF VIEW FIRST",
+  "THE CLIENT USED PROOF TO SUPPORT THE CLAIM",
+  "PROSPECTS REACHED OUT AFTER SEEING THE CONTENT",
+  "THE CLIENT MADE THE OFFER EASIER TO ASSESS",
+  "BUYERS ENTERED THE CONVERSATION INFORMED",
+  "THE CLIENT BUILT FAMILIARITY BEFORE FOLLOW-UP",
+  "PROSPECTS CONNECTED THE CLIENT TO THE RESULT",
+  "THE CLIENT GAVE BUYERS EVIDENCE BEFORE THE ASK",
+  "BUYERS RECOGNISED THE OFFER BEFORE THEY ENQUIRED",
 ];
 const hiddenPublicNames = [
   ...proofDatabase.clients.filter((client) => client.name !== "Custom proof").map((client) => client.name),
@@ -194,10 +194,10 @@ function buildHeadline(source: ProofSource, seed: number) {
 }
 
 function bottomClaim(proof: string) {
-  if (/\$|closed|revenue/i.test(proof)) return "Revenue is easier when trust exists first.";
-  if (/views|followers/i.test(proof)) return "Views only matter when they move buyers.";
-  if (/viewing|referral|enquiry|lead|call/i.test(proof)) return "The sales conversation started before the call.";
-  return "Good content gives buyers a reason to come closer.";
+  if (/\$|closed|revenue/i.test(proof)) return "Pair the result with its timeframe and context.";
+  if (/views|followers/i.test(proof)) return "Show the content format behind the views.";
+  if (/viewing|referral|enquiry|lead|call/i.test(proof)) return "Answer buyer questions before the call.";
+  return "Help buyers understand the offer before they enquire.";
 }
 
 function parseIndexes(value: string | null) {
