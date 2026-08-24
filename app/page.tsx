@@ -114,17 +114,27 @@ const proofSources = [...testimonialSources, ...conversionSources];
 const baselineAsset = proofDatabase.assetFiles.find((file) => file.type === "design sample");
 const baselineDesign = baselineAsset ? `${baselineAsset.title} (${baselineAsset.type})` : "Sample 1 (design sample)";
 const proofLayouts = ["Result + Proof Stack", "Message Screenshot", "Quote Card", "Analytics Spotlight", "Before / After"];
-const proofAngles = [
-  "The sale was not cold",
-  "The buyer was already warm",
-  "Trust came before payment",
-  "Content did the pre-selling",
-  "The call started earlier",
-  "They had context already",
-  "More posting was not the fix",
-  "The proof did the selling",
-  "Demand started before WhatsApp",
-  "The buyer came in closer",
+const headlineFrames = [
+  "THE PROOF DID THE SELLING",
+  "TRUST CAME BEFORE THE PITCH",
+  "THE BUYER DIDN'T START COLD",
+  "CONTENT SHORTENED THE SALES CALL",
+  "DEMAND STARTED BEFORE THE DM",
+  "THE AUDIENCE ALREADY HAD CONTEXT",
+  "THE SALE STARTED WITH THE CONTENT",
+  "RECOGNITION CAME BEFORE REVENUE",
+  "THE OFFER LANDED WITH LESS EXPLAINING",
+  "CONTENT MADE THE NEXT STEP EASIER",
+  "THE PROSPECT MOVED CLOSER FIRST",
+  "AUTHORITY CHANGED THE CONVERSATION",
+  "THE FOLLOW-UP DIDN'T START FROM ZERO",
+  "THE CONTENT CARRIED THE TRUST",
+  "BUYING CONTEXT CAME BEFORE THE CALL",
+  "THE RIGHT PEOPLE WERE ALREADY WARM",
+  "PROOF TURNED ATTENTION INTO ACTION",
+  "THE BRAND GAVE BUYERS A REASON",
+  "THE SALES CONVERSATION STARTED EARLY",
+  "CONTENT CREATED THE COMMERCIAL SIGNAL",
 ];
 
 const bottomLines = [
@@ -194,77 +204,6 @@ function pickVariant(items: string[], seed: number) {
 
 function buildProofHeadline(source: ProofSource, seed: number) {
   const proofText = proofSnippet(source.proof);
-  const angle = pickVariant(proofAngles, seed);
-
-  if (source.sourceType === "Conversion") {
-    const label = conversionHeadlineLabel(source);
-    const useDirectClaim = seed % 3 === 0;
-    return {
-      highlight: useDirectClaim ? label : angle.toUpperCase(),
-      lineOne: useDirectClaim ? pickVariant(proofAngles, seed + 1).toLowerCase() : label.toLowerCase(),
-      lineTwo: "",
-    };
-  }
-
-  if (/\$30k|\$10k|closed/i.test(proofText)) {
-    const variants = [
-      ["$30K+ FROM ORGANIC LEADS", "$10K came in fast", "after the trust was built"],
-      ["THE SALE WAS NOT COLD", "$10K came from demand", "built before the call"],
-      ["CONTENT DID THE PRE-SELLING", "$30K+ from organic leads", "without cold chasing"],
-      ["TRUST CAME BEFORE PAYMENT", "$10K came in fast", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
-
-  if (/1M views|1,000 followers|9 videos|5 hours/i.test(proofText)) {
-    const variants = [
-      ["1M VIEWS FROM 9 VIDEOS", "1,000 followers followed", "from a focused shoot"],
-      ["ATTENTION CAME FROM FOCUS", "9 videos did the work", ""],
-      ["THE CONTENT HAD A JOB", "1M views from one clear angle", ""],
-      ["MORE POSTING WAS NOT THE FIX", "focused content moved faster", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
-
-  if (/Chosen over more established competitors/i.test(proofText)) {
-    const variants = [
-      ["CHOSEN OVER BIGGER COMPETITORS", "because the content did the trust work", ""],
-      ["TRUST BEAT THE BIGGER NAME", "the buyer had context before choosing", ""],
-      ["THE CONTENT MADE HIM SAFER TO PICK", "before the sales conversation", ""],
-      ["AUTHORITY CHANGED THE COMPARISON", "not louder posting", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
-
-  if (/\$50k|bootcamp/i.test(proofText)) {
-    const variants = [
-      ["$50K+ BOOTCAMP REVENUE", "from clearer authority", "not louder posting"],
-      ["THE OFFER HAD MORE CONTEXT", "$50K+ bootcamp revenue", ""],
-      ["CLEARER POSITIONING SOLD BETTER", "not more noise", ""],
-      ["AUTHORITY MADE THE ASK EASIER", "$50K+ from the bootcamp", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
 
   if (/S\$5K|S\$9\.5K|two-hour class/i.test(proofText)) {
     const variants = [
@@ -297,54 +236,27 @@ function buildProofHeadline(source: ProofSource, seed: number) {
     };
   }
 
-  if (/attractive character|content topics|video editing|attention|leads/i.test(proofText)) {
-    const variants = [
-      ["CLEARER CHARACTER", "clearer topics", "better lead quality"],
-      ["THE CONTENT GOT EASIER TO TRUST", "because the angle was clearer", ""],
-      ["BETTER TOPICS BROUGHT BETTER LEADS", "not just more attention", ""],
-      ["THE BRAND FELT LESS RANDOM", "the content had a sharper job", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
-
-  if (/1M\+ monthly views|parent\/student trust/i.test(proofText)) {
-    const variants = [
-      ["1M+ MONTHLY VIEWS", "with more trust before enquiry", ""],
-      ["THE ENQUIRY CAME WITH CONTEXT", "parents had seen enough first", ""],
-      ["TRUST ARRIVED BEFORE THE DM", "not after the follow-up", ""],
-      ["VIEWS TURNED INTO WARMER ENQUIRIES", "because the content carried the trust", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
-
-  if (/combined TikTok\/Instagram|2,500 followers|enquiries/i.test(proofText)) {
-    const variants = [
-      ["NEARLY 1M COMBINED VIEWS", "and more enquiries", "from clearer positioning"],
-      ["THE ENQUIRIES CAME FROM RECOGNITION", "not random reach", ""],
-      ["2,500 FOLLOWERS FOLLOWED THE SIGNAL", "because the content had a sharper angle", ""],
-      ["MORE PEOPLE KNEW WHAT TO ASK ABOUT", "the content made the offer clearer", ""],
-    ];
-    const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
-    return {
-      highlight,
-      lineOne,
-      lineTwo,
-    };
-  }
+  const claimLines = source.sourceType === "Conversion"
+    ? [conversionHeadlineLabel(source).toLowerCase()]
+    : /\$30k|\$10k|closed/i.test(proofText)
+      ? ["$30K+ from organic leads", "$10K came in fast", "organic demand created the sales window", "the close came after trust was built"]
+      : /1M views|1,000 followers|9 videos|5 hours/i.test(proofText)
+        ? ["1M views from 9 videos", "1,000 followers from focused content", "five hours of shooting created the assets", "a tighter content angle moved faster"]
+        : /Chosen over more established competitors/i.test(proofText)
+          ? ["chosen over more established competitors", "the content changed the comparison", "the buyer knew why to choose him", "authority beat the bigger name"]
+          : /\$50k|bootcamp/i.test(proofText)
+            ? ["$50K+ in bootcamp revenue", "clearer authority supported the offer", "the bootcamp sold with more context", "recognition made the ask easier"]
+            : /attractive character|content topics|video editing|attention|leads/i.test(proofText)
+              ? ["clearer character, topics and editing", "a sharper angle created better leads", "the brand stopped feeling random", "the content became easier to trust"]
+              : /1M\+ monthly views|parent\/student trust/i.test(proofText)
+                ? ["1M+ monthly views", "more parent and student trust", "recognition arrived before enquiry", "views supported warmer enquiries"]
+                : /combined TikTok\/Instagram|2,500 followers|enquiries/i.test(proofText)
+                  ? ["close to 1M combined views", "around 2,500 followers", "recognition created more enquiries", "the centre became easier to remember"]
+                  : [publicProofCopy(proofText, 74).toLowerCase()];
 
   return {
-    highlight: angle.toUpperCase(),
-    lineOne: "before the sales call",
+    highlight: pickVariant(headlineFrames, seed),
+    lineOne: pickVariant(claimLines, Math.floor(Math.abs(seed) / headlineFrames.length) + seed),
     lineTwo: "",
   };
 }
