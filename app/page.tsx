@@ -331,7 +331,7 @@ function buildRows({
     const headline = buildProofHeadline(proofSource, ideaSeed);
     const middleText = sourceType === "Conversion"
       ? proofSource.publicClaim || proofSource.proofMeaning || proofSource.displayProof || proofSource.client
-      : "Private transcript shaped the claim";
+      : fittedProofText;
     const centerMode = proofTreatment === "Screenshot proof" ? "Screenshot proof" : "Copy-only proof";
     const bottomText = bottomClaim(middleText, ideaSeed);
     const baselineInstruction = `Use ${baselineDesign} as the structure reference: large headline, strong proof middle, clear interpretation, Radical Edge footer and CTA band.`;
