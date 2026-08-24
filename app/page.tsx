@@ -272,6 +272,22 @@ function buildProofHeadline(source: ProofSource, seed: number) {
       ["THE NEXT CLASS BROUGHT ABOUT S$9.5K", "the previous one netted about S$5K", ""],
       ["ABOUT S$5K NET. THEN ABOUT S$9.5K.", "from two-hour classes", ""],
       ["TRUST CAME BEFORE THE CLASS", "about S$9.5K from two hours", ""],
+      ["SOLD OUT BEFORE THE YOUTUBE POST", "Instagram brought the signups", ""],
+      ["INSTAGRAM FILLED THE CLASS", "before YouTube heard about it", ""],
+      ["3 YEARS OF CONTENT STARTED PAYING BACK", "about S$9.5K from the next class", ""],
+      ["THE CONTENT ATM FINALLY PAID OUT", "about S$5K net, then about S$9.5K", ""],
+      ["HE DOUBLED THE PRICE", "and the next class still sold out", ""],
+      ["FROM S$5K NET TO ABOUT S$9.5K", "with the same two-hour class format", ""],
+      ["THE CLASS SOLD BEFORE THE BIG ANNOUNCEMENT", "Instagram had already done the work", ""],
+      ["NO YOUTUBE ANNOUNCEMENT NEEDED", "the class was already sold out", ""],
+      ["YEARS OF CONTENT. ONE SOLD-OUT CLASS.", "Instagram turned attention into seats", ""],
+      ["THE AUDIENCE WAS READY TO BUY", "before the class reached YouTube", ""],
+      ["ABOUT S$9.5K. TWO HOURS.", "the demand was built before launch day", ""],
+      ["THE SECOND CLASS NEARLY DOUBLED THE RETURN", "about S$5K net became about S$9.5K", ""],
+      ["HIGHER PRICE. SOLD-OUT CLASS.", "the audience already trusted the educator", ""],
+      ["CONTENT TURNED INTO PAID SEATS", "not another spike in views", ""],
+      ["THE SALE STARTED YEARS BEFORE THE CLASS", "each post built the buying context", ""],
+      ["INSTAGRAM DID MORE THAN BUILD AN AUDIENCE", "it filled a higher-priced class", ""],
     ];
     const [highlight, lineOne, lineTwo] = variants[Math.abs(seed) % variants.length];
     return {
